@@ -11,17 +11,21 @@ These instructions apply to this repository unless the user explicitly overrides
 ## Writing style
 
 - Use an educative tone: clear, direct, and example-driven.
-- Avoid unnecessary jargon and avoid "insider" shorthand.
+- Avoid unnecessary jargon and "insider" shorthand.
 - Keep sections focused on one outcome.
+- Do not use em dashes. Use commas, periods, colons, or parentheses instead.
+- When introducing Daml concepts, build incrementally. Introduce one idea at a time before showing the full code block.
 
 ## Content structure
 
-- Keep `Getting Started` focused on environment setup only:
-  - prerequisites
-  - installing `dpm`
-  - PATH setup
-  - version checks and core commands
-- Put contract authoring in separate pages (for example, "Creating your first Daml smart contract").
+- Keep `Getting Started` (index.mdx) focused on environment setup only: prerequisites, installing `dpm`, PATH setup, version checks and core commands.
+- Put contract authoring and testing in separate pages from Getting Started.
+- When a doc page shows code in pieces, also include a single complete copyable block at the end.
+
+## Code examples
+
+- Every code snippet shown in docs must have a matching, compilable Daml project under `examples/`.
+- Run `daml build && daml test` in the relevant `examples/` subdirectory to verify correctness before finalizing docs changes.
 
 ## Tooling language policy
 
@@ -35,6 +39,11 @@ These instructions apply to this repository unless the user explicitly overrides
 - Avoid diagrams that only restate simple sequential steps already obvious from headings.
 - Prefer diagrams for state transitions, authorization flow, and multi-party interactions.
 
+## Daml syntax highlighting
+
+- Daml syntax highlighting is configured in `source.config.ts` using the grammar from `external/daml/sdk/compiler/daml-extension/syntaxes/daml.json`.
+- Use the `daml` language tag in fenced code blocks.
+
 ## Runtime workflow constraints
 
 - If the user says they are actively running `npm run dev`, do not run build/dev commands unless asked.
@@ -43,4 +52,4 @@ These instructions apply to this repository unless the user explicitly overrides
 ## Project-specific notes
 
 - Keep site branding as `DAML Guide`.
-- If external Canton docs are needed, read from `/Users/crisog/Code/Canton/Docs`.
+- If external Canton/SDK docs are needed for reference, read from `external/daml/sdk/docs/`.

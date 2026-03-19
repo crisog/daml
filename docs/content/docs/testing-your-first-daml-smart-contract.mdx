@@ -1,0 +1,327 @@
+---
+title: Testing your first Daml smart contract
+description: Write Daml Script tests for the PaymentObligation contract.
+icon: FlaskConical
+---
+
+In the [previous page](/docs/creating-your-first-daml-smart-contract), you built a `PaymentObligation` contract. Now you will write tests that verify it behaves correctly, including cases where it should reject invalid operations.
+
+## What you will learn
+
+- How Daml Script simulates a ledger for testing
+- Creating contracts and exercising choices in tests
+- Querying the ledger to verify state
+- Adding contract validation with `ensure`
+- Testing that invalid operations fail with `submitMustFail`
+
+## What is Daml Script?
+
+Daml Script is a testing framework built into Daml. It gives you an **in-memory ledger** that behaves exactly like a real one. No mocks, no stubs.
+
+If you have used unit tests in Go, Python, or JavaScript, the concept is the same: you set up state, perform actions, and assert outcomes. The difference is that instead of mocking a database, Daml Script gives you a real ledger simulation.
+
+## Add the imports
+
+To use Daml Script and assertions, add two imports at the top of your `daml/Main.daml`, right after the module declaration:
+
+```daml
+module Main where
+
+import DA.Assert
+import Daml.Script
+```
+
+- `DA.Assert` provides assertion helpers like `assertEq`
+- `Daml.Script` provides the testing framework: `script`, `allocateParty`, `submit`, `query`, and more
+
+## Script basics
+
+Before writing tests, let's understand the building blocks:
+
+```daml
+test : Script ()
+test = script do
+  alice <- allocateParty "Alice"
+  ...
+```
+
+| Syntax              | Meaning                                                                                                         |
+| ------------------- | --------------------------------------------------------------------------------------------------------------- |
+| `Script ()`         | The type of a test: a recipe that runs against a ledger and returns nothing                                     |
+| `script do`         | Introduces a block of ledger actions                                                                            |
+| `allocateParty`     | Creates a test party on the simulated ledger                                                                    |
+| `<-`                | Runs an action and binds the result to a variable, similar to `await` in JavaScript or `:=` in Go               |
+
+## The happy-path test
+
+Add the following test below the template in `daml/Main.daml`:
+
+```daml
+test : Script ()
+test = script do
+  alice <- allocateParty "Alice"
+  bob <- allocateParty "Bob"
+
+  obligationCid <- submit (actAs [alice, bob]) do
+    createCmd PaymentObligation
+      with
+        debtor = alice
+        creditor = bob
+        amount = 100.0
+
+  obligationsBeforePay <- query @PaymentObligation alice
+  assertEq 1 (length obligationsBeforePay)
+
+  submit alice do
+    exerciseCmd obligationCid Pay
+
+  obligationsAfterPay <- query @PaymentObligation alice
+  assertEq 0 (length obligationsAfterPay)
+```
+
+Let's walk through each step:
+
+### Allocate parties
+
+```daml
+  alice <- allocateParty "Alice"
+  bob <- allocateParty "Bob"
+```
+
+Creates two test identities on the simulated ledger.
+
+### Create the contract
+
+```daml
+  obligationCid <- submit (actAs [alice, bob]) do
+    createCmd PaymentObligation
+      with
+        debtor = alice
+        creditor = bob
+        amount = 100.0
+```
+
+- **`submit (actAs [alice, bob])`** submits a transaction on behalf of both parties. In testing, `actAs` lets you provide the authority of multiple parties at once. In production, parties submit independently (you will learn about the propose/accept pattern in a later page).
+- **`createCmd`** creates a new contract from the template.
+- **`obligationCid`** is the contract ID, a handle you use to reference this contract later.
+
+### Verify the contract exists
+
+```daml
+  obligationsBeforePay <- query @PaymentObligation alice
+  assertEq 1 (length obligationsBeforePay)
+```
+
+`query @PaymentObligation alice` returns all active `PaymentObligation` contracts visible to Alice. We assert there is exactly one.
+
+### Exercise the choice
+
+```daml
+  submit alice do
+    exerciseCmd obligationCid Pay
+```
+
+Alice (the debtor) exercises the `Pay` choice, which archives the contract.
+
+### Verify the contract is archived
+
+```daml
+  obligationsAfterPay <- query @PaymentObligation alice
+  assertEq 0 (length obligationsAfterPay)
+```
+
+After payment, the contract is gone from the active ledger.
+
+## Add `ensure` for contract validation
+
+Right now, nothing prevents creating a `PaymentObligation` with a zero or negative amount. Add an `ensure` clause to the template to fix this:
+
+```daml
+template PaymentObligation
+  with
+    debtor : Party
+    creditor : Party
+    amount : Decimal
+  where
+    ensure amount > 0.0
+
+    signatory debtor, creditor
+
+    nonconsuming choice Pay : ()
+      controller debtor
+      do
+        archive self
+```
+
+`ensure` is a **precondition** checked every time someone tries to create this contract. If the condition is `False`, the ledger rejects the transaction. Think of it like validation in a constructor: the object simply cannot exist in an invalid state.
+
+## Test invalid creates with `submitMustFail`
+
+Now write a test that proves the ledger rejects invalid amounts:
+
+```daml
+testInvalidAmount : Script ()
+testInvalidAmount = script do
+  alice <- allocateParty "Alice"
+  bob <- allocateParty "Bob"
+
+  submitMustFail (actAs [alice, bob]) do
+    createCmd PaymentObligation
+      with
+        debtor = alice
+        creditor = bob
+        amount = 0.0
+
+  submitMustFail (actAs [alice, bob]) do
+    createCmd PaymentObligation
+      with
+        debtor = alice
+        creditor = bob
+        amount = -50.0
+```
+
+**`submitMustFail`** succeeds when the submitted transaction is rejected by the ledger. If the transaction were to succeed, the test would fail. This is how you test that your validation rules actually work.
+
+## Test authorization failures
+
+The `controller debtor` clause means only the debtor can exercise `Pay`. Write a test that proves the ledger enforces this:
+
+```daml
+testUnauthorizedPay : Script ()
+testUnauthorizedPay = script do
+  alice <- allocateParty "Alice"
+  bob <- allocateParty "Bob"
+
+  obligationCid <- submit (actAs [alice, bob]) do
+    createCmd PaymentObligation
+      with
+        debtor = alice
+        creditor = bob
+        amount = 100.0
+
+  -- Bob (creditor) tries to exercise Pay, should fail
+  submitMustFail bob do
+    exerciseCmd obligationCid Pay
+```
+
+The ledger enforces `controller debtor`, not your code. Even if someone tries to bypass your application and submit directly to the ledger, the authorization check still holds.
+
+## Set the init script in `daml.yaml`
+
+Open `daml.yaml` and set the init script so `dpm test` knows which scripts to run:
+
+```yaml
+init-script: Main:test
+```
+
+Note that `dpm test` runs **all** top-level `Script ()` declarations in your project, so `testInvalidAmount` and `testUnauthorizedPay` will run automatically alongside `test`.
+
+## Build and test
+
+```bash
+dpm build
+dpm test
+```
+
+Expected output:
+
+```text
+daml/Main.daml:test: ok, 0 active contracts, 2 transactions.
+daml/Main.daml:testInvalidAmount: ok, 0 active contracts, 2 transactions.
+daml/Main.daml:testUnauthorizedPay: ok, 1 active contracts, 2 transactions.
+```
+
+All three scripts pass. Your contract is validated, your happy path works, and your authorization rules are enforced.
+
+## Full test file
+
+Here is the complete `daml/Main.daml` with the template and all three tests:
+
+```daml
+module Main where
+
+import DA.Assert
+import Daml.Script
+
+template PaymentObligation
+  with
+    debtor : Party
+    creditor : Party
+    amount : Decimal
+  where
+    ensure amount > 0.0
+
+    signatory debtor, creditor
+
+    nonconsuming choice Pay : ()
+      controller debtor
+      do
+        archive self
+
+test : Script ()
+test = script do
+  alice <- allocateParty "Alice"
+  bob <- allocateParty "Bob"
+
+  obligationCid <- submit (actAs [alice, bob]) do
+    createCmd PaymentObligation
+      with
+        debtor = alice
+        creditor = bob
+        amount = 100.0
+
+  obligationsBeforePay <- query @PaymentObligation alice
+  assertEq 1 (length obligationsBeforePay)
+
+  submit alice do
+    exerciseCmd obligationCid Pay
+
+  obligationsAfterPay <- query @PaymentObligation alice
+  assertEq 0 (length obligationsAfterPay)
+
+testInvalidAmount : Script ()
+testInvalidAmount = script do
+  alice <- allocateParty "Alice"
+  bob <- allocateParty "Bob"
+
+  submitMustFail (actAs [alice, bob]) do
+    createCmd PaymentObligation
+      with
+        debtor = alice
+        creditor = bob
+        amount = 0.0
+
+  submitMustFail (actAs [alice, bob]) do
+    createCmd PaymentObligation
+      with
+        debtor = alice
+        creditor = bob
+        amount = -50.0
+
+testUnauthorizedPay : Script ()
+testUnauthorizedPay = script do
+  alice <- allocateParty "Alice"
+  bob <- allocateParty "Bob"
+
+  obligationCid <- submit (actAs [alice, bob]) do
+    createCmd PaymentObligation
+      with
+        debtor = alice
+        creditor = bob
+        amount = 100.0
+
+  submitMustFail bob do
+    exerciseCmd obligationCid Pay
+```
+
+## Key takeaways
+
+- **Daml Script** gives you a real in-memory ledger for testing. No mocks needed.
+- **`submit`** submits a transaction. **`submitMustFail`** asserts a transaction is rejected.
+- **`ensure`** adds preconditions to contract creation, enforced by the ledger.
+- **`query`** lets you inspect the active ledger state in your tests.
+- Authorization rules (`signatory`, `controller`) are enforced by the ledger, not by your application code.
+
+## Next step
+
+Coming soon: multi-step workflows with the propose/accept pattern.

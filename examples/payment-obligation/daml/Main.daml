@@ -9,6 +9,8 @@ template PaymentObligation
     creditor : Party
     amount : Decimal
   where
+    ensure amount > 0.0
+
     signatory debtor, creditor
 
     nonconsuming choice Pay : ()
@@ -36,3 +38,37 @@ test = script do
 
   obligationsAfterPay <- query @PaymentObligation alice
   assertEq 0 (length obligationsAfterPay)
+
+testInvalidAmount : Script ()
+testInvalidAmount = script do
+  alice <- allocateParty "Alice"
+  bob <- allocateParty "Bob"
+
+  submitMustFail (actAs [alice, bob]) do
+    createCmd PaymentObligation
+      with
+        debtor = alice
+        creditor = bob
+        amount = 0.0
+
+  submitMustFail (actAs [alice, bob]) do
+    createCmd PaymentObligation
+      with
+        debtor = alice
+        creditor = bob
+        amount = -50.0
+
+testUnauthorizedPay : Script ()
+testUnauthorizedPay = script do
+  alice <- allocateParty "Alice"
+  bob <- allocateParty "Bob"
+
+  obligationCid <- submit (actAs [alice, bob]) do
+    createCmd PaymentObligation
+      with
+        debtor = alice
+        creditor = bob
+        amount = 100.0
+
+  submitMustFail bob do
+    exerciseCmd obligationCid Pay
