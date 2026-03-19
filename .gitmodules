@@ -4,3 +4,6 @@
 [submodule "external/dpm"]
 	path = external/dpm
 	url = https://github.com/digital-asset/dpm.git
+[submodule "external/canton"]
+	path = external/canton
+	url = https://github.com/digital-asset/canton.git
