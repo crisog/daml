@@ -11,7 +11,8 @@
     "types:check": "fumadocs-mdx && tsc --noEmit",
     "postinstall": "fumadocs-mdx",
     "lint": "biome check",
-    "format": "biome format --write"
+    "format": "biome format --write",
+    "sync:daml-syntax": "cp ../external/daml/sdk/compiler/daml-extension/syntaxes/daml.json ./syntaxes/daml.json && echo 'Synced daml.json from external/daml'"
   },
   "dependencies": {
     "@tanstack/react-router": "1.167.5",

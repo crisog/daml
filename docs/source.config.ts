@@ -1,7 +1,7 @@
 import { defineConfig, defineDocs } from 'fumadocs-mdx/config';
 import { remarkMdxMermaid } from 'fumadocs-core/mdx-plugins';
 import type { LanguageRegistration } from 'shiki';
-import damlGrammar from '../external/daml/sdk/compiler/daml-extension/syntaxes/daml.json';
+import damlGrammar from './syntaxes/daml.json';
 
 const damlLanguage: LanguageRegistration = {
   ...(damlGrammar as LanguageRegistration),
