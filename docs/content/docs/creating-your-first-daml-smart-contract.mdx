@@ -21,11 +21,11 @@ These three concepts (Party, signatory, controller) are the foundation of every 
 ```mermaid
 sequenceDiagram
   participant A as Alice (Debtor)
-  participant B as Bob (Creditor)
   participant L as Ledger
+  participant B as Bob (Creditor)
 
-  A->>L: Co-authorize create
-  B->>L: Co-authorize create
+  A->>L: Authorize create
+  B->>L: Authorize create
   L-->>A: Contract active
   L-->>B: Contract active
   A->>L: Exercise Pay
