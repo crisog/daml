@@ -25,7 +25,7 @@ These instructions apply to this repository unless the user explicitly overrides
 ## Code examples
 
 - Every code snippet shown in docs must have a matching, compilable Daml project under `examples/`.
-- Run `daml build && daml test` in the relevant `examples/` subdirectory to verify correctness before finalizing docs changes.
+- Run `dpm build && dpm test` in the relevant `examples/` subdirectory to verify correctness before finalizing docs changes.
 
 ## Tooling language policy
 
@@ -53,3 +53,4 @@ These instructions apply to this repository unless the user explicitly overrides
 
 - Keep site branding as `DAML Guide`.
 - If external Canton/SDK docs are needed for reference, read from `external/daml/sdk/docs/`.
+- If external DPM docs are needed for reference, read from `external/dpm/`.

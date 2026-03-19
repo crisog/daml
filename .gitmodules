@@ -1,3 +1,6 @@
 [submodule "external/daml"]
 	path = external/daml
 	url = https://github.com/digital-asset/daml.git
+[submodule "external/dpm"]
+	path = external/dpm
+	url = https://github.com/digital-asset/dpm.git
