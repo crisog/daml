@@ -1,0 +1,38 @@
+module Main where
+
+import DA.Assert
+import Daml.Script
+
+template PaymentObligation
+  with
+    debtor : Party
+    creditor : Party
+    amount : Decimal
+  where
+    signatory debtor, creditor
+
+    nonconsuming choice Pay : ()
+      controller debtor
+      do
+        archive self
+
+test : Script ()
+test = script do
+  alice <- allocateParty "Alice"
+  bob <- allocateParty "Bob"
+
+  obligationCid <- submit (actAs [alice, bob]) do
+    createCmd PaymentObligation
+      with
+        debtor = alice
+        creditor = bob
+        amount = 100.0
+
+  obligationsBeforePay <- query @PaymentObligation alice
+  assertEq 1 (length obligationsBeforePay)
+
+  submit alice do
+    exerciseCmd obligationCid Pay
+
+  obligationsAfterPay <- query @PaymentObligation alice
+  assertEq 0 (length obligationsAfterPay)
