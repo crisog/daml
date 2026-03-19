@@ -1,7 +1,7 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
-import mermaid from 'mermaid';
+import { use, useEffect, useId, useState } from 'react';
+import type mermaidType from 'mermaid';
 
 function useIsDark(): boolean {
   const [isDark, setIsDark] = useState(() =>
@@ -24,70 +24,63 @@ function useIsDark(): boolean {
   return isDark;
 }
 
-type MermaidProps = {
-  chart: string;
-};
+const cache = new Map<string, Promise<unknown>>();
 
-export function Mermaid({ chart }: MermaidProps) {
-  const [svg, setSvg] = useState('');
-  const [error, setError] = useState('');
-  const isDark = useIsDark();
-  const renderId = useMemo(
-    () => `mermaid-${Math.random().toString(36).slice(2)}`,
-    [],
-  );
+function cachePromise<T>(key: string, fn: () => Promise<T>): Promise<T> {
+  const cached = cache.get(key);
+  if (cached) return cached as Promise<T>;
+
+  const promise = fn();
+  cache.set(key, promise);
+  return promise;
+}
+
+export function Mermaid({ chart }: { chart: string }) {
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    let cancelled = false;
+    setMounted(true);
+  }, []);
 
-    mermaid.initialize({
-      startOnLoad: false,
-      securityLevel: 'loose',
-      fontFamily: 'inherit',
-      theme: isDark ? 'dark' : 'default',
-      sequence: {
-        useMaxWidth: false,
-        mirrorActors: false,
-        messageMargin: 40,
-      },
-    });
+  if (!mounted) return null;
+  return <MermaidContent chart={chart} />;
+}
 
-    mermaid
-      .render(renderId, chart.replaceAll('\\n', '\n'))
-      .then(({ svg: renderedSvg }) => {
-        if (!cancelled) {
-          setSvg(renderedSvg);
-          setError('');
-        }
-      })
-      .catch((e: unknown) => {
-        if (!cancelled) {
-          setSvg('');
-          setError(e instanceof Error ? e.message : 'Failed to render diagram.');
-        }
-      });
+function MermaidContent({ chart }: { chart: string }) {
+  const id = useId();
+  const isDark = useIsDark();
+  const theme = isDark ? 'dark' : 'default';
 
-    return () => {
-      cancelled = true;
-    };
-  }, [chart, renderId, isDark]);
+  const { default: mermaid } = use(
+    cachePromise('mermaid', () => import('mermaid')),
+  ) as { default: typeof mermaidType };
 
-  if (error) {
-    return (
-      <div className="border rounded-lg p-4 text-sm text-red-600">
-        Mermaid render error: {error}
-      </div>
-    );
-  }
+  mermaid.initialize({
+    startOnLoad: false,
+    securityLevel: 'loose',
+    fontFamily: 'inherit',
+    theme,
+    themeCSS: 'margin: 1.5rem auto 0;',
+    sequence: {
+      useMaxWidth: false,
+      mirrorActors: false,
+      messageMargin: 40,
+    },
+  });
 
-  if (!svg) {
-    return <div className="text-sm text-fd-muted-foreground">Rendering diagram...</div>;
-  }
+  const { svg, bindFunctions } = use(
+    cachePromise(`${chart}-${theme}`, () =>
+      mermaid.render(id, chart.replaceAll('\\n', '\n')),
+    ),
+  );
 
-  // biome-ignore lint/security/noDangerouslySetInnerHtml: Mermaid output must be inserted as SVG markup.
   return (
     <div
-      className="my-4 overflow-x-auto [&>svg]:mx-auto [&>svg]:max-w-full"
+      className="my-4 overflow-x-auto"
+      ref={(container) => {
+        if (container) bindFunctions?.(container);
+      }}
+      // biome-ignore lint/security/noDangerouslySetInnerHtml: Mermaid output must be inserted as SVG markup.
       dangerouslySetInnerHTML={{ __html: svg }}
     />
   );
