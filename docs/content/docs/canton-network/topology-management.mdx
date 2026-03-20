@@ -26,7 +26,7 @@ To build a system like this without a central authority, Canton follows four pri
 
 2. **Key-based identity.** Identity is based on cryptographic keys. Acme Bank proves it is Acme Bank by signing with its private key, and others verify using the corresponding public key. If you have used SSH keys or GPG, the mental model is similar.
 
-3. **Separation of cryptographic and legal identity.** Canton only cares about cryptographic identity for processing transactions. The fact that key `abc123` belongs to a company called "Acme Bank" is established outside the protocol (through legal agreements, contracts, etc.). This is analogous to how a TLS certificate proves you control a domain, not that you are a particular company.
+3. **Separation of cryptographic and legal identity.** Canton only cares about cryptographic identity for processing transactions. The fact that key `acme_ns` belongs to a company called "Acme Bank" is established outside the protocol (through legal agreements, contracts, etc.). This is analogous to how a TLS certificate proves you control a domain, not that you are a particular company.
 
 4. **Asymmetric identity needs.** Large organizations like Acme Bank often want to be publicly identifiable, while individual customers like Alice may prefer to remain pseudonymous. Canton accommodates both.
 
@@ -48,14 +48,13 @@ This is the simplest model and the default. Most parties on a Canton network wor
 
 #### Decoupled party
 
-In an institutional setting, Alice is a large asset manager. She wants to use Acme Bank's infrastructure for execution, but she does not want Acme Bank to control her identity. Alice creates her own namespace (`alice_ns`) and her UID becomes `alice::alice_ns`. Acme Bank's participant still hosts her and submits transactions, but Alice's namespace owner retains control over her identity. If Alice ever wants to move to a different participant, she can do so without Acme Bank's permission.
+In an institutional setting, Alice is a large asset manager. She wants to use Acme Bank's infrastructure for execution, but she does not want Acme Bank to control her identity. Alice creates her own namespace (`alice_ns`) and her UID becomes `alice::alice_ns`. Acme Bank's participant still hosts her and submits transactions, but Alice's namespace owner retains control over her identity.
 
 #### External party
 
 In a decentralized exchange scenario, Alice is a trader who does not want any single participant to have submission rights over her transactions. Alice holds her own signing keys and signs every transaction herself. No participant can act on her behalf without her explicit cryptographic approval for each transaction.
 
 In this model, any participant node can prepare a transaction for Alice, but it will not be submitted until Alice signs it with her own key. Multiple confirming participants validate the transaction, but none of them control Alice's identity or can submit without her signature.
-
 
 ## Topology transactions
 
@@ -112,7 +111,7 @@ Many topology changes require signatures from multiple organizations. Canton han
 
 When a topology transaction does not yet have all required signatures, Canton nodes treat it as a **proposal**. Proposals are stored but do not affect the active topology state. As additional organizations submit their signatures for the same transaction, nodes merge the signatures. Once all required signatures are present, the proposal becomes a fully authorized topology transaction.
 
-Proposals do not expire. They remain pending until either enough signatures arrive or a competing transaction for the same key is fully authorized first.
+Proposals do not expire. They remain pending until enough signatures arrive to make them fully authorized.
 
 ### Example: Alice moves to a second participant
 
@@ -187,8 +186,8 @@ flowchart LR
 
     before --> after
 
-    style I2 stroke:#e74c3c,color:#e74c3c
-    style S2 stroke:#e74c3c,color:#e74c3c
+    style I2 stroke:#e74c3c
+    style S2 stroke:#e74c3c
 ```
 
 ## Putting it all together
