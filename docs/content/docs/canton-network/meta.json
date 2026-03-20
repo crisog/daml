@@ -1,4 +1,12 @@
 {
   "title": "Canton Network",
-  "icon": "Network"
+  "icon": "Network",
+  "pages": [
+    "index",
+    "concepts",
+    "protocols",
+    "synchronizers",
+    "security",
+    "topology-management"
+  ]
 }

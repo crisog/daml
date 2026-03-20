@@ -4,7 +4,7 @@ description: How Canton nodes establish shared knowledge about identities, keys,
 icon: Network
 ---
 
-Topology management is the trust layer underneath everything in Canton. Before any Daml transaction can be processed, every node on a Synchronizer must agree on a shared set of facts: who the parties are, which participants host them, what keys are valid, and what packages are vetted. Topology management is how that shared understanding is established and maintained.
+Topology management is the trust layer underneath everything in Canton. Before any Daml transaction can be processed, every node on a Synchronizer must agree on a shared set of facts: who the parties are, which participants host them, and who is allowed to do what. Topology management is how that shared understanding is established and maintained.
 
 ## The problem topology solves
 
@@ -56,6 +56,32 @@ Two UIDs can share the same identifier (like `alice`) as long as their namespace
 
 By default, parties are created within the namespace of their hosting participant node. This means the participant's namespace owner controls the party. However, you can decouple party ownership from hosting by creating a party in a separate namespace. The participant can still host the party, but the party's namespace owner retains control.
 
+```mermaid
+flowchart TB
+    subgraph coupled ["Default: same namespace"]
+        direction TB
+        NS1["Namespace abc123"]
+        P1["Participant\np1::abc123"]
+        A1["Party\nalice::abc123"]
+        NS1 --- P1
+        NS1 --- A1
+        P1 -. hosts .-> A1
+    end
+
+    subgraph decoupled ["Decoupled: separate namespaces"]
+        direction TB
+        NS2["Namespace abc123"]
+        NS3["Namespace xyz789"]
+        P2["Participant\np1::abc123"]
+        A2["Party\nalice::xyz789"]
+        NS2 --- P2
+        NS3 --- A2
+        P2 -. hosts .-> A2
+    end
+```
+
+In the decoupled case, the party owner (namespace `xyz789`) retains control over the party even though a participant in a different namespace hosts it.
+
 ## Topology transactions
 
 The topology state is a key-value map. Each entry maps a unique key (derived from the mapping type and content) to a value. Topology transactions are the operations that modify this map.
@@ -96,6 +122,21 @@ When a participant hosts a party, the party's owner assigns one of three permiss
 | **Observation** | Receive notifications about transactions involving the party. Read-only access. |
 | **Confirmation** | Confirm or reject Daml transactions during the two-phase commit protocol. Includes Observation. |
 | **Submission** | Submit new Daml transactions on behalf of the party. Includes Confirmation. |
+
+```mermaid
+flowchart LR
+    subgraph Submission
+        direction LR
+        subgraph Confirmation
+            direction LR
+            subgraph Observation
+                O["Receive transaction\nnotifications"]
+            end
+            C["Confirm or reject\ntransactions"]
+        end
+        S["Submit new\ntransactions"]
+    end
+```
 
 Both the party owner and the participant must sign the `PartyToParticipant` mapping. The party owner consents to the participant handling its data, and the participant accepts the operational responsibilities of hosting.
 
@@ -150,6 +191,21 @@ When a topology transaction is sequenced at time `t`, it does not take effect im
 Without the delay, every topology transaction would temporarily pause all other message processing. Nodes would need to wait for the topology change to be fully processed before they could be sure their topology snapshot is complete.
 
 With future dating, messages sequenced between `t` and `t + ε` can be processed normally, because nodes know that no topology change will affect the state before `t + ε`. This is similar to a cooldown period: the system signals that a change is coming, giving everyone time to process in-flight work uninterrupted.
+
+```mermaid
+flowchart LR
+    T1["t₁\nDaml tx"] --> T2["t₂\nDaml tx"]
+    T2 --> T3["t₃\nTopology tx\n(sequenced)"]
+    T3 --> T4["t₄\nDaml tx"]
+    T4 --> T5["t₅ = t₃ + ε\nTopology tx\n(effective)"]
+
+    T4 -. "processes normally\n(not blocked)" .-> T4
+
+    style T3 stroke:#e67e22,fill:#fef3e2
+    style T5 stroke:#27ae60,fill:#e9f7ef
+```
+
+Because the topology change at `t₃` only takes effect at `t₅`, the Daml transaction at `t₄` can be processed immediately using a topology snapshot that is guaranteed to be complete.
 
 ### The trade-off
 

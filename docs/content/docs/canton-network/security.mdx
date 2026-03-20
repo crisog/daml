@@ -1,0 +1,93 @@
+---
+title: Security properties
+description: The trust model, guarantees, and assumptions behind Canton's protocol.
+icon: Shield
+---
+
+The previous pages introduced the components of a Canton network and how they coordinate. This page steps back to answer a broader question: what guarantees does Canton actually provide, and what assumptions must hold for those guarantees to work?
+
+## What Canton guarantees
+
+Canton provides a specific set of security properties. These are not aspirational goals. They are properties enforced by the protocol, as long as the trust assumptions (described below) are met.
+
+### Consensus
+
+All participants that observe the same sequence of messages reach the same conclusion about the ledger state. There is no ambiguity about which contracts are active or which transactions were committed.
+
+In practical terms: if Alice's participant says a transaction was committed, Bob's participant will say the same thing. They cannot end up with conflicting views of the ledger.
+
+### Integrity
+
+A transaction is only committed if it follows the rules defined in the Daml contract:
+
+- **Authorization.** Every action in a transaction must be authorized by the correct party. A participant cannot forge a signature for a party it does not host.
+- **Validity.** The transaction must be well-formed according to the Daml model. For example, it cannot archive a contract that has already been archived, or create a contract with missing signatories.
+
+### Finality
+
+Once a transaction is committed, it cannot be reversed. There is no equivalent of a blockchain reorganization or rollback. The ledger is append-only: committed transactions stay committed.
+
+### Privacy
+
+Each participant only sees the parts of a transaction that involve its own parties. This is enforced at the protocol level through encryption and selective delivery, not through access control lists that could be misconfigured.
+
+The synchronizer components (sequencers and mediators) handle encrypted payloads and do not have access to the contract data.
+
+### Atomicity
+
+A transaction either fully succeeds or fully fails. If a transaction creates two contracts and archives one, all three operations happen together or none of them do. There is no partial state.
+
+### No double spending
+
+A contract can only be consumed once. If two transactions try to archive the same contract, only one will succeed. The other will be rejected. The sequencer's total ordering ensures that the "first" transaction is deterministic across all participants.
+
+## Trust assumptions
+
+These guarantees hold under specific assumptions about the behavior of network participants. If any assumption is violated, certain guarantees may not hold.
+
+### Honest participants
+
+Canton's guarantees apply to **honestly represented parties**, meaning parties hosted on participant nodes that follow the protocol correctly. If a participant is malicious (for example, it has been compromised), the guarantees only apply to parties hosted on other, honest participants.
+
+A malicious participant can harm the parties it hosts, but it cannot forge actions for parties hosted on other participants.
+
+### Synchronizer components
+
+The protocol assumes that synchronizer components behave correctly:
+
+| Component | Assumption |
+|---|---|
+| **Sequencer** | Delivers messages in the correct order, to the correct recipients, with correct timestamps. |
+| **Mediator** | Produces verdicts that accurately reflect the confirmations it received. |
+
+If a sequencer misordered messages or a mediator produced a false verdict, participants could end up with inconsistent states. This is why the choice of synchronizer operator matters: you are trusting them to run the infrastructure correctly.
+
+### Cryptographic keys
+
+Private keys of honest participants must remain uncompromised. If an attacker obtains a participant's private key, they can impersonate that participant and authorize actions on behalf of its parties.
+
+### Availability
+
+For **liveness** (the ability to make progress), all synchronizer components and relevant participants must be available. If a confirming participant is offline, transactions involving its parties will time out and be rejected. The ledger remains consistent, but no new transactions can be committed for those parties until the participant comes back online.
+
+## What the synchronizer cannot do
+
+Even if the synchronizer operator is untrustworthy, the synchronizer cannot:
+
+- **Read contract data.** All payloads are encrypted. The synchronizer sees metadata (who is communicating, message sizes) but not business data.
+- **Create or archive contracts.** The synchronizer coordinates, but only participants can submit and validate transactions.
+- **Override party authorization.** A transaction requires proper signatures. The synchronizer cannot inject approvals.
+
+The synchronizer can, however, cause **liveness failures**: it could refuse to deliver messages, which would stall the network. This is a nuisance, not a data integrity issue. Participants can detect this and switch to a different synchronizer.
+
+## Limitations to be aware of
+
+No system provides unconditional guarantees. Here are the boundaries:
+
+- **Privacy metadata.** The synchronizer knows who is communicating with whom, how often, and the sizes of messages. It does not know the contents, but the metadata itself can be revealing.
+- **Malicious participants harm their own parties.** If your participant node is compromised, the attacker can act on behalf of your parties. Canton protects other parties from the effects, but cannot protect the compromised participant's own parties.
+- **Liveness depends on availability.** If the synchronizer or a required confirming participant is down, transactions stall. Consistency is maintained, but progress stops until the issue is resolved.
+
+## Next step
+
+With the security model in mind, the next page explains topology management: how Canton nodes establish and maintain the shared knowledge about identities, keys, and permissions that makes all of this work.
