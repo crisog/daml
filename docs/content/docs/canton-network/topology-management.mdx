@@ -1,38 +1,42 @@
 ---
 title: Topology management
 description: How Canton nodes establish shared knowledge about identities, keys, and permissions.
-icon: Network
+icon: KeyRound
 ---
 
-Topology management is the trust layer underneath everything in Canton. Before any Daml transaction can be processed, every node on a Synchronizer must agree on a shared set of facts: who the parties are, which participants host them, and who is allowed to do what. Topology management is how that shared understanding is established and maintained.
+You have seen how participants host parties, how synchronizers coordinate transactions, and how the two-phase commit protocol produces a verdict. But all of that assumes something fundamental: every node already knows who the other nodes are, which keys to trust, and which participant hosts which party.
 
-## The problem topology solves
+How does that shared knowledge get established in the first place? And how does it change over time, without a central authority managing it? That is what topology management handles.
 
-Imagine a distributed system where multiple independent organizations run their own nodes, yet all need to agree on the same set of rules. Without a central authority to hand out credentials, how does any node know which keys to trust or which party lives on which participant?
+## What topology manages
 
-Canton solves this with a replicated state machine. Every node independently validates topology changes against the same deterministic rules. Because the rules are deterministic, all nodes connected to a Synchronizer reach the same conclusion about the topology state at any given time.
+Consider the Global Synchronizer. Super Validators are already running the sequencers and mediators. Now Acme Bank wants to join as a participant so its customers (like Alice) can transact on the network. Before that can happen, every node on the synchronizer needs to know:
 
-If you are familiar with distributed systems, think of it as consensus without a leader: there is no single component that gates topology changes.
+- That Acme Bank's participant exists and is a member of this synchronizer
+- What cryptographic keys Acme Bank's participant uses
+- Which parties (customers) Acme Bank hosts, and with what permissions
+
+This information is the **topology state**. Topology management is the system that creates, updates, and distributes this state across all nodes. Every node runs the same validation logic independently, so they always reach the same conclusion about the current topology. There is no central registry or single authority that controls it.
 
 ## Design principles
 
-Four principles shape how Canton handles identity and topology:
+To build a system like this without a central authority, Canton follows four principles:
 
-1. **No single trust anchor.** Just as there is no single globally trusted entity for synchronizing Daml transactions, there is no single authority for establishing identities. Any entity can bootstrap its own namespace.
+1. **No single trust anchor.** There is no single authority for establishing identities. Any organization (Acme Bank, Keystone Brokers, Apex Insurance) can bootstrap its own identity independently.
 
-2. **Key-based identity.** A Canton key holder is an entity that can authorize actions (by signing with a private key) and whose actions others can verify (using the corresponding public key). If you have used SSH keys or GPG, the mental model is similar.
+2. **Key-based identity.** Identity is based on cryptographic keys. Acme Bank proves it is Acme Bank by signing with its private key, and others verify using the corresponding public key. If you have used SSH keys or GPG, the mental model is similar.
 
-3. **Separation of cryptographic and legal identity.** Canton only cares about cryptographic identity for processing transactions. Mapping a cryptographic key to a real-world legal entity (a company, a person) is a separate concern, handled outside the protocol. This is analogous to how a TLS certificate proves you control a domain, not that you are a particular company.
+3. **Separation of cryptographic and legal identity.** Canton only cares about cryptographic identity for processing transactions. The fact that key `abc123` belongs to a company called "Acme Bank" is established outside the protocol (through legal agreements, contracts, etc.). This is analogous to how a TLS certificate proves you control a domain, not that you are a particular company.
 
-4. **Asymmetric identity needs.** Large organizations often want to be publicly identifiable ("BANK"), while individuals may prefer to remain pseudonymous. Identity requirements vary by role, and Canton accommodates both ends of the spectrum.
+4. **Asymmetric identity needs.** Large organizations like Acme Bank often want to be publicly identifiable, while individual customers like Alice may prefer to remain pseudonymous. Canton accommodates both.
 
 ## Namespaces and unique identifiers
 
 ### Namespaces
 
-A namespace is the root of a trust hierarchy. It is defined by the fingerprint of a root public key. The root key signs a self-referencing certificate that says: "I, key `abc123`, am the authority for namespace `abc123`."
+When Acme Bank sets up its participant node for the first time, it generates a root key pair. The key's unique identifier (a hash of the public key, like `acme_ns`) becomes Acme Bank's **namespace**. Acme Bank then publishes a self-signed certificate: the root key signs a statement declaring itself as the authority for this namespace.
 
-This is similar to a self-signed root CA certificate in web PKI: everything under that root is trusted because the root says so.
+Think of it like registering a domain name: once you control `acme_ns`, everything underneath it (parties, keys, delegations) belongs to you. No one else can create identities in your namespace, and you do not need anyone's permission to create yours. Acme Bank controls `acme_ns`, Keystone Brokers controls `keystone_ns`, and the two are completely independent.
 
 ### Unique identifiers (UIDs)
 
@@ -46,186 +50,140 @@ For example:
 
 | UID | What it represents |
 |---|---|
-| `alice::abc123` | A party named "alice" in namespace `abc123` |
-| `p1::abc123` | A participant node in namespace `abc123` |
-| `alice::xyz789` | A different "alice" in a different namespace |
+| `participant1::acme_ns` | Acme Bank's participant node |
+| `alice::acme_ns` | Alice, a customer of Acme Bank |
+| `participant1::keystone_ns` | Keystone Brokers' participant node |
+| `alice::keystone_ns` | A different "Alice" at Keystone Brokers |
 
-Two UIDs can share the same identifier (like `alice`) as long as their namespaces differ. The namespace owner controls all UIDs within that namespace.
+Two UIDs can share the same identifier (like `alice`) as long as their namespaces differ. Acme Bank's Alice and Keystone Brokers' Alice are completely separate identities.
 
 ### Party identity vs. node identity
 
-By default, parties are created within the namespace of their hosting participant node. This means the participant's namespace owner controls the party. However, you can decouple party ownership from hosting by creating a party in a separate namespace. The participant can still host the party, but the party's namespace owner retains control.
+By default, parties are created within the namespace of their hosting participant. Alice, as a customer of Acme Bank, gets the UID `alice::acme_ns`. This means Acme Bank's namespace owner controls Alice's identity.
+
+However, you can decouple party ownership from hosting. Suppose Alice is a large institutional client who wants to control her own identity. She can create her own namespace (`alice_ns`) and her UID becomes `alice::alice_ns`. Acme Bank's participant can still host her, but Alice retains control over her own identity.
 
 ```mermaid
 flowchart TB
-    subgraph coupled ["Default: same namespace"]
+    subgraph coupled ["Default: Acme Bank controls Alice"]
         direction TB
-        NS1["Namespace abc123"]
-        P1["Participant\np1::abc123"]
-        A1["Party\nalice::abc123"]
+        NS1["Namespace acme_ns"]
+        P1["Participant\nparticipant1::acme_ns"]
+        A1["Party\nalice::acme_ns"]
         NS1 --- P1
         NS1 --- A1
         P1 -. hosts .-> A1
     end
 
-    subgraph decoupled ["Decoupled: separate namespaces"]
+    subgraph decoupled ["Decoupled: Alice controls herself"]
         direction TB
-        NS2["Namespace abc123"]
-        NS3["Namespace xyz789"]
-        P2["Participant\np1::abc123"]
-        A2["Party\nalice::xyz789"]
+        NS2["Namespace acme_ns"]
+        NS3["Namespace alice_ns"]
+        P2["Participant\nparticipant1::acme_ns"]
+        A2["Party\nalice::alice_ns"]
         NS2 --- P2
         NS3 --- A2
         P2 -. hosts .-> A2
     end
 ```
 
-In the decoupled case, the party owner (namespace `xyz789`) retains control over the party even though a participant in a different namespace hosts it.
+In the decoupled case, Alice (namespace `alice_ns`) retains control over her identity even though Acme Bank's participant hosts her.
 
 ## Topology transactions
 
-The topology state is a key-value map. Each entry maps a unique key (derived from the mapping type and content) to a value. Topology transactions are the operations that modify this map.
+The topology state is stored as a key-value map, similar to a dictionary or hash map in code. Each entry has a unique key (determined by the type and content of the mapping) and a value. Topology transactions are the operations that modify this map.
+
+For example, when Acme Bank registers Alice as a party hosted on its participant, that is a topology transaction. When Keystone Brokers joins the synchronizer, that is also a topology transaction.
 
 Every topology transaction contains:
 
 | Field | Purpose |
 |---|---|
-| **Mapping** | The content: what is being changed (e.g., which participant hosts a party). |
+| **Mapping** | The content: what is being changed (e.g., Acme Bank hosts Alice). |
 | **Serial** | A version number, starting at 1 and incrementing by exactly 1 for each change to the same key. |
 | **Operation** | Either `REPLACE` (create or update) or `REMOVE` (deactivate). |
 | **Signatures** | Cryptographic signatures from the required authorizers. |
 
 ### How serials prevent replay attacks
 
-Serials work like optimistic concurrency control in a database. If a malicious actor captures a valid topology transaction and tries to replay it later, the serial will not match the expected next value, and every node will reject it. No gaps or repetitions are allowed: going from serial 1 to serial 3, or submitting serial 1 twice with different content, is invalid.
+Serials work like version numbers. Suppose a malicious actor captures the topology transaction where Acme Bank registered Alice (serial 1). If they try to replay it later, the serial will not match the expected next value, and every node will reject it. No gaps or repetitions are allowed: going from serial 1 to serial 3, or submitting serial 1 twice with different content, is invalid.
 
 ## Types of topology mappings
 
-Each mapping type governs a different aspect of the Synchronizer's shared state:
+Each mapping type governs a different aspect of the synchronizer's shared state:
 
-| Mapping | What it controls |
-|---|---|
-| **NamespaceDelegation** | Delegates authority from a root key to intermediate keys. The root certificate is a self-signed instance of this mapping. |
-| **OwnerToKeyMapping** | Declares which signing and encryption keys a Canton node uses for protocol messages. |
-| **PartyToParticipant** | Defines which participant nodes host a party and with what permissions. |
-| **VettedPackages** | Lists the Daml packages a participant agrees to run. Participants must explicitly opt in to running third-party code. |
-| **SynchronizerTrustCertificate** | A participant's explicit signal that it wants to be a member of a specific Synchronizer. Scoped to one Synchronizer, so it cannot be replayed on another. |
-| **SequencerSynchronizerState** | Lists all sequencers of a Synchronizer. Controlled by the Synchronizer owners. |
-| **MediatorSynchronizerState** | Lists all mediators (or mediator groups) of a Synchronizer. Also controlled by the Synchronizer owners. |
+| Mapping | What it controls | Example |
+|---|---|---|
+| **NamespaceDelegation** | Delegates authority from a root key to intermediate keys. | Acme Bank delegates signing authority to an operational key. |
+| **OwnerToKeyMapping** | Declares which signing and encryption keys a node uses. | Acme Bank's participant registers its protocol keys. |
+| **PartyToParticipant** | Defines which participants host a party and with what permissions. | Alice is hosted on Acme Bank's participant with Submission permission. |
+| **VettedPackages** | Lists the Daml packages a participant agrees to run. | Acme Bank opts in to running a specific trading contract. |
+| **SynchronizerTrustCertificate** | A participant's signal that it wants to be a member of a specific synchronizer. | Acme Bank issues a trust certificate for the Global Synchronizer. |
+| **SequencerSynchronizerState** | Lists all sequencers of a synchronizer. Controlled by the synchronizer owners. | The Super Validators register their sequencer nodes. |
+| **MediatorSynchronizerState** | Lists all mediators of a synchronizer. Also controlled by the synchronizer owners. | The Super Validators register their mediator nodes. |
 
 ## Party hosting permissions
 
-When a participant hosts a party, the party's owner assigns one of three permission levels. Each level subsumes the previous one:
+When Acme Bank hosts Alice, it does so with a specific permission level assigned by Alice's namespace owner. There are three levels, and each one includes the previous:
 
-| Permission | What the participant can do |
+| Permission | What Acme Bank's participant can do for Alice |
 |---|---|
-| **Observation** | Receive notifications about transactions involving the party. Read-only access. |
-| **Confirmation** | Confirm or reject Daml transactions during the two-phase commit protocol. Includes Observation. |
-| **Submission** | Submit new Daml transactions on behalf of the party. Includes Confirmation. |
+| **Observation** | Receive notifications about transactions involving Alice. Read-only access. |
+| **Confirmation** | Confirm or reject transactions on Alice's behalf during the two-phase commit. Includes Observation. |
+| **Submission** | Submit new transactions on Alice's behalf. Includes Confirmation. |
 
-```mermaid
-flowchart LR
-    subgraph Submission
-        direction LR
-        subgraph Confirmation
-            direction LR
-            subgraph Observation
-                O["Receive transaction\nnotifications"]
-            end
-            C["Confirm or reject\ntransactions"]
-        end
-        S["Submit new\ntransactions"]
-    end
-```
+Both Alice's namespace owner and Acme Bank must sign the `PartyToParticipant` mapping. Alice's side consents to Acme Bank handling her data, and Acme Bank accepts the operational responsibilities of hosting.
 
-Both the party owner and the participant must sign the `PartyToParticipant` mapping. The party owner consents to the participant handling its data, and the participant accepts the operational responsibilities of hosting.
-
-> [!IMPORTANT]
-> The distinction between Submission and Confirmation is enforced at the participant level, not by the Synchronizer. A malicious participant with Confirmation permission could technically submit transactions for the party, because Canton's privacy model hides the identity of the submitting participant from validators. Choose your hosting participants carefully.
+**A word of caution:** the distinction between Submission and Confirmation is enforced at the participant level, not by the synchronizer. A malicious participant with Confirmation permission could technically submit transactions for Alice, because Canton's privacy model hides the identity of the submitting participant from validators. Choose hosting participants carefully.
 
 ## Proposals and multi-signature authorization
 
-Many topology changes require signatures from multiple key holders. Canton handles this through a proposal workflow.
+Many topology changes require signatures from multiple organizations. Canton handles this through a proposal workflow.
 
 ### How proposals work
 
-When a topology transaction does not yet have all required signatures, Canton nodes treat it as a **proposal**. Proposals are stored but do not affect the active topology state. As additional key holders submit their signatures for the same transaction, nodes merge the signatures. Once all required signatures are present, the proposal becomes a fully authorized topology transaction.
+When a topology transaction does not yet have all required signatures, Canton nodes treat it as a **proposal**. Proposals are stored but do not affect the active topology state. As additional organizations submit their signatures for the same transaction, nodes merge the signatures. Once all required signatures are present, the proposal becomes a fully authorized topology transaction.
 
 Proposals do not expire. They remain pending until either enough signatures arrive or a competing transaction for the same key is fully authorized first.
 
-### Competing proposals
+### Example: Alice moves to a second participant
 
-If two proposals target the same unique key with the same serial but different content, they are competing. The first one to become fully authorized wins, and all other proposals for that key and serial are automatically invalidated.
+Suppose Alice is currently hosted only on Acme Bank's participant. She wants to also be hosted on Keystone Brokers' participant (for redundancy or to trade directly through their platform).
 
-Think of it like a race condition resolved by first-write-wins: whichever proposal collects all its signatures first becomes the accepted state.
-
-### Example: adding a new hosting participant
-
-Suppose party `Alice::abc123` is currently hosted on `P1::abc123`. The party owner wants to add `P2::xyz789` as an additional host.
-
-1. The party owner submits a new `PartyToParticipant` mapping (serial 2) that includes `P2::xyz789`, signed with their key for namespace `abc123`.
-2. Since the authorization rules require signatures from both `abc123` and `xyz789`, the transaction is stored as a proposal.
-3. The owner of `P2::xyz789` reviews and submits their signature.
-4. Nodes merge the signatures. The proposal now has all required authorizations and becomes the active topology state.
+1. Acme Bank (Alice's namespace owner) submits a new `PartyToParticipant` mapping (serial 2) that adds Keystone Brokers as a host, signed with Acme Bank's key.
+2. Since the authorization rules require signatures from both Acme Bank and Keystone Brokers, the transaction is stored as a proposal.
+3. Keystone Brokers reviews the request and submits their signature.
+4. Nodes merge the signatures. The proposal now has all required authorizations and becomes the active topology state. Alice is now hosted on both participants.
 
 ```mermaid
 sequenceDiagram
-    participant PartyOwner as Party Owner (abc123)
+    participant AB as Acme Bank
     participant Sync as Synchronizer
-    participant P2Owner as P2 Owner (xyz789)
+    participant KB as Keystone Brokers
 
-    PartyOwner->>Sync: Submit PartyToParticipant (serial 2)<br/>signed by abc123
-    Note over Sync: Stored as proposal<br/>(missing xyz789 signature)
-    P2Owner->>Sync: Submit signature for same transaction<br/>signed by xyz789
+    AB->>Sync: Add Keystone as host for Alice (serial 2)<br/>signed by Acme Bank
+    Note over Sync: Stored as proposal<br/>(missing Keystone signature)
+    KB->>Sync: Co-sign same transaction<br/>signed by Keystone Brokers
     Note over Sync: Signatures merged<br/>All authorizers present
     Sync-->>Sync: Proposal becomes fully authorized
-    Note over Sync: Active topology state updated
+    Note over Sync: Alice now hosted on both participants
 ```
-
-## Future dating: why topology changes are not instant
-
-When a topology transaction is sequenced at time `t`, it does not take effect immediately. Instead, it becomes effective at time `t + ε`, where `ε` is the topology change delay (a configurable Synchronizer parameter).
-
-### Why the delay exists
-
-Without the delay, every topology transaction would temporarily pause all other message processing. Nodes would need to wait for the topology change to be fully processed before they could be sure their topology snapshot is complete.
-
-With future dating, messages sequenced between `t` and `t + ε` can be processed normally, because nodes know that no topology change will affect the state before `t + ε`. This is similar to a cooldown period: the system signals that a change is coming, giving everyone time to process in-flight work uninterrupted.
-
-```mermaid
-flowchart LR
-    T1["t₁\nDaml tx"] --> T2["t₂\nDaml tx"]
-    T2 --> T3["t₃\nTopology tx\n(sequenced)"]
-    T3 --> T4["t₄\nDaml tx"]
-    T4 --> T5["t₅ = t₃ + ε\nTopology tx\n(effective)"]
-
-    T4 -. "processes normally\n(not blocked)" .-> T4
-
-    style T3 stroke:#e67e22,fill:#fef3e2
-    style T5 stroke:#27ae60,fill:#e9f7ef
-```
-
-Because the topology change at `t₃` only takes effect at `t₅`, the Daml transaction at `t₄` can be processed immediately using a topology snapshot that is guaranteed to be complete.
-
-### The trade-off
-
-A larger `ε` means less disruption to transaction processing but longer waits before topology changes take effect. A smaller `ε` means faster topology updates but more potential for processing pauses. In practice, `ε` should be just large enough to cover the time it takes to process a topology transaction.
 
 ## Authorization chains and key delegation
 
-In practice, you do not want your root namespace key sitting on a live server. Canton supports delegation chains that let you move the root key to cold storage while still being able to manage topology day-to-day.
+In practice, you do not want Acme Bank's root namespace key sitting on a live server. If it were compromised, the attacker would control Acme Bank's entire namespace. Canton supports delegation chains that let you move the root key to a secure offline location while still being able to manage topology day-to-day.
 
 ### How delegation works
 
-Starting from the root key, you create `NamespaceDelegation` mappings that grant signing authority to intermediate keys:
+Starting from its root key, Acme Bank creates `NamespaceDelegation` mappings that grant signing authority to intermediate keys:
 
 ```
-Root Key (abc123)
-  └─ delegates to → Key1 (def456) [can sign all but namespace delegations]
-       └─ delegates to → Key2 (ghi789) [can sign specific mappings only]
+Acme Bank Root Key (acme_ns)
+  └─ delegates to → Operations Key (ops_key) [can sign all but namespace delegations]
+       └─ delegates to → Trading Key (trade_key) [can sign specific mappings only]
 ```
 
-When a node validates a topology transaction signed by `Key2`, it traces the delegation chain back to the root: `abc123 → def456 → ghi789`. If every link in the chain is valid at the transaction's effective time, the signature is accepted.
+When a node validates a topology transaction signed by `trade_key`, it traces the delegation chain back to the root: `acme_ns → ops_key → trade_key`. If every link in the chain is valid at the transaction's effective time, the signature is accepted.
 
 ### Three restriction levels
 
@@ -234,14 +192,14 @@ Each delegation can restrict what the target key is allowed to sign:
 | Restriction | What the key can sign |
 |---|---|
 | **CanSignAllMappings** | Everything, including further namespace delegations. Full authority. |
-| **CanSignAllButNamespaceDelegations** | All topology mappings except `NamespaceDelegation`. Ideal for a "daily driver" key when the root key is in cold storage. |
-| **CanSignSpecificMappings** | Only the explicitly listed mapping types. Limits the blast radius if the key is compromised. |
+| **CanSignAllButNamespaceDelegations** | All topology mappings except `NamespaceDelegation`. Ideal for a key used in daily operations while the root key stays offline. |
+| **CanSignSpecificMappings** | Only the explicitly listed mapping types. Limits the damage if the key is compromised. |
 
-This is analogous to role-based access control (RBAC): you grant the minimum permissions each key needs, reducing risk if any single key is compromised.
+This is analogous to role-based access control: Acme Bank grants each key the minimum permissions it needs, reducing risk if any single key is compromised.
 
 ### Key revocation
 
-If an intermediate key is compromised or no longer needed, you can revoke its delegation by submitting a `NamespaceDelegation` with the `REMOVE` operation. Revocation cascades: any keys that were delegated through the revoked key become "dangling" and are no longer accepted for signing new topology transactions.
+If Acme Bank's operations key is compromised, Acme Bank can revoke its delegation by submitting a `NamespaceDelegation` with the `REMOVE` operation. Revocation cascades: any keys that were delegated through the revoked key (like the trading key) become "dangling" and are no longer accepted for signing new topology transactions.
 
 Importantly, revocation is not retroactive. Topology transactions that were successfully validated before the revocation remain valid. Only future signatures from the revoked (or dangling) key are rejected.
 
@@ -249,14 +207,14 @@ Importantly, revocation is not retroactive. Topology transactions that were succ
 flowchart LR
     subgraph before ["Before revocation"]
         direction LR
-        R1["Root Key\n(abc123)"] -- NamespaceDelegation --> I1["Intermediate Key\n(def456)"]
-        I1 -- NamespaceDelegation --> S1["Signing Key\n(ghi789)"]
+        R1["Root Key\n(acme_ns)"] -- delegates --> I1["Operations Key\n(ops_key)"]
+        I1 -- delegates --> S1["Trading Key\n(trade_key)"]
     end
 
-    subgraph after ["After revocation of def456"]
+    subgraph after ["After revocation of ops_key"]
         direction LR
-        R2["Root Key\n(abc123)"] -. REMOVED .-> I2["def456\n(revoked)"]
-        I2 -. cascade .-> S2["ghi789\n(dangling)"]
+        R2["Root Key\n(acme_ns)"] -. REMOVED .-> I2["ops_key\n(revoked)"]
+        I2 -. cascade .-> S2["trade_key\n(dangling)"]
     end
 
     before --> after
@@ -267,12 +225,11 @@ flowchart LR
 
 ## Putting it all together
 
-Topology management is how Canton nodes build and maintain a shared, trustworthy picture of the network without relying on a central authority. The key ideas to remember:
+Earlier pages showed how transactions flow through the network. This page covered the layer that makes that possible: the shared knowledge about who exists, what they can do, and why they should be trusted.
 
-- **Namespaces** establish independent roots of trust, each backed by a cryptographic key.
+- **Namespaces** let any organization (Acme Bank, Keystone Brokers) establish its own root of trust independently.
 - **Unique identifiers** give every party and node a globally unambiguous name.
-- **Topology transactions** modify a shared key-value map through a deterministic, replicated state machine.
-- **Serials** prevent replay attacks and ensure ordered evolution of each mapping.
-- **Proposals** enable multi-party authorization workflows where signatures accumulate over time.
-- **Future dating** keeps topology changes from blocking normal transaction processing.
-- **Delegation chains** allow root keys to be stored securely offline while intermediate keys handle day-to-day operations.
+- **Topology transactions** modify the shared state through a process that every node validates independently.
+- **Serials** prevent replay attacks by enforcing strict version ordering.
+- **Proposals** let multiple organizations coordinate their signatures before a change takes effect.
+- **Delegation chains** allow root keys to be stored securely offline while operational keys handle day-to-day work.
