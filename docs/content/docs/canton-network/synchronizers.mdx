@@ -24,15 +24,12 @@ flowchart LR
     P1["Participant"]
 
     subgraph sync ["Synchronizer"]
-        SQ1["Sequencer"]
-        SQ2["Sequencer"]
+        SQ["Sequencer"]
         MD["Mediator"]
-        SQ1 <--> MD
-        SQ2 <--> MD
+        SQ <--> MD
     end
 
-    P1 <--> SQ1
-    P1 <--> SQ2
+    P1 <--> SQ
 ```
 
 The participant connects to sequencer nodes inside the synchronizer. The synchronizer boundary is logical, not a separate service.
