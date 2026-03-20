@@ -4,8 +4,8 @@
   "pages": [
     "index",
     "concepts",
-    "protocols",
     "synchronizers",
+    "protocols",
     "security",
     "topology-management"
   ]

@@ -4,7 +4,7 @@ description: What sequencers and mediators do, and how a synchronizer is structu
 icon: ServerCog
 ---
 
-The previous page showed how participants, sequencers, and mediators coordinate through the two-phase commit protocol. This page focuses on the synchronizer itself: the infrastructure layer that makes coordination possible.
+The previous page showed how Canton enforces privacy at the transaction level. This page introduces the synchronizer: the infrastructure layer that coordinates participants without seeing their data.
 
 ## What is a synchronizer?
 
@@ -88,4 +88,4 @@ This is a two-way relationship: the participant chooses to join, and the synchro
 
 ## Next step
 
-Now that you understand what synchronizers do and how they are structured, the next page covers the security properties and trust assumptions that Canton provides.
+Now that you know what synchronizers are made of, the next page shows how these components coordinate to process a transaction: the two-phase commit protocol.
