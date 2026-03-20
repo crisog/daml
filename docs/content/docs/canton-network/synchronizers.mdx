@@ -114,10 +114,6 @@ The mediator is the decision-maker in the two-phase commit protocol.
 - **See contract data.** Like the sequencer, the mediator works with encrypted payloads. It knows which parties are involved and whether they confirmed, but not what the transaction contains.
 - **Override party decisions.** The mediator cannot force a transaction through if a required confirmer rejects it.
 
-### Mediator groups
-
-A synchronizer can distribute its mediator workload across multiple **mediator groups**. Each group can contain several mediators with a configurable threshold: at least that many mediators in the group must reach the same verdict before the result is delivered to participants. A mediator can only belong to a single group. This provides both fault tolerance (no single mediator can produce a wrong verdict) and workload distribution.
-
 ## Trust model
 
 A key design principle of Canton is that trust in the synchronizer is limited and explicit:
