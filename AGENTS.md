@@ -51,7 +51,7 @@ These instructions apply to this repository unless the user explicitly overrides
 
 ## Project-specific notes
 
-- Keep site branding as `DAML Guide`.
+- Keep site branding as `Canton Guide`.
 - If external Canton/SDK docs are needed for reference, read from `external/daml/sdk/docs/`.
 - If external DPM docs are needed for reference, read from `external/dpm/`.
 - If external Canton docs are needed for reference, read from `external/canton/`.

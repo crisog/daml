@@ -14,7 +14,7 @@ export const Route = createRootRoute({
         content: 'width=device-width, initial-scale=1',
       },
       {
-        title: 'DAML Guide',
+        title: 'Canton Guide',
       },
     ],
     links: [{ rel: 'stylesheet', href: appCss }],

@@ -1,0 +1,92 @@
+---
+title: Getting Started
+description: Install DPM and prepare your machine for Daml development.
+icon: Download
+---
+
+Use this page to set up your local environment correctly before writing contracts.
+
+`dpm` (Digital Asset Package Manager) is the command-line tool used to build, test, and run Daml projects.
+
+## 1) Prerequisites
+
+- macOS, Linux, or Windows
+- JDK 17 or newer (with `JAVA_HOME` configured)
+- VS Code 1.87+ if you plan to use Daml Studio
+
+Check Java:
+
+```bash
+java -version
+```
+
+## 2) Install DPM
+
+Mac/Linux:
+
+```bash
+curl https://get.digitalasset.com/install/install.sh | sh
+```
+
+Windows:
+
+- Download and run the installer from Digital Asset docs.
+
+Optional install location:
+
+- Set `DPM_HOME` before install if you do not want the default path.
+
+## 3) Add DPM to PATH (macOS/Linux)
+
+```bash
+export PATH="$HOME/.dpm/bin:$PATH"
+```
+
+Add that line to your shell profile (`~/.zshrc` or `~/.bashrc`) to persist it.
+
+## 4) Verify installation
+
+```bash
+dpm version --active
+dpm new --list
+```
+
+## 5) SDK version management
+
+Install the SDK declared in a project's `daml.yaml`:
+
+```bash
+dpm install package
+```
+
+Install a specific version:
+
+```bash
+dpm install 3.4.11
+```
+
+Inspect installed/available versions:
+
+```bash
+dpm version
+dpm version --all
+dpm version --all -o json
+```
+
+## 6) Core commands you will use
+
+| Task | Command |
+| --- | --- |
+| Create a project | `dpm new` |
+| Build DAR | `dpm build` |
+| Run scripts/tests | `dpm test` |
+| Open Daml Studio | `dpm studio` |
+| Start local ledger | `dpm sandbox` |
+
+## Next step
+
+Go to [Creating your first Daml smart contract](/docs/daml/creating-your-first-daml-smart-contract).
+
+<Cards>
+  <Card title="Creating your first Daml smart contract" href="/docs/daml/creating-your-first-daml-smart-contract" />
+</Cards>
