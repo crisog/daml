@@ -8,24 +8,33 @@ This page introduces the foundational ideas behind Canton. If you have already w
 
 ## Parties and participants
 
-A **party** is a real-world actor: a person, a company, an institution. In Canton, parties do not interact with the network directly. Instead, each party is hosted on a **participant node** operated by an organization.
+A **party** is a real-world actor: a person, a company, an institution. Parties do not interact with the network directly. Instead, each party is hosted on a **participant node** operated by an organization. The participant acts on the party's behalf: it stores the party's contracts, submits transactions for it, and confirms transactions that involve it.
 
-One participant can host many parties, and one party can be hosted on multiple participants (this is called multi-hosting). For example, a large bank might host thousands of customer parties on a single participant node.
+Think of the relationship like email: you (the party) do not talk to the internet directly. Your email provider (the participant) sends and receives messages on your behalf. You trust your provider to handle your data correctly.
+
+One participant can host many parties. A large bank, for example, might host thousands of customer parties on a single participant node. And one party can be hosted on multiple participants (called **multi-hosting**), which gives the party redundancy or lets it interact through different organizations' infrastructure.
 
 ```mermaid
-flowchart LR
-    subgraph p1 ["Participant Node (Org A)"]
+flowchart TB
+    subgraph p1 ["Participant Node — Acme Bank"]
+        direction TB
         A["Alice"]
         B["Bob"]
     end
 
-    subgraph p2 ["Participant Node (Org B)"]
+    subgraph p2 ["Participant Node — Keystone Brokers"]
+        direction TB
         C["Charlie"]
-        A2["Alice (multi-hosted)"]
+        A2["Alice"]
     end
+
+    A -. "same party,\ntwo participants" .-> A2
+
+    p1 <--> sync["Synchronizer"]
+    p2 <--> sync
 ```
 
-In this example, Alice is hosted on both participants. This lets Alice interact with the network through either organization's infrastructure.
+Alice is hosted on both participant nodes. If Acme Bank's infrastructure goes down, Alice can still transact through Keystone Brokers. Bob and Charlie are each hosted on a single participant.
 
 ## Contracts and the active contract set
 

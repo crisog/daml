@@ -6,7 +6,7 @@ icon: Globe
 
 Canton is a network where independent organizations can run shared workflows on a common ledger, without trusting a single central operator. Each organization runs its own node, keeps its own data private by default, and transacts with other organizations using smart contracts written in Daml.
 
-## The shape of the network
+## The building blocks
 
 A Canton network is made up of three kinds of components:
 
@@ -16,22 +16,32 @@ A Canton network is made up of three kinds of components:
 
 - **Parties** represent the real-world actors (Alice, Bob, a bank, a registry) whose rights and obligations are encoded in Daml contracts. Parties are hosted on participant nodes.
 
+## A concrete example
+
+Imagine Alice wants to buy shares from Bob and pay for them using funds held at her bank. This single trade touches three independent organizations:
+
+- **Acme Bank** (a retail bank) holds Alice's cash. It needs to confirm that Alice has the funds and authorize the payment.
+- **Keystone Brokers** (a brokerage firm) holds Bob's shares. It needs to confirm that Bob owns the shares and transfer them.
+- **Apex Insurance** (an insurance company) underwrites settlement risk. It needs to see that the trade settled correctly.
+
+None of these organizations share a database, yet they all need to agree on the outcome. Each runs its own participant node on the Canton network:
+
 ```mermaid
 flowchart TB
-    App1["App (Org A)"] --> p1
-    App2["App (Org B)"] --> p2
-    App3["App (Bank)"] --> p3
+    App1["App (Acme Bank)"] --> p1
+    App2["App (Keystone Brokers)"] --> p2
+    App3["App (Apex Insurance)"] --> p3
 
-    subgraph p1 ["Participant Node — Org A"]
+    subgraph p1 ["Participant Node — Acme Bank"]
         A["Alice's contracts"]
     end
 
-    subgraph p2 ["Participant Node — Org B"]
+    subgraph p2 ["Participant Node — Keystone Brokers"]
         B["Bob's contracts"]
     end
 
-    subgraph p3 ["Participant Node — Bank"]
-        BK["Bank's contracts"]
+    subgraph p3 ["Participant Node — Apex Insurance"]
+        BK["Insurance contracts"]
     end
 
     p1 <-- "encrypted\nmessages" --> sync
@@ -50,7 +60,7 @@ Applications talk to their organization's participant node. Each participant sto
 
 ## Privacy by default
 
-In most blockchain systems, every node sees every transaction. Canton takes the opposite approach: a participant only sees the parts of a transaction that involve its own parties. If Alice and Bob trade, the Bank only learns about the parts that affect its contracts.
+In most blockchain systems, every node sees every transaction. Canton takes the opposite approach: a participant only sees the parts of a transaction that involve its own parties. If Alice and Bob trade, Apex Insurance only learns about the parts that affect its own contracts.
 
 This is not an add-on. Privacy is built into the protocol itself. The synchronizer delivers encrypted messages, and only the intended recipients can decrypt them.
 
