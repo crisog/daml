@@ -17,7 +17,49 @@ A synchronizer consists of two types of components:
 | **Sequencer** | Orders messages and delivers them to recipients. |
 | **Mediator** | Collects confirmations and produces transaction verdicts. |
 
-These components can be operated by different organizations. For example, one company might run the sequencer while another runs the mediator. This means no single entity needs to be trusted with the entire coordination layer.
+## Who runs a synchronizer?
+
+A synchronizer is owned by one entity or a group of entities. The owners control which sequencer and mediator nodes run on the synchronizer.
+
+In simple setups, a single company runs everything:
+
+```mermaid
+flowchart TB
+    subgraph owner ["Operated by: Acme Bank"]
+        subgraph sync ["Synchronizer"]
+            SQ["Sequencer"]
+            MD["Mediator"]
+        end
+    end
+
+    P1["Participant A"] <--> sync
+    P2["Participant B"] <--> sync
+```
+
+In larger networks, the synchronizer owners choose a specific sequencer and mediator implementation, and multiple organizations each run their own instance of that same software. This way, no single operator has full control. For example, the [Global Synchronizer](https://sync.global/docs/) is operated by a network of independent organizations ("Super Validators") who jointly run the sequencers using Byzantine Fault Tolerant (BFT) consensus and mediators with BFT state machine replication:
+
+```mermaid
+flowchart TB
+    subgraph sync ["Global Synchronizer"]
+        subgraph sv1 ["Super Validator 1"]
+            SQ1["Sequencer node"]
+            MD1["Mediator node"]
+        end
+        subgraph sv2 ["Super Validator 2"]
+            SQ2["Sequencer node"]
+            MD2["Mediator node"]
+        end
+        subgraph sv3 ["Super Validator 3"]
+            SQ3["Sequencer node"]
+            MD3["Mediator node"]
+        end
+    end
+
+    P1["Participant A"] <--> sync
+    P2["Participant B"] <--> sync
+```
+
+Synchronizer operators charge fees for traffic. Running a sequencer incurs significant infrastructure costs, and the fee model ensures that participants pay for the resources they consume. This also protects the network from abuse, since submitting messages has a cost.
 
 ## Sequencers in detail
 
@@ -33,6 +75,16 @@ The sequencer is the message backbone of Canton. Every protocol message between 
 
 - **Read message contents.** Payloads are encrypted by the sender. The sequencer sees metadata (sender, recipients, size) but cannot decrypt the actual transaction data.
 - **Make decisions.** The sequencer does not approve or reject transactions. It only orders and delivers.
+
+### Sequencer backends
+
+Canton supports multiple sequencer backends. The choice is made at the synchronizer level, and all sequencer nodes on a given synchronizer run the same technology:
+
+| Backend | When to use it |
+|---|---|
+| **Relational database** (e.g., PostgreSQL) | Simpler deployments where a single entity operates the sequencer. |
+| **BFT consensus** (Byzantine Fault Tolerant) | Multi-operator deployments where operators do not fully trust each other. |
+| **Distributed ledgers** (e.g., CometBFT, Hyperledger Fabric) | Deployments that want to leverage an existing blockchain infrastructure for ordering. |
 
 ### Multiple sequencers
 
