@@ -123,7 +123,7 @@ Importantly, the synchronizer is **not** trusted with:
 
 - **Contract data.** All payloads are encrypted. The synchronizer cannot read them.
 - **Business logic.** The synchronizer does not execute Daml code. It only coordinates.
-- **Unilateral control.** The synchronizer cannot create, modify, or archive contracts on its own.
+- **Unilateral control.** Only participant nodes can submit and validate transactions. The synchronizer coordinates, but cannot initiate changes to the ledger.
 
 This limited trust model is what allows independent organizations to share a synchronizer without handing over control of their data.
 
@@ -135,7 +135,7 @@ Participant nodes must explicitly join a synchronizer. When a participant connec
 2. It issues a trust certificate specific to that synchronizer, signaling that it consents to being a member.
 3. The synchronizer distributes this information to other members.
 
-This is a two-way relationship: the participant chooses to join, and the synchronizer accepts the participant according to its governance rules. A participant can connect to multiple synchronizers simultaneously.
+The participant explicitly signals its intent to join via the trust certificate. The synchronizer operator can optionally verify and approve the participant's topology transactions before admitting it. A participant can connect to multiple synchronizers simultaneously.
 
 ## Next step
 
