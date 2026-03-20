@@ -66,17 +66,14 @@ flowchart TB
             SQ2["Sequencer node"]
             MD2["Mediator node"]
         end
-        subgraph sv3 ["Super Validator 3"]
-            SQ3["Sequencer node"]
-            MD3["Mediator node"]
-        end
     end
 
-    P1["Participant A"] <--> sync
-    P2["Participant B"] <--> sync
+    P1["Participant A"] <--> SQ1
+    P2["Participant B"] <--> SQ2
 ```
 
-Synchronizer operators charge fees for traffic. Running a sequencer incurs significant infrastructure costs, and the fee model ensures that participants pay for the resources they consume. This also protects the network from abuse, since submitting messages has a cost.
+A participant can connect to any sequencer in the synchronizer. In this diagram each participant connects to one, but a participant can also connect to multiple sequencers simultaneously to reduce trust in any single operator and improve availability.
+
 
 ## Sequencers in detail
 
@@ -101,10 +98,6 @@ Canton supports multiple sequencer backends. The choice is made at the synchroni
 |---|---|
 | **BFT** (Byzantine Fault Tolerant) | Built-in backend for multi-operator deployments. Can run as a single node or across multiple peers. |
 | **External sequencers** (e.g., CometBFT) | A plugin model where an external ordering service provides the sequencing. Requires a sequencer driver on the classpath. |
-
-### Multiple sequencers
-
-A synchronizer can have more than one sequencer, and participants can connect to several of them simultaneously.
 
 ## Mediators in detail
 
