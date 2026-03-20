@@ -1,14 +1,14 @@
 ---
-title: Protocols
+title: How transactions work
 description: How participants, sequencers, and mediators coordinate to process transactions.
 icon: ArrowRightLeft
 ---
 
 The previous page introduced sequencers and mediators. This page shows how they work together with participant nodes to process a transaction: how a request becomes a committed (or rejected) result.
 
-## The two-phase commit
+## Step by step
 
-Canton uses a **two-phase commit** protocol, similar in spirit to two-phase commit in distributed databases. The goal is the same: ensure that all parties either agree on a transaction or none of them commit it.
+A transaction in Canton goes through two phases. First, participants submit and validate. Then, the mediator decides and the result is distributed. This pattern (known as a "two-phase commit" in distributed systems) ensures that all parties either agree on a transaction or none of them commit it.
 
 ### Phase 1: submit and confirm
 
@@ -30,4 +30,4 @@ Canton uses a **two-phase commit** protocol, similar in spirit to two-phase comm
 
 ## Next step
 
-Now that you understand how the protocol works, the next page covers the security properties and trust assumptions that Canton provides.
+Now that you understand how the protocol works, the next page explains topology management: how Canton nodes establish and maintain the shared knowledge about identities, keys, and permissions that makes all of this work.
