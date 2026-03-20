@@ -1,112 +1,60 @@
 ---
-title: Core concepts
-description: Parties, contracts, transactions, and the privacy model that ties them together.
-icon: Layers
+title: Privacy model
+description: How Canton enforces privacy within transactions, giving each participant only the views it needs.
+icon: EyeOff
 ---
 
-This page introduces the foundational ideas behind Canton. If you have already worked through the [Daml section](/daml), you have seen parties, signatories, and choices from the smart contract perspective. This page explains how those same ideas work at the network level, where multiple organizations are involved.
+The previous page mentioned that Canton is private by default. This page explains how that works in practice: how a single transaction can involve multiple parties across different organizations, yet each participant only sees the parts that involve its own parties.
 
-## Parties and participants
+## Transaction trees
 
-A **party** is a real-world actor: a person, a company, an institution. Parties do not interact with the network directly. Instead, each party is hosted on a **participant node** operated by an organization. The participant acts on the party's behalf: it stores the party's contracts, submits transactions for it, and confirms transactions that involve it.
+When you exercise a choice on a contract, the result is not a single flat operation. It is a **transaction tree**: a hierarchy of actions where each action can trigger further sub-actions.
 
-Think of the relationship like email: you (the party) do not talk to the internet directly. Your email provider (the participant) sends and receives messages on your behalf. You trust your provider to handle your data correctly.
-
-One participant can host many parties. A large bank, for example, might host thousands of customer parties on a single participant node. And one party can be hosted on multiple participants (called **multi-hosting**), which gives the party redundancy or lets it interact through different organizations' infrastructure.
+Consider the share trade from the previous page. Alice exercises a "Swap" choice on a trade contract that exchanges her cash for Bob's shares. This single choice triggers two sub-actions:
 
 ```mermaid
 flowchart TB
-    subgraph p1 ["Participant Node — Acme Bank"]
-        direction TB
-        A["Alice"]
-        B["Bob"]
-    end
+    Swap["Exercise Swap\n(Alice, Bob)"]
+    Cash["Transfer cash\n(Alice, Acme Bank)"]
+    Shares["Transfer shares\n(Bob, Keystone Brokers)"]
 
-    subgraph p2 ["Participant Node — Keystone Brokers"]
-        direction TB
-        C["Charlie"]
-        A2["Alice"]
-    end
-
-    A -. "same party,\ntwo participants" .-> A2
-
-    p1 <--> sync["Synchronizer"]
-    p2 <--> sync
+    Swap --> Cash
+    Swap --> Shares
 ```
 
-Alice is hosted on both participant nodes. If Acme Bank's infrastructure goes down, Alice can still transact through Keystone Brokers. Bob and Charlie are each hosted on a single participant.
+The entire tree is **atomic**: it either fully succeeds or fully fails. There is no state where Alice's cash has moved but Bob's shares have not.
 
-## Contracts and the active contract set
+## Views: what each participant sees
 
-A **contract** is a piece of shared state between parties. It records facts ("Alice owes Bob $100") and defines rules for how those facts can change ("only Alice can trigger payment").
+Canton does not simply hide entire transactions from uninvolved parties. It operates at a finer level: each participant only receives the **views** (branches of the tree) that involve its own parties. Everything else is invisible.
 
-At any given time, each participant maintains an **active contract set (ACS)**: the collection of contracts that are currently live for the parties it hosts. Think of it like a set of unspent outputs, if you are familiar with UTXO-based systems, or like the current rows in a database table.
-
-When a contract is created, it enters the ACS. When it is archived (consumed by a choice), it leaves the ACS. Contracts are never modified in place. Instead, you archive the old contract and create a new one with updated data.
-
-## Transactions
-
-A **transaction** is an atomic operation that creates and archives contracts. "Atomic" means it either fully succeeds or fully fails. There is no in-between state where some contracts are created but others are not.
-
-Transactions are structured as trees. A top-level action (like exercising a choice) can trigger sub-actions (archiving one contract, creating another). The entire tree is committed or rejected as a unit.
-
-### A simple example
-
-Suppose Alice wants to pay Bob, settling a `PaymentObligation` contract:
-
-1. Alice exercises the `Pay` choice on the obligation contract.
-2. The choice body archives the obligation.
-3. If the transaction is confirmed by all required parties, the obligation leaves the ACS.
-
-From the outside, this looks like a single event: "Alice paid Bob." Inside, it is a tree of actions that the protocol validates step by step.
-
-## Privacy: who sees what
-
-Canton enforces privacy at the transaction level. When a transaction is processed, each participant only sees the parts (called **views**) that involve its own parties. Everything else is invisible.
-
-Consider a delivery-versus-payment (DvP) scenario where Alice trades an IOU from a Bank for shares registered at a Share Registry:
-
-```mermaid
-flowchart TB
-    DvP["DvP Swap (Alice, Bob)"]
-    IOU["Transfer IOU (Alice, Bank)"]
-    Share["Transfer Share (Bob, Registry)"]
-
-    DvP --> IOU
-    DvP --> Share
-
-    style DvP fill:#e8f4fd,stroke:#2980b9
-    style IOU fill:#fef3e2,stroke:#e67e22
-    style Share fill:#e9f7ef,stroke:#27ae60
-```
+Using the trade example:
 
 | Participant | What it sees |
 |---|---|
-| Alice's participant | The DvP swap and the IOU transfer |
-| Bob's participant | The DvP swap and the share transfer |
-| Bank's participant | Only the IOU transfer |
-| Registry's participant | Only the share transfer |
+| Alice's participant | The Swap and the cash transfer |
+| Bob's participant | The Swap and the share transfer |
+| Acme Bank's participant | Only the cash transfer |
+| Keystone Brokers' participant | Only the share transfer |
 
-The Bank never learns about the share transfer, and the Registry never learns about the IOU. Each party sees exactly what it needs to see, and nothing more. This is called **sub-transaction privacy**, and it is enforced by the protocol, not by application code.
+Acme Bank never learns about the share transfer, and Keystone Brokers never learns about the cash transfer. Each party sees exactly what it needs to validate its part of the transaction, and nothing more.
 
-## Stakeholders and authorization
+## How this is enforced
 
-Every contract has **stakeholders**: the parties who have a stake in the contract's existence. At minimum, the signatories are stakeholders. Observers (parties who can see the contract but did not sign it) are also stakeholders.
+Sub-transaction privacy is not an access control layer on top of the data. It is built into the protocol itself:
 
-For a transaction to be valid, it must be **authorized** by the right parties:
+1. The submitting participant encrypts each view separately, using only the keys of the participants that need to see it.
+2. The synchronizer delivers the encrypted views to the relevant participants. It cannot read them.
+3. Each participant decrypts only the views intended for it, validates them, and responds.
 
-- Creating a contract requires authorization from all signatories.
-- Exercising a choice requires authorization from the controller.
-- Archiving a contract (through a choice) is authorized by the controller of that choice.
+No participant ever receives data it should not see. There is no central store where all views exist in the clear, and no configuration to get wrong. The encryption boundaries are determined by the Daml contract's stakeholder rules.
 
-The protocol enforces these rules across organizational boundaries. A participant cannot forge authorization on behalf of a party it does not host.
+## Why this matters
 
-## Finality
+In most distributed ledger systems, privacy is either all-or-nothing: either every node sees every transaction, or you silo data into separate channels that cannot transact atomically.
 
-Once a transaction is committed in Canton, it is final. There is no rollback, no chain reorganization, and no waiting for additional confirmations. When all required participants confirm a transaction, the result is permanent.
-
-This is different from many blockchain systems where you must wait for several blocks before considering a transaction "safe." In Canton, a confirmed transaction is immediately and irrevocably part of the ledger.
+Canton avoids this trade-off. A single atomic transaction can span multiple organizations, and each one only sees its own slice. This means you can build workflows where a bank, a broker, and an insurer all participate in the same settlement, without any of them learning more than they need to.
 
 ## Next step
 
-Now that you understand parties, contracts, transactions, and privacy, the next page explains the protocol that makes all of this work: how messages flow between participants and synchronizers to achieve consensus.
+Now that you understand how privacy works at the transaction level, the next page explains the protocol that coordinates all of this: how messages flow between participants and synchronizers to achieve consensus.
