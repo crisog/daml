@@ -8,7 +8,9 @@ The previous page showed how Canton enforces privacy at the transaction level. T
 
 ## What is a synchronizer?
 
-A synchronizer is the coordination layer between participant nodes. It does not run Daml contracts or store contract data. Its only job is to ensure that participants agree on the order and outcome of transactions.
+A synchronizer is not a node, a process, or a piece of software you install. It is a logical name for a group of sequencer and mediator nodes that work together to coordinate transactions between participants.
+
+In practice, participants connect directly to one or more **sequencer nodes**. Sequencers are the only entry point into a synchronizer. All messages (from participants to mediators, and back) flow through them. Participants and mediators never communicate directly.
 
 A synchronizer consists of two types of components:
 
@@ -16,6 +18,24 @@ A synchronizer consists of two types of components:
 |---|---|
 | **Sequencer** | Orders messages and delivers them to recipients. |
 | **Mediator** | Collects confirmations and produces transaction verdicts. |
+
+```mermaid
+flowchart LR
+    P1["Participant"]
+
+    subgraph sync ["Synchronizer"]
+        SQ1["Sequencer"]
+        SQ2["Sequencer"]
+        MD["Mediator"]
+        SQ1 <--> MD
+        SQ2 <--> MD
+    end
+
+    P1 <--> SQ1
+    P1 <--> SQ2
+```
+
+The participant connects to sequencer nodes inside the synchronizer. The synchronizer boundary is logical, not a separate service.
 
 ## Who runs a synchronizer?
 
