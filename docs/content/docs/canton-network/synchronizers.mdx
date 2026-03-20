@@ -73,22 +73,21 @@ The sequencer is the message backbone of Canton. Every protocol message between 
 
 ### What the sequencer does not do
 
-- **Read message contents.** Payloads are encrypted by the sender. The sequencer sees metadata (sender, recipients, size) but cannot decrypt the actual transaction data.
+- **Read message contents.** Payloads are encrypted by the sender. The sequencer sees metadata (such as recipients) but cannot decrypt the actual transaction data.
 - **Make decisions.** The sequencer does not approve or reject transactions. It only orders and delivers.
 
 ### Sequencer backends
 
 Canton supports multiple sequencer backends. The choice is made at the synchronizer level, and all sequencer nodes on a given synchronizer run the same technology:
 
-| Backend | When to use it |
+| Backend | Description |
 |---|---|
-| **Relational database** (e.g., PostgreSQL) | Simpler deployments where a single entity operates the sequencer. |
-| **BFT consensus** (Byzantine Fault Tolerant) | Multi-operator deployments where operators do not fully trust each other. |
-| **Distributed ledgers** (e.g., CometBFT, Hyperledger Fabric) | Deployments that want to leverage an existing blockchain infrastructure for ordering. |
+| **BFT** (Byzantine Fault Tolerant) | Built-in backend for multi-operator deployments. Can run as a single node or across multiple peers. |
+| **External sequencers** (e.g., CometBFT) | A plugin model where an external ordering service provides the sequencing. Requires a sequencer driver on the classpath. |
 
 ### Multiple sequencers
 
-A synchronizer can have more than one sequencer. Participants can connect to any of them. This provides redundancy: if one sequencer goes down, participants can switch to another without losing data.
+A synchronizer can have more than one sequencer, and participants can connect to several of them simultaneously.
 
 ## Mediators in detail
 
@@ -97,7 +96,7 @@ The mediator is the decision-maker in the two-phase commit protocol.
 ### What the mediator does
 
 - **Collects confirmations.** After the sequencer delivers a transaction request to participants, each confirming participant sends a response. The mediator collects these responses.
-- **Produces a verdict.** If all required confirmers approve before the deadline, the mediator approves the transaction. If any reject, or the deadline passes, the mediator rejects it.
+- **Produces a verdict.** The mediator computes one of three outcomes: **approve** (all required confirmers agreed), **reject** (a required confirmer disagreed), or **timed out** (the deadline passed before all responses arrived).
 - **Records the outcome.** The mediator persists every verdict for auditability. If a dispute arises later, there is a record of what happened and why.
 
 ### What the mediator does not do
@@ -107,7 +106,7 @@ The mediator is the decision-maker in the two-phase commit protocol.
 
 ### Mediator groups
 
-A synchronizer can split its mediator workload across multiple **mediator groups**. Each group handles a subset of transactions. This allows the coordination layer to scale horizontally as transaction volume grows.
+A synchronizer can distribute its mediator workload across multiple **mediator groups**. Each group can contain several mediators with a configurable threshold: at least that many mediators in the group must reach the same verdict before the result is delivered to participants. A mediator can only belong to a single group. This provides both fault tolerance (no single mediator can produce a wrong verdict) and workload distribution.
 
 ## Trust model
 
