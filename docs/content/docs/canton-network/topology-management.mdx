@@ -30,64 +30,32 @@ To build a system like this without a central authority, Canton follows four pri
 
 4. **Asymmetric identity needs.** Large organizations like Acme Bank often want to be publicly identifiable, while individual customers like Alice may prefer to remain pseudonymous. Canton accommodates both.
 
-## Namespaces and unique identifiers
+## Identities and namespaces
 
-### Namespaces
+Every organization on a Canton network controls its own **namespace**. Think of it like a domain name: Acme Bank controls `acme_ns`, Keystone Brokers controls `keystone_ns`, and neither needs the other's permission. A namespace is created by generating a root key pair and publishing a self-signed certificate that declares the key as the authority for that namespace.
 
-When Acme Bank sets up its participant node for the first time, it generates a root key pair. The key's unique identifier (a hash of the public key, like `acme_ns`) becomes Acme Bank's **namespace**. Acme Bank then publishes a self-signed certificate: the root key signs a statement declaring itself as the authority for this namespace.
+Every identity (a node, a party) is represented by a **unique identifier (UID)** in the format `identifier::namespace`. For example, `alice::acme_ns` is Alice at Acme Bank, while `alice::keystone_ns` is a completely different Alice at Keystone Brokers. The namespace makes each identity globally unique.
 
-Think of it like registering a domain name: once you control `acme_ns`, everything underneath it (parties, keys, delegations) belongs to you. No one else can create identities in your namespace, and you do not need anyone's permission to create yours. Acme Bank controls `acme_ns`, Keystone Brokers controls `keystone_ns`, and the two are completely independent.
+### Who controls a party's identity?
 
-### Unique identifiers (UIDs)
+Canton supports three models for how a party's identity is managed, depending on how much control the party wants.
 
-Every identity in Canton (a node, a party) is represented by a unique identifier with the format:
+#### Hosted party
 
-```
-identifier::namespace
-```
+In a retail banking scenario, Alice is a regular customer of Acme Bank. Her party is created in Acme Bank's namespace: `alice::acme_ns`. Acme Bank controls Alice's identity and submits transactions on her behalf. Alice trusts Acme Bank to act correctly, similar to how you trust your bank to process your payments.
 
-For example:
+This is the simplest model and the default. Most parties on a Canton network work this way.
 
-| UID | What it represents |
-|---|---|
-| `participant1::acme_ns` | Acme Bank's participant node |
-| `alice::acme_ns` | Alice, a customer of Acme Bank |
-| `participant1::keystone_ns` | Keystone Brokers' participant node |
-| `alice::keystone_ns` | A different "Alice" at Keystone Brokers |
+#### Decoupled party
 
-Two UIDs can share the same identifier (like `alice`) as long as their namespaces differ. Acme Bank's Alice and Keystone Brokers' Alice are completely separate identities.
+In an institutional setting, Alice is a large asset manager. She wants to use Acme Bank's infrastructure for execution, but she does not want Acme Bank to control her identity. Alice creates her own namespace (`alice_ns`) and her UID becomes `alice::alice_ns`. Acme Bank's participant still hosts her and submits transactions, but Alice's namespace owner retains control over her identity. If Alice ever wants to move to a different participant, she can do so without Acme Bank's permission.
 
-### Party identity vs. node identity
+#### External party
 
-By default, parties are created within the namespace of their hosting participant. Alice, as a customer of Acme Bank, gets the UID `alice::acme_ns`. This means Acme Bank's namespace owner controls Alice's identity.
+In a decentralized exchange scenario, Alice is a trader who does not want any single participant to have submission rights over her transactions. Alice holds her own signing keys and signs every transaction herself. No participant can act on her behalf without her explicit cryptographic approval for each transaction.
 
-However, you can decouple party ownership from hosting. Suppose Alice is a large institutional client who wants to control her own identity. She can create her own namespace (`alice_ns`) and her UID becomes `alice::alice_ns`. Acme Bank's participant can still host her, but Alice retains control over her own identity.
+In this model, any participant node can prepare a transaction for Alice, but it will not be submitted until Alice signs it with her own key. Multiple confirming participants validate the transaction, but none of them control Alice's identity or can submit without her signature.
 
-```mermaid
-flowchart TB
-    subgraph coupled ["Default: Acme Bank controls Alice"]
-        direction TB
-        NS1["Namespace acme_ns"]
-        P1["Participant\nparticipant1::acme_ns"]
-        A1["Party\nalice::acme_ns"]
-        NS1 --- P1
-        NS1 --- A1
-        P1 -. hosts .-> A1
-    end
-
-    subgraph decoupled ["Decoupled: Alice controls herself"]
-        direction TB
-        NS2["Namespace acme_ns"]
-        NS3["Namespace alice_ns"]
-        P2["Participant\nparticipant1::acme_ns"]
-        A2["Party\nalice::alice_ns"]
-        NS2 --- P2
-        NS3 --- A2
-        P2 -. hosts .-> A2
-    end
-```
-
-In the decoupled case, Alice (namespace `alice_ns`) retains control over her identity even though Acme Bank's participant hosts her.
 
 ## Topology transactions
 
