@@ -56,6 +56,10 @@ In a decentralized exchange scenario, Alice is a trader who does not want any si
 
 In this model, any participant node can prepare a transaction for Alice, but it will not be submitted until Alice signs it with her own key. Multiple confirming participants validate the transaction, but none of them control Alice's identity or can submit without her signature.
 
+### Jointly owned namespaces
+
+So far, every namespace has a single root key controlled by one organization. But what about the Global Synchronizer itself? No single Super Validator should control its namespace. Canton supports **decentralized namespaces**, where multiple organizations jointly own a namespace and must reach a quorum to authorize changes. This is covered in detail on the [Decentralized namespaces](/canton-network/decentralized-namespaces) page.
+
 ## Topology transactions
 
 The topology state is stored as a key-value map, similar to a dictionary or hash map in code. Each entry has a unique key (determined by the type and content of the mapping) and a value. Topology transactions are the operations that modify this map.
@@ -82,6 +86,7 @@ Each mapping type governs a different aspect of the synchronizer's shared state:
 | Mapping | What it controls | Example |
 |---|---|---|
 | **NamespaceDelegation** | Delegates authority from a root key to intermediate keys. | Acme Bank delegates signing authority to an operational key. |
+| **DecentralizedNamespaceDefinition** | Establishes a namespace jointly owned by multiple organizations with a quorum threshold. | Three Super Validators create a shared namespace for the Global Synchronizer. |
 | **OwnerToKeyMapping** | Declares which signing and encryption keys a node uses. | Acme Bank's participant registers its protocol keys. |
 | **PartyToParticipant** | Defines which participants host a party and with what permissions. | Alice is hosted on Acme Bank's participant with Submission permission. |
 | **VettedPackages** | Lists the Daml packages a participant agrees to run. | Acme Bank opts in to running a specific trading contract. |
@@ -200,3 +205,4 @@ Earlier pages showed how transactions flow through the network. This page covere
 - **Serials** prevent replay attacks by enforcing strict version ordering.
 - **Proposals** let multiple organizations coordinate their signatures before a change takes effect.
 - **Delegation chains** allow root keys to be stored securely offline while operational keys handle day-to-day work.
+- **Decentralized namespaces** let multiple organizations share control of a namespace through quorum-based authorization.
