@@ -20,7 +20,7 @@ A decentralized namespace is created through a `DecentralizedNamespaceDefinition
 | **Threshold** | The minimum number of owner signatures required to authorize changes. |
 | **Owners** | The set of namespaces that jointly control this namespace. |
 
-The namespace itself is computed deterministically: Canton takes the fingerprints of all owner namespaces, sorts them, and hashes the result. This means the same set of owners always produces the same namespace, and no single owner's key is the "root."
+The namespace itself is computed deterministically from the **initial owners**: Canton takes the fingerprints of all owner namespaces, sorts them, and hashes the result. This means the same initial owner set always produces the same namespace, and no single owner's key is the "root."
 
 ### Creating the namespace
 
@@ -28,7 +28,7 @@ To create a decentralized namespace, **all** owners must sign the initial `Decen
 
 ### Authorizing subsequent changes
 
-Once the namespace exists, topology transactions within it (adding a sequencer, registering a mediator, changing parameters) require only the **threshold** number of owner signatures. This is where Canton's [proposal workflow](/canton-network/topology-management#proposals-and-multi-signature-authorization) comes in: one owner submits a proposal, others co-sign, and once the threshold is reached, the change takes effect.
+Once the namespace exists, topology transactions governed by it (adding a sequencer, registering a mediator, changing parameters) require at least the **threshold** number of owner signatures. Some mapping types can still require additional co-signers based on their own authorization rules. This is where Canton's [proposal workflow](/canton-network/topology-management#proposals-and-multi-signature-authorization) comes in: one owner submits a proposal, others co-sign, and once the required signatures are present, the change takes effect.
 
 ### Updating ownership
 
