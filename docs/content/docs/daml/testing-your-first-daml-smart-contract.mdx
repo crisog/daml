@@ -16,9 +16,9 @@ In the [previous page](/daml/creating-your-first-daml-smart-contract), you built
 
 ## What is Daml Script?
 
-Daml Script is a testing framework built into Daml. It gives you an **in-memory ledger** that behaves exactly like a real one. No mocks, no stubs.
+Daml Script is a testing framework built into Daml. It gives you an **in-memory ledger** (the IDE Ledger) that implements core Canton ledger behavior for fast tests. No mocks, no stubs.
 
-If you have used unit tests in Go, Python, or JavaScript, the concept is the same: you set up state, perform actions, and assert outcomes. The difference is that instead of mocking a database, Daml Script gives you a real ledger simulation.
+If you have used unit tests in Go, Python, or JavaScript, the concept is the same: you set up state, perform actions, and assert outcomes. The difference is that instead of mocking a database, Daml Script executes against a real ledger engine designed for rapid model-level testing.
 
 ## Add the imports
 
@@ -101,7 +101,7 @@ Creates two test identities on the simulated ledger.
         amount = 100.0
 ```
 
-- **`submit (actAs [alice, bob])`** submits a transaction on behalf of both parties. In testing, `actAs` lets you provide the authority of multiple parties at once. In production, parties submit independently (you will learn about the propose/accept pattern in a later page).
+- **`submit (actAs [alice, bob])`** submits a transaction on behalf of both parties. In testing, `actAs` lets you provide the authority of multiple parties at once. In production, you still need the required party authorizations, often coordinated through application flows (for example, propose/accept style workflows).
 - **`createCmd`** creates a new contract from the template.
 - **`obligationCid`** is the contract ID, a handle you use to reference this contract later.
 
@@ -206,15 +206,15 @@ testUnauthorizedPay = script do
 
 The ledger enforces `controller debtor`, not your code. Even if someone tries to bypass your application and submit directly to the ledger, the authorization check still holds.
 
-## Set the init script in `daml.yaml`
+## Optional: set the init script in `daml.yaml`
 
-Open `daml.yaml` and set the init script so `dpm test` knows which scripts to run:
+Open `daml.yaml` and set the init script if you also want a default startup script (for example with local sandbox runs):
 
 ```yaml
 init-script: Main:test
 ```
 
-Note that `dpm test` runs **all** top-level `Script ()` declarations in your project, so `testInvalidAmount` and `testUnauthorizedPay` will run automatically alongside `test`.
+`dpm test` runs **all** top-level `Script ()` declarations in your project, regardless of `init-script`, so `testInvalidAmount` and `testUnauthorizedPay` will run automatically alongside `test`.
 
 ## Build and test
 

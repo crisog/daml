@@ -22,7 +22,7 @@ A transaction in Canton goes through two phases. First, participants submit and 
 
 ### Phase 2: decide and distribute
 
-5. **Decide.** The mediator collects all responses. If every required confirmer approved before the deadline, the mediator produces an "approve" verdict. If any required confirmer rejects, or the deadline passes, the verdict is "reject."
+5. **Decide.** The mediator collects all responses. If every required confirmer approved before the deadline, the mediator produces an "approve" verdict. If any required confirmer rejects, the verdict is "reject." If the deadline passes first, the verdict is "timed out."
 
 6. **Distribute.** The sequencer delivers the verdict to all involved participants.
 

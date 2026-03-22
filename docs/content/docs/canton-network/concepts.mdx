@@ -47,7 +47,7 @@ Sub-transaction privacy is not an access control layer on top of the data. It is
 2. The synchronizer delivers the encrypted views to the relevant participants. It cannot read them.
 3. Each participant decrypts only the views intended for it, validates them, and responds.
 
-No participant ever receives data it should not see. There is no central store where all views exist in the clear, and no configuration to get wrong. The encryption boundaries are determined by the Daml contract's stakeholder rules.
+No participant ever receives data it should not see. There is no central store where all views exist in the clear, and no configuration to get wrong. The encryption boundaries are determined by Daml visibility rules (informees, including stakeholders and controllers).
 
 ## Why this matters
 
