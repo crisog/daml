@@ -6,36 +6,20 @@ import { CreateForm } from '../components/create-form'
 import { CompileStatus } from '../components/compile-status'
 import { Console, type ConsoleHandle } from '../components/console'
 import { DamlEditor } from '../editor/daml-editor'
+import { ExamplePicker } from '../components/example-picker'
 import { parseDamlSource } from '../lib/daml-parser'
+import { EXAMPLES } from '../lib/examples'
 import type { Party } from '../lib/types'
 
 export const Route = createLazyFileRoute('/')({
   component: PlaygroundPage,
 })
 
-const DEFAULT_SOURCE = `module Main where
-
-template PaymentObligation
-  with
-    debtor : Party
-    creditor : Party
-    amount : Decimal
-  where
-    ensure amount > 0.0
-
-    signatory debtor, creditor
-
-    nonconsuming choice Pay : ()
-      controller debtor
-      do
-        archive self
-`
-
 function PlaygroundPage(): React.JSX.Element {
   const [parties, setParties] = useState<Party[]>([])
   const [activeParty, setActiveParty] = useState<Party | null>(null)
   const [refreshKey, setRefreshKey] = useState(0)
-  const [source, setSource] = useState(DEFAULT_SOURCE)
+  const [source, setSource] = useState(EXAMPLES[0]?.source ?? '')
   const [deployed, setDeployed] = useState(false)
   const consoleRef = useRef<ConsoleHandle>(null)
 
@@ -55,6 +39,13 @@ function PlaygroundPage(): React.JSX.Element {
           }}
           onError={(err) => {
             consoleRef.current?.error(`Deploy failed: ${err}`)
+          }}
+        />
+        <ExamplePicker
+          onSelect={(src, name) => {
+            setSource(src)
+            setDeployed(false)
+            consoleRef.current?.info(`Loaded example: ${name}`)
           }}
         />
         {activeParty && (
