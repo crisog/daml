@@ -11,7 +11,10 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
+	"sync/atomic"
 )
+
+var buildCounter atomic.Int64
 
 type CompileRequest struct {
 	Files map[string]string `json:"files"`
@@ -34,6 +37,21 @@ func handleHealth(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleCompile(w http.ResponseWriter, r *http.Request) {
+	// Check sandbox readiness before compiling
+	sandboxURL := os.Getenv("SANDBOX_URL")
+	if sandboxURL == "" {
+		sandboxURL = "http://localhost:7575"
+	}
+	readyResp, err := http.Get(sandboxURL + "/v2/packages")
+	if err != nil || readyResp.StatusCode != 200 {
+		writeJSON(w, http.StatusServiceUnavailable, CompileResponse{Errors: []string{"sandbox not ready yet, try again in a few seconds"}})
+		if readyResp != nil {
+			readyResp.Body.Close()
+		}
+		return
+	}
+	readyResp.Body.Close()
+
 	if r.Body == nil {
 		writeJSON(w, http.StatusBadRequest, CompileResponse{Errors: []string{"missing request body"}})
 		return
@@ -57,15 +75,17 @@ func handleCompile(w http.ResponseWriter, r *http.Request) {
 	}
 	defer os.RemoveAll(tmpDir)
 
-	damlYAML := `sdk-version: 3.4.11
+	version := fmt.Sprintf("0.0.%d", buildCounter.Add(1))
+	darName := fmt.Sprintf("playground-project-%s.dar", version)
+	damlYAML := fmt.Sprintf(`sdk-version: 3.4.11
 name: playground-project
 source: daml
-version: 0.0.1
+version: %s
 dependencies:
   - daml-prim
   - daml-stdlib
   - daml-script
-`
+`, version)
 	if err := os.WriteFile(filepath.Join(tmpDir, "daml.yaml"), []byte(damlYAML), 0644); err != nil {
 		writeJSON(w, http.StatusInternalServerError, CompileResponse{Errors: []string{"failed to write daml.yaml: " + err.Error()}})
 		return
@@ -98,16 +118,11 @@ dependencies:
 		return
 	}
 
-	darPath := filepath.Join(tmpDir, ".daml", "dist", "playground-project-0.0.1.dar")
+	darPath := filepath.Join(tmpDir, ".daml", "dist", darName)
 	darBytes, err := os.ReadFile(darPath)
 	if err != nil {
 		writeJSON(w, http.StatusInternalServerError, CompileResponse{Errors: []string{"failed to read DAR: " + err.Error()}})
 		return
-	}
-
-	sandboxURL := os.Getenv("SANDBOX_URL")
-	if sandboxURL == "" {
-		sandboxURL = "http://localhost:7575"
 	}
 
 	uploadResp, err := http.Post(sandboxURL+"/v2/packages", "application/octet-stream", bytes.NewReader(darBytes))
@@ -116,10 +131,10 @@ dependencies:
 		return
 	}
 	defer uploadResp.Body.Close()
-	io.Copy(io.Discard, uploadResp.Body)
+	respBody, _ := io.ReadAll(uploadResp.Body)
 
 	if uploadResp.StatusCode < 200 || uploadResp.StatusCode >= 300 {
-		writeJSON(w, http.StatusBadGateway, CompileResponse{Errors: []string{fmt.Sprintf("sandbox returned %d", uploadResp.StatusCode)}})
+		writeJSON(w, http.StatusBadGateway, CompileResponse{Errors: []string{fmt.Sprintf("sandbox returned %d: %s", uploadResp.StatusCode, string(respBody))}})
 		return
 	}
 
