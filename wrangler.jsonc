@@ -8,6 +8,10 @@
     { "pattern": "daml.run/*", "zone_name": "daml.run" }
   ],
 
+  "observability": {
+    "enabled": true
+  },
+
   "d1_databases": [
     {
       "binding": "DB",
