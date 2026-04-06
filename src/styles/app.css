@@ -1,11 +1,11 @@
 @import 'tailwindcss';
-@import 'fumadocs-ui/css/neutral.css';
 @import 'fumadocs-ui/css/preset.css';
 
-/* Playground theme tokens (Canton palette) */
+/* Canton theme for fumadocs - dark only, matching playground palette */
 @theme {
   --font-mono: 'SF Mono', 'Cascadia Code', 'Fira Code', monospace;
 
+  /* Playground tokens */
   --color-page: #030206;
   --color-surface: #0d0b12;
   --color-elevated: #16131e;
@@ -35,4 +35,61 @@
   --color-error-light: #ff6b6b22;
   --color-success: #F3FF97;
   --color-success-light: #F3FF9722;
+
+  /* Fumadocs light theme - soft purple-tinted Canton palette */
+  --color-fd-background: #f8f7fc;
+  --color-fd-foreground: #1a1525;
+  --color-fd-muted: #eeeaf5;
+  --color-fd-muted-foreground: #6b6280;
+  --color-fd-popover: #f4f2fa;
+  --color-fd-popover-foreground: #1a1525;
+  --color-fd-card: #eeeaf5;
+  --color-fd-card-foreground: #1a1525;
+  --color-fd-border: #d8d2e8;
+  --color-fd-primary: #5a3cc0;
+  --color-fd-primary-foreground: #f8f7fc;
+  --color-fd-secondary: #e8e3f3;
+  --color-fd-secondary-foreground: #1a1525;
+  --color-fd-accent: #875CFF22;
+  --color-fd-accent-foreground: #1a1525;
+  --color-fd-ring: #875CFF;
+  --color-fd-overlay: rgba(26, 21, 37, 0.2);
+}
+
+.dark {
+  --color-fd-background: #030206;
+  --color-fd-foreground: #FFFFFC;
+  --color-fd-muted: #0d0b12;
+  --color-fd-muted-foreground: #5a5660;
+  --color-fd-popover: #0d0b12;
+  --color-fd-popover-foreground: #c8c8c4;
+  --color-fd-card: #0d0b12;
+  --color-fd-card-foreground: #FFFFFC;
+  --color-fd-border: #2a2730;
+  --color-fd-primary: #F3FF97;
+  --color-fd-primary-foreground: #030206;
+  --color-fd-secondary: #16131e;
+  --color-fd-secondary-foreground: #c8c8c4;
+  --color-fd-accent: #875CFF33;
+  --color-fd-accent-foreground: #FFFFFC;
+  --color-fd-ring: #875CFF;
+  --color-fd-overlay: rgba(3, 2, 6, 0.8);
+}
+
+@theme static {
+  --color-fd-info: oklch(62.3% 0.214 259.815);
+  --color-fd-warning: oklch(76.9% 0.188 70.08);
+  --color-fd-error: oklch(63.7% 0.237 25.331);
+  --color-fd-success: oklch(72.3% 0.219 149.579);
+  --color-fd-idea: oklch(70.5% 0.209 60.849);
+  --color-fd-diff-remove: rgba(200, 10, 100, 0.12);
+  --color-fd-diff-remove-symbol: rgb(230, 10, 100);
+  --color-fd-diff-add: rgba(14, 180, 100, 0.1);
+  --color-fd-diff-add-symbol: rgb(10, 200, 100);
+}
+
+.dark #nd-sidebar {
+  --color-fd-muted: #16131e;
+  --color-fd-secondary: #1e1a28;
+  --color-fd-muted-foreground: #A89F91;
 }
