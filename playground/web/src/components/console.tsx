@@ -36,13 +36,15 @@ export const Console = forwardRef<ConsoleHandle>(function Console(_, ref) {
     const term = new Terminal({
       cursorBlink: false,
       cursorStyle: 'bar',
+      cursorInactiveStyle: 'none',
       disableStdin: true,
       fontSize: 13,
       fontFamily: "'SF Mono', 'Cascadia Code', 'Fira Code', monospace",
       theme: {
         background: '#030206',
         foreground: '#c8c8c4',
-        cursor: '#875CFF',
+        cursor: 'transparent',
+        cursorAccent: 'transparent',
         selectionBackground: '#875CFF44',
         green: '#F3FF97',
         red: '#ff6b6b',
@@ -61,8 +63,8 @@ export const Console = forwardRef<ConsoleHandle>(function Console(_, ref) {
     termRef.current = term
     fitRef.current = fit
 
-    term.writeln(`${CYAN}Daml Playground Console${RESET}`)
-    term.writeln(`${DIM}Deploy a contract and create parties to get started${RESET}`)
+    term.writeln('')
+    term.writeln(`  ${CYAN}Daml Playground Console${RESET}`)
     term.writeln('')
 
     const observer = new ResizeObserver(() => fit.fit())
@@ -76,16 +78,16 @@ export const Console = forwardRef<ConsoleHandle>(function Console(_, ref) {
 
   useImperativeHandle(ref, () => ({
     info(msg: string) {
-      termRef.current?.writeln(`${timestamp()} ${CYAN}INFO${RESET}  ${msg}`)
+      termRef.current?.writeln(`  ${timestamp()} ${CYAN}INFO${RESET}  ${msg}`)
     },
     success(msg: string) {
-      termRef.current?.writeln(`${timestamp()} ${GREEN}OK${RESET}    ${msg}`)
+      termRef.current?.writeln(`  ${timestamp()} ${GREEN}OK${RESET}    ${msg}`)
     },
     error(msg: string) {
-      termRef.current?.writeln(`${timestamp()} ${RED}ERR${RESET}   ${msg}`)
+      termRef.current?.writeln(`  ${timestamp()} ${RED}ERR${RESET}   ${msg}`)
     },
     warn(msg: string) {
-      termRef.current?.writeln(`${timestamp()} ${YELLOW}WARN${RESET}  ${msg}`)
+      termRef.current?.writeln(`  ${timestamp()} ${YELLOW}WARN${RESET}  ${msg}`)
     },
     clear() {
       termRef.current?.clear()
