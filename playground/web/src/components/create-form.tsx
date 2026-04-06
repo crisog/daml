@@ -81,7 +81,7 @@ export function CreateForm({ templates, parties, onSuccess, onError }: CreateFor
 
   return (
     <div className="border-t border-stone p-3">
-      <h3 className="mb-2 text-xs font-medium text-ink-secondary">Create Contract</h3>
+      <h3 className="mb-2 text-xs font-medium text-lilac">Create Contract</h3>
 
       {templates.length > 1 && (
         <div className="mb-2 flex flex-wrap gap-1">
@@ -92,10 +92,10 @@ export function CreateForm({ templates, parties, onSuccess, onError }: CreateFor
                 setSelectedTemplate(t.name)
                 setFieldValues({})
               }}
-              className={`rounded-sm px-2 py-0.5 text-xs ${
+              className={`rounded-sm border px-2 py-0.5 text-xs ${
                 selectedTemplate === t.name
-                  ? 'bg-accent text-ink-inverted'
-                  : 'bg-elevated text-ink-secondary'
+                  ? 'border-accent bg-accent-light text-accent'
+                  : 'border-stone text-ink-secondary'
               }`}
             >
               {t.name}
@@ -107,7 +107,7 @@ export function CreateForm({ templates, parties, onSuccess, onError }: CreateFor
       {template && (
         <>
           {templates.length <= 1 && (
-            <p className="mb-2 text-xs text-accent">{template.name}</p>
+            <p className="mb-2 text-xs text-lilac">{template.name}</p>
           )}
 
           <div className="mb-2">
@@ -117,10 +117,10 @@ export function CreateForm({ templates, parties, onSuccess, onError }: CreateFor
                 <button
                   key={p.id}
                   onClick={() => toggleActAs(p.id)}
-                  className={`rounded-sm px-2 py-0.5 text-xs ${
+                  className={`rounded-sm border px-2 py-0.5 text-xs ${
                     actAsIds.includes(p.id)
-                      ? 'bg-success text-ink-inverted'
-                      : 'bg-elevated text-ink-secondary'
+                      ? 'border-accent bg-accent-light text-accent'
+                      : 'border-stone text-ink-secondary'
                   }`}
                 >
                   {p.displayName}

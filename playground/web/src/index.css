@@ -11,27 +11,28 @@
   /* Canton White / light tones for text */
   --color-ink: #FFFFFC;
   --color-ink-secondary: #c8c8c4;
-  --color-ink-muted: #8a8880;
+  --color-ink-muted: #5a5660;
   --color-ink-inverted: #030206;
 
-  /* Borders - derived from taupe */
+  /* Borders */
   --color-stone: #2a2730;
   --color-stone-strong: #3d3a44;
 
-  /* Canton Purple - primary accent */
-  --color-accent: #875CFF;
-  --color-accent-hover: #7a4ff0;
-  --color-accent-light: #875CFF22;
+  /* Canton Yellow - primary accent (matches editor keywords) */
+  --color-accent: #F3FF97;
+  --color-accent-hover: #e6f280;
+  --color-accent-light: #F3FF9722;
 
-  /* Canton Yellow - primary highlight */
-  --color-yellow: #F3FF97;
-  --color-yellow-muted: #F3FF9733;
+  /* Canton Purple - secondary accent */
+  --color-purple: #875CFF;
+  --color-purple-soft: #b8a0ff;
+  --color-purple-muted: #875CFF22;
 
-  /* Canton Lilac - secondary */
+  /* Canton Lilac - tertiary */
   --color-lilac: #D5A5E3;
   --color-lilac-muted: #D5A5E333;
 
-  /* Canton Taupe - accent neutral */
+  /* Canton Taupe - neutral */
   --color-taupe: #A89F91;
 
   /* Semantic */
@@ -65,7 +66,7 @@ body {
 }
 
 ::selection {
-  background-color: var(--color-accent-light);
+  background-color: var(--color-purple-muted);
   color: var(--color-ink);
 }
 
@@ -90,9 +91,27 @@ button:disabled, [role='button']:disabled {
   opacity: 0.5;
 }
 
-/* Form inputs for dark theme */
+/* Form inputs */
 input, select, textarea {
   background-color: var(--color-surface);
   border-color: var(--color-stone);
   color: var(--color-ink);
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-stone);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-stone-strong);
 }

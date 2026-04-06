@@ -44,8 +44,8 @@ function PlaygroundPage(): React.JSX.Element {
   return (
     <div className="flex h-screen flex-col bg-page text-ink">
       {/* Header */}
-      <header className="flex items-center gap-4 border-b border-stone px-4 py-2">
-        <h1 className="text-sm font-medium">Daml Playground</h1>
+      <header className="flex items-center gap-4 border-b border-stone bg-surface px-4 py-2">
+        <h1 className="text-sm font-medium text-accent">Daml Playground</h1>
         <CompileStatus
           getSource={() => ({ 'Main.daml': source })}
           onSuccess={() => {
@@ -117,7 +117,7 @@ function PlaygroundPage(): React.JSX.Element {
       </div>
 
       {/* Bottom: Console */}
-      <div className="h-56 shrink-0">
+      <div className="h-56 shrink-0 border-t border-stone-strong">
         <Console ref={consoleRef} />
       </div>
     </div>

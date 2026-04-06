@@ -34,7 +34,7 @@ export function PartyPanel({
 
   return (
     <div className="border-b border-stone p-3">
-      <h3 className="mb-2 text-xs font-medium text-ink-secondary">Parties</h3>
+      <h3 className="mb-2 text-xs font-medium text-lilac">Parties</h3>
       <div className="mb-2 flex gap-2">
         <input
           value={name}
@@ -57,10 +57,10 @@ export function PartyPanel({
           <button
             key={p.id}
             onClick={() => onPartySelected(p)}
-            className={`rounded-sm px-2 py-0.5 text-xs transition-colors ${
+            className={`rounded-sm border px-2 py-0.5 text-xs transition-colors ${
               activeParty?.id === p.id
-                ? 'bg-accent text-ink-inverted'
-                : 'bg-elevated text-ink-secondary hover:bg-stone'
+                ? 'border-accent bg-accent-light text-accent'
+                : 'border-stone text-ink-secondary hover:border-stone-strong'
             }`}
           >
             {p.displayName}

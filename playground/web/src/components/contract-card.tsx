@@ -76,7 +76,7 @@ export function ContractCard({
 
   return (
     <div className="rounded-md border border-stone bg-page p-2">
-      <div className="mb-1 text-xs font-medium text-accent">
+      <div className="mb-1 text-xs font-medium text-lilac">
         {shortTemplate(contract.templateId)}
       </div>
       <div className="mb-1.5 font-mono text-xs text-ink-muted">
@@ -107,8 +107,8 @@ export function ContractCard({
                               }}
                 className={`rounded-sm px-2 py-0.5 text-xs ${
                   expandedChoice === c.name
-                    ? 'bg-accent text-ink-inverted'
-                    : 'bg-elevated text-ink-secondary hover:bg-stone'
+                    ? 'border border-accent bg-accent-light text-accent'
+                    : 'border border-stone text-ink-secondary hover:border-stone-strong'
                 }`}
               >
                 {c.name}
@@ -130,8 +130,8 @@ export function ContractCard({
                         onClick={() => toggleActAs(p.id)}
                         className={`rounded-sm px-1.5 py-0.5 text-xs ${
                           actAsIds.includes(p.id)
-                            ? 'bg-success text-ink-inverted'
-                            : 'bg-elevated text-ink-secondary'
+                            ? 'border border-accent bg-accent-light text-accent'
+                            : 'border border-stone text-ink-secondary'
                         }`}
                       >
                         {p.displayName}

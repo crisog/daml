@@ -64,7 +64,7 @@ export const Console = forwardRef<ConsoleHandle>(function Console(_, ref) {
     fitRef.current = fit
 
     term.writeln('')
-    term.writeln(`  ${CYAN}Daml Playground Console${RESET}`)
+    term.writeln(`  ${GREEN}Daml Playground Console${RESET}`)
     term.writeln('')
 
     const observer = new ResizeObserver(() => fit.fit())

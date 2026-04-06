@@ -50,7 +50,7 @@ export function ContractList({
 
   return (
     <div className="p-3">
-      <h3 className="mb-2 text-xs font-medium text-ink-secondary">
+      <h3 className="mb-2 text-xs font-medium text-lilac">
         Active Contracts ({contracts.length})
       </h3>
       <div className="flex flex-col gap-2">
