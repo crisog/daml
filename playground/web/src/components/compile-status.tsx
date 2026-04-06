@@ -5,9 +5,10 @@ import { compileAndDeploy } from '../lib/compiler'
 type CompileStatusProps = {
   getSource: () => Record<string, string>
   onSuccess?: () => void
+  onError?: (error: string) => void
 }
 
-export function CompileStatus({ getSource, onSuccess }: CompileStatusProps): React.JSX.Element {
+export function CompileStatus({ getSource, onSuccess, onError }: CompileStatusProps): React.JSX.Element {
   const [compiling, setCompiling] = useState(false)
   const [result, setResult] = useState<{ success: boolean; errors?: string[] } | null>(null)
 
@@ -17,9 +18,15 @@ export function CompileStatus({ getSource, onSuccess }: CompileStatusProps): Rea
     try {
       const res = await compileAndDeploy(getSource())
       setResult(res)
-      if (res.success) onSuccess?.()
+      if (res.success) {
+        onSuccess?.()
+      } else {
+        onError?.(res.errors?.join('\n') ?? 'Unknown error')
+      }
     } catch (e) {
-      setResult({ success: false, errors: [e instanceof Error ? e.message : 'Compile failed'] })
+      const msg = e instanceof Error ? e.message : 'Compile failed'
+      setResult({ success: false, errors: [msg] })
+      onError?.(msg)
     } finally {
       setCompiling(false)
     }

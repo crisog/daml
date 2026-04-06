@@ -10,6 +10,7 @@ type ContractListProps = {
   templates: DamlTemplate[]
   parties: Party[]
   onExercised: () => void
+  onLog?: (type: 'success' | 'error', msg: string) => void
 }
 
 function templateNameFromId(templateId: string): string {
@@ -23,6 +24,7 @@ export function ContractList({
   templates,
   parties,
   onExercised,
+  onLog,
 }: ContractListProps): React.JSX.Element | null {
   const [contracts, setContracts] = useState<ActiveContract[]>([])
   const [loading, setLoading] = useState(false)
@@ -64,6 +66,7 @@ export function ContractList({
               choices={choices}
               parties={parties}
               onExercised={onExercised}
+              onLog={onLog}
             />
           )
         })}

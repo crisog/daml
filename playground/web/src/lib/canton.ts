@@ -13,9 +13,26 @@ export async function createParty(displayName: string): Promise<Party> {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ partyIdHint: displayName, identityProviderId: '' }),
   })
-  if (!res.ok) throw new Error(`Failed to create party: ${res.statusText}`)
+  if (!res.ok) {
+    const body = await res.json().catch(() => null)
+    const cause = body?.cause ?? res.statusText
+    if (cause.includes('already exists') || cause.includes('already allocated')) {
+      return fetchExistingParty(displayName)
+    }
+    throw new Error(cause)
+  }
   const data = await res.json()
   return { id: data.partyDetails.party, displayName }
+}
+
+async function fetchExistingParty(displayName: string): Promise<Party> {
+  const res = await fetch(`${API}/v2/parties`)
+  if (!res.ok) throw new Error('Failed to list parties')
+  const data = await res.json()
+  const details = data.partyDetails as Array<{ party: string; isLocal: boolean }>
+  const match = details.find((p) => p.party.startsWith(`${displayName}::`))
+  if (!match) throw new Error(`Party ${displayName} not found`)
+  return { id: match.party, displayName }
 }
 
 export async function submitCreate(

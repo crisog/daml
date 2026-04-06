@@ -7,10 +7,11 @@ import type { DamlTemplate } from '../lib/daml-parser'
 type CreateFormProps = {
   templates: DamlTemplate[]
   parties: Party[]
-  onSuccess: () => void
+  onSuccess: (templateName: string) => void
+  onError?: (error: string) => void
 }
 
-export function CreateForm({ templates, parties, onSuccess }: CreateFormProps): React.JSX.Element | null {
+export function CreateForm({ templates, parties, onSuccess, onError }: CreateFormProps): React.JSX.Element | null {
   const [selectedTemplate, setSelectedTemplate] = useState<string>(templates[0]?.name ?? '')
   const [fieldValues, setFieldValues] = useState<Record<string, string>>({})
   const [actAsIds, setActAsIds] = useState<string[]>([])
@@ -38,17 +39,21 @@ export function CreateForm({ templates, parties, onSuccess }: CreateFormProps): 
   }
 
   async function handleSubmit() {
-    if (!template || actAsIds.length === 0) return
+    if (!template) return
     setSubmitting(true)
     setError(null)
     setResult(null)
 
     try {
       const args: Record<string, unknown> = {}
+      const partyIds = new Set<string>()
+
       for (const field of template.fields) {
         const raw = fieldValues[field.name] ?? ''
         if (field.type === 'Party') {
-          args[field.name] = resolvePartyId(raw)
+          const resolved = resolvePartyId(raw)
+          args[field.name] = resolved
+          if (resolved) partyIds.add(resolved)
         } else if (field.type === 'Decimal' || field.type === 'Int') {
           args[field.name] = raw
         } else if (field.type === 'Bool') {
@@ -58,12 +63,17 @@ export function CreateForm({ templates, parties, onSuccess }: CreateFormProps): 
         }
       }
 
-      await submitCreate(actAsIds, `#playground-project:Main:${template.name}`, args)
+      // Auto-derive actAs from all Party fields used in the contract
+      const derivedActAs = partyIds.size > 0 ? [...partyIds] : actAsIds
+
+      await submitCreate(derivedActAs, `#playground-project:Main:${template.name}`, args)
       setResult(`${template.name} created`)
       setFieldValues({})
-      onSuccess()
+      onSuccess(template.name)
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Create failed')
+      const msg = e instanceof Error ? e.message : 'Create failed'
+      setError(msg)
+      onError?.(msg)
     } finally {
       setSubmitting(false)
     }

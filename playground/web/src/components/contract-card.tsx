@@ -9,6 +9,7 @@ type ContractCardProps = {
   choices: DamlChoice[]
   parties: Party[]
   onExercised: () => void
+  onLog?: (type: 'success' | 'error', msg: string) => void
 }
 
 function shortId(id: string): string {
@@ -25,6 +26,7 @@ export function ContractCard({
   choices,
   parties,
   onExercised,
+  onLog,
 }: ContractCardProps): React.JSX.Element {
   const [expandedChoice, setExpandedChoice] = useState<string | null>(null)
   const [choiceArgs, setChoiceArgs] = useState<Record<string, string>>({})
@@ -62,9 +64,12 @@ export function ContractCard({
       await submitExercise(actAsIds, contract.templateId, contract.contractId, choice.name, args)
       setExpandedChoice(null)
       setChoiceArgs({})
+      onLog?.('success', `Exercised ${choice.name} on ${shortTemplate(contract.templateId)}`)
       onExercised()
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Exercise failed')
+      const msg = e instanceof Error ? e.message : 'Exercise failed'
+      setError(msg)
+      onLog?.('error', `Exercise ${choice.name} failed: ${msg}`)
     } finally {
       setSubmitting(false)
     }
