@@ -1,5 +1,5 @@
 {
-  "name": "docs",
+  "name": "daml-playground",
   "private": true,
   "type": "module",
   "sideEffects": false,
@@ -13,7 +13,7 @@
     "postinstall": "fumadocs-mdx",
     "lint": "biome check",
     "format": "biome format --write",
-    "sync:daml-syntax": "cp ../external/daml/sdk/compiler/daml-extension/syntaxes/daml.json ./syntaxes/daml.json && echo 'Synced daml.json from external/daml'"
+    "sync:daml-syntax": "cp external/daml/sdk/compiler/daml-extension/syntaxes/daml.json syntaxes/daml.json && echo 'Synced daml.json from external/daml'"
   },
   "dependencies": {
     "@base-ui/react": "^1.3.0",

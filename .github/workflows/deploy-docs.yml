@@ -4,17 +4,25 @@ on:
   push:
     branches: [main]
     paths:
-      - "docs/**"
+      - "src/**"
+      - "content/**"
+      - "package.json"
+      - "package-lock.json"
+      - "vite.config.ts"
+      - "source.config.ts"
+      - "wrangler.jsonc"
       - ".github/workflows/deploy-docs.yml"
   pull_request:
     branches: [main]
     paths:
-      - "docs/**"
+      - "src/**"
+      - "content/**"
+      - "package.json"
+      - "package-lock.json"
+      - "vite.config.ts"
+      - "source.config.ts"
+      - "wrangler.jsonc"
       - ".github/workflows/deploy-docs.yml"
-
-defaults:
-  run:
-    working-directory: docs
 
 jobs:
   build:
@@ -26,7 +34,7 @@ jobs:
         with:
           node-version: 22
           cache: npm
-          cache-dependency-path: docs/package-lock.json
+          cache-dependency-path: package-lock.json
 
       - run: npm ci
       - run: npm run build
@@ -45,7 +53,7 @@ jobs:
         with:
           node-version: 22
           cache: npm
-          cache-dependency-path: docs/package-lock.json
+          cache-dependency-path: package-lock.json
 
       - run: npm ci
       - run: npm run build
