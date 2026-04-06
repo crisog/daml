@@ -44,7 +44,7 @@ func handleCompile(w http.ResponseWriter, r *http.Request) {
 	if sandboxURL == "" {
 		sandboxURL = "http://localhost:7575"
 	}
-	readyResp, err := http.Get(sandboxURL + "/v2/packages")
+	readyResp, err := http.Get(sandboxURL + "/v2/state/connected-synchronizers")
 	if err != nil || readyResp.StatusCode != 200 {
 		writeJSON(w, http.StatusServiceUnavailable, CompileResponse{Errors: []string{"sandbox not ready yet, try again in a few seconds"}})
 		if readyResp != nil {
@@ -155,8 +155,8 @@ func newCantonProxy() http.Handler {
 	proxy := httputil.NewSingleHostReverseProxy(target)
 
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// Check if Canton is ready before proxying
-		resp, err := http.Get(sandboxURL + "/v2/packages")
+		// Check if Canton is fully ready (synchronizer connected) before proxying
+		resp, err := http.Get(sandboxURL + "/v2/state/connected-synchronizers")
 		if err != nil || resp.StatusCode != 200 {
 			if resp != nil {
 				resp.Body.Close()

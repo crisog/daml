@@ -209,7 +209,7 @@ function PlaygroundPage(): React.JSX.Element {
         </div>
       </div>
 
-      <div className="flex-1 overflow-hidden sm:hidden">
+      <div className={`flex-1 overflow-hidden sm:hidden ${mobileTab === 'console' ? 'hidden' : ''}`}>
         <div className={mobileTab === 'editor' ? 'flex h-full flex-col' : 'hidden'}>
           <div className="flex items-center gap-2 border-b border-stone bg-surface px-3 py-1.5">
             <select
@@ -237,12 +237,9 @@ function PlaygroundPage(): React.JSX.Element {
         <div className={mobileTab === 'interact' ? 'h-full overflow-y-auto bg-surface' : 'hidden'}>
           {interactPanel}
         </div>
-        <div className={mobileTab === 'console' ? 'h-full' : 'hidden'}>
-          <Console ref={consoleRef} />
-        </div>
       </div>
 
-      <div className="hidden h-56 shrink-0 border-t border-stone-strong sm:block">
+      <div className={`shrink-0 border-t border-stone-strong sm:block sm:h-56 ${mobileTab === 'console' ? 'flex-1' : 'hidden'}`}>
         <Console ref={consoleRef} />
       </div>
     </div>
