@@ -50,6 +50,9 @@ sequenceDiagram
     else Bob rejects
         B->>L: Reject (recreates original Asset)
         L-->>A: Alice gets her asset back
+    else Alice cancels
+        A->>L: Cancel (recreates original Asset)
+        L-->>A: Alice gets her asset back
     end
 ```
 
@@ -108,16 +111,18 @@ Notice `signatory (signatory asset)`. This inherits the signatories from the ori
 
 The proposal offers three choices:
 
-**Accept:** The new owner and issuer agree to the transfer. A new `Asset` is created with the updated owner.
+**Accept:** The new owner agrees to the transfer. A new `Asset` is created with the updated owner.
 
 ```daml
     choice Accept : ContractId Asset
-      controller asset.issuer, newOwner
+      controller newOwner
       do
         create asset with owner = newOwner
 ```
 
-The issuer is a controller on `Accept` because the issuer has a stake in who owns their asset. Both the issuer and new owner must authorize acceptance.
+Only the `newOwner` is a controller on `Accept`. This is the canonical propose-accept pattern: one party proposes, the other decides. The new owner's authority (as controller) combines with the signatories' authority (from the proposal contract) to authorize creating the new `Asset`.
+
+In more advanced designs, you might also require the issuer to approve transfers (for example, for regulatory reasons). The official Daml tutorials cover this with role contracts and pre-approval mechanisms. For now, the simple pattern is enough.
 
 **Reject:** The new owner declines. The original asset is recreated, returning it to the original owner.
 
@@ -170,7 +175,9 @@ testTransfer = script do
   alice <- allocateParty "Alice"
   bob <- allocateParty "Bob"
 
-  -- Bank issues an asset to Alice (both are signatories)
+  -- Bank issues an asset to Alice (both are signatories).
+  -- actAs lets multiple parties authorize in tests. In production,
+  -- this would use a propose-accept flow for the initial issuance too.
   assetCid <- submit (actAs [bank, alice]) do
     createCmd Asset
       with
@@ -193,7 +200,7 @@ testTransfer = script do
   assertEq 1 (length bobProposals)
 
   -- Bob accepts the transfer
-  newAssetCid <- submit (actAs [bank, bob]) do
+  newAssetCid <- submit bob do
     exerciseCmd proposalCid Accept
 
   -- Bob now owns the asset
@@ -265,19 +272,13 @@ testUnauthorizedAccept = script do
       with newOwner = bob
 
   -- Charlie cannot accept Bob's proposal
-  submitMustFail (actAs [bank, charlie]) do
+  submitMustFail charlie do
     exerciseCmd proposalCid Accept
 
   -- Alice cannot accept her own proposal
-  submitMustFail (actAs [bank, alice]) do
+  submitMustFail alice do
     exerciseCmd proposalCid Accept
 ```
-
-## Why the issuer matters
-
-You may wonder why `Accept` requires the issuer as a controller. Consider what would happen without it: anyone could accept a transfer, creating an asset that the issuer now has obligations on (since the issuer is a signatory). By making the issuer a controller on `Accept`, the issuer retains control over who can hold their assets.
-
-This pattern is common in financial systems. A bank that issues tokens wants to know (and approve) who holds them, for regulatory or operational reasons.
 
 ## Full code
 
@@ -320,7 +321,7 @@ template TransferProposal
     observer newOwner
 
     choice Accept : ContractId Asset
-      controller asset.issuer, newOwner
+      controller newOwner
       do
         create asset with owner = newOwner
 
@@ -358,7 +359,7 @@ testTransfer = script do
   bobProposals <- query @TransferProposal bob
   assertEq 1 (length bobProposals)
 
-  newAssetCid <- submit (actAs [bank, bob]) do
+  newAssetCid <- submit bob do
     exerciseCmd proposalCid Accept
 
   bobAssets <- query @Asset bob
@@ -441,10 +442,10 @@ testUnauthorizedAccept = script do
     exerciseCmd assetCid ProposeTransfer
       with newOwner = bob
 
-  submitMustFail (actAs [bank, charlie]) do
+  submitMustFail charlie do
     exerciseCmd proposalCid Accept
 
-  submitMustFail (actAs [bank, alice]) do
+  submitMustFail alice do
     exerciseCmd proposalCid Accept
 
 testTransferPreservesData : Script ()
@@ -465,7 +466,7 @@ testTransferPreservesData = script do
     exerciseCmd assetCid ProposeTransfer
       with newOwner = bob
 
-  newAssetCid <- submit (actAs [bank, bob]) do
+  newAssetCid <- submit bob do
     exerciseCmd proposalCid Accept
 
   bobAssets <- query @Asset bob

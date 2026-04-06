@@ -145,7 +145,7 @@ Exercising a choice requires the authority of **all controllers** listed on that
 
 The built-in `Archive` choice is implicitly added to every template. Its controllers are all the signatories. This means archiving a contract requires the authority of all signatories, just like creation.
 
-When a consuming choice is exercised, the archival happens automatically as part of the exercise. The controller's authority to exercise the choice, combined with the signatories' prior consent (given when they signed the contract), is sufficient for the archival.
+When a consuming choice is exercised, the archival happens automatically as part of the exercise. The Daml authorization model says that the consequences of an exercise (including the archival and any creates in the choice body) are authorized by the **actors** (controllers) of that exercise **plus the signatories** of the contract being exercised. This is why a choice body can create new contracts or archive the current one without needing additional `submit` calls.
 
 ## Visibility in practice
 

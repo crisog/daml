@@ -148,7 +148,7 @@ testNonconsumingChoice = script do
 | **Consuming** (default) | Archived | Updating data, transferring ownership, closing an obligation |
 | **Nonconsuming** | Still active | Reading data, granting repeatable rights, delegation |
 
-The previous `PaymentObligation` contract used a `nonconsuming` choice with an explicit `archive self` in the body. That approach makes the archival visible in code, which can be clearer for readers. Both approaches (consuming choice vs. nonconsuming + explicit archive) produce the same result on the ledger.
+The previous `PaymentObligation` contract used a `nonconsuming` choice with an explicit `archive self` in the body. That approach makes the archival visible in code, which can be clearer for readers. However, the two approaches are not identical: with a consuming choice, all stakeholders (signatories and observers) see the full consequences of the action. With a nonconsuming choice, only controllers and signatories see the full consequences. For simple single-party contracts like the examples on this page, the difference does not matter, but it becomes important in multi-party contracts where observers need visibility into what happened.
 
 ## Chaining updates
 

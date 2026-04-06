@@ -45,7 +45,7 @@ template TransferProposal
     -- The new owner accepts the transfer.
     -- This archives the proposal and creates a new Asset with the new owner.
     choice Accept : ContractId Asset
-      controller asset.issuer, newOwner
+      controller newOwner
       do
         create asset with owner = newOwner
 
@@ -94,7 +94,7 @@ testTransfer = script do
   assertEq 1 (length bobProposals)
 
   -- Bob accepts the transfer
-  newAssetCid <- submit (actAs [bank, bob]) do
+  newAssetCid <- submit bob do
     exerciseCmd proposalCid Accept
 
   -- Bob now owns the asset
@@ -188,11 +188,11 @@ testUnauthorizedAccept = script do
       with newOwner = bob
 
   -- Charlie cannot accept Bob's proposal
-  submitMustFail (actAs [bank, charlie]) do
+  submitMustFail charlie do
     exerciseCmd proposalCid Accept
 
   -- Alice cannot accept her own proposal (she is not the newOwner)
-  submitMustFail (actAs [bank, alice]) do
+  submitMustFail alice do
     exerciseCmd proposalCid Accept
 
 -- Test: transfer preserves asset data, only owner changes
@@ -214,7 +214,7 @@ testTransferPreservesData = script do
     exerciseCmd assetCid ProposeTransfer
       with newOwner = bob
 
-  newAssetCid <- submit (actAs [bank, bob]) do
+  newAssetCid <- submit bob do
     exerciseCmd proposalCid Accept
 
   -- Verify the new asset has the same data but different owner
