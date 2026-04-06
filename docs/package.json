@@ -6,8 +6,9 @@
   "scripts": {
     "dev": "vite dev",
     "build": "vite build",
-    "start": "node .output/server/index.mjs",
     "preview": "vite preview",
+    "deploy": "npm run build && wrangler deploy",
+    "cf-typegen": "wrangler types",
     "types:check": "fumadocs-mdx && tsc --noEmit",
     "postinstall": "fumadocs-mdx",
     "lint": "biome check",
@@ -30,14 +31,15 @@
   },
   "devDependencies": {
     "@biomejs/biome": "^2.4.8",
+    "@cloudflare/vite-plugin": "^1.31.0",
     "@tailwindcss/vite": "^4.2.2",
     "@types/mdx": "^2.0.13",
     "@types/node": "^25.5.0",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^6.0.1",
-    "nitro": "^3.0.260311-beta",
     "tailwindcss": "^4.2.2",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "wrangler": "^4.80.0"
   }
 }
