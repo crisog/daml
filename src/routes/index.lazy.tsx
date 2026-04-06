@@ -95,7 +95,10 @@ function PlaygroundPage(): React.JSX.Element {
 
             {!deployed && (
               <p className="p-3 text-xs text-ink-muted">
-                Deploy your contract and create parties to get started
+                Deploy your contract and create parties to get started.{' '}
+                <a href="/docs/daml/creating-your-first-daml-smart-contract" className="text-accent hover:underline">
+                  Learn how
+                </a>
               </p>
             )}
 
@@ -133,6 +136,9 @@ function PlaygroundPage(): React.JSX.Element {
       <p className="text-sm text-ink-muted">
         Sign in to deploy contracts, create parties, and interact with the ledger.
       </p>
+      <a href="/docs/daml/creating-your-first-daml-smart-contract" className="text-xs text-accent hover:underline">
+        Read the docs
+      </a>
       {auth.status !== 'loading' && (
         <button
           type="button"
