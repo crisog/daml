@@ -1,0 +1,76 @@
+import { useState } from 'react'
+import { Button } from '@base-ui/react/button'
+import { createParty } from '../lib/canton'
+import type { Party } from '../lib/types'
+
+type PartyPanelProps = {
+  parties: Party[]
+  activeParty: Party | null
+  onPartyCreated: (party: Party) => void
+  onPartySelected: (party: Party) => void
+}
+
+export function PartyPanel({
+  parties,
+  activeParty,
+  onPartyCreated,
+  onPartySelected,
+}: PartyPanelProps): React.JSX.Element {
+  const [name, setName] = useState('')
+  const [creating, setCreating] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  async function handleCreate() {
+    if (!name.trim()) return
+    setCreating(true)
+    setError(null)
+    try {
+      const party = await createParty(name.trim())
+      onPartyCreated(party)
+      setName('')
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Failed to create party')
+    } finally {
+      setCreating(false)
+    }
+  }
+
+  return (
+    <div className="border-b border-stone p-3">
+      <h3 className="mb-2 text-xs font-medium text-ink-secondary">Parties</h3>
+      <div className="mb-2 flex gap-2">
+        <input
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          onKeyDown={(e) => e.key === 'Enter' && handleCreate()}
+          placeholder="Party name"
+          disabled={creating}
+          className="flex-1 rounded-md border border-stone bg-page px-2 py-1 text-xs"
+        />
+        <Button
+          onClick={handleCreate}
+          disabled={creating || !name.trim()}
+          className="rounded-md bg-accent px-3 py-1 text-xs text-ink-inverted hover:bg-accent-hover"
+        >
+          {creating ? '...' : 'Create'}
+        </Button>
+      </div>
+      {error && <p className="mb-2 text-xs text-error">{error}</p>}
+      <div className="flex flex-wrap gap-1">
+        {parties.map((p) => (
+          <button
+            key={p.id}
+            onClick={() => onPartySelected(p)}
+            className={`rounded-sm px-2 py-0.5 text-xs transition-colors ${
+              activeParty?.id === p.id
+                ? 'bg-accent text-ink-inverted'
+                : 'bg-elevated text-ink-secondary hover:bg-stone'
+            }`}
+          >
+            {p.displayName}
+          </button>
+        ))}
+      </div>
+    </div>
+  )
+}
