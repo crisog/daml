@@ -1,9 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { getCloudflareContext } from "@cloudflare/vite-plugin/context";
 import { createAuth } from "@/lib/auth";
+import { env } from "cloudflare:workers";
 
 async function proxyToSandbox(request: Request): Promise<Response> {
-  const { env } = await getCloudflareContext();
   const auth = createAuth(env);
   const session = await auth.api.getSession({
     headers: request.headers,

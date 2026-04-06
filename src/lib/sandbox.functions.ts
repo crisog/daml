@@ -1,5 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
-import { getCloudflareContext } from "@cloudflare/vite-plugin/context";
+import { env } from "cloudflare:workers";
 import { ensureSession } from "@/lib/auth.functions";
 
 type SandboxStatus =
@@ -12,7 +12,6 @@ export const getSandboxStatus = createServerFn({ method: "GET" }).handler(
   async (): Promise<SandboxStatus> => {
     const session = await ensureSession();
     const userId = session.user.id;
-    const { env } = await getCloudflareContext();
 
     // Check capacity
     const gatekeeper = env.GATEKEEPER.getByName("global");
