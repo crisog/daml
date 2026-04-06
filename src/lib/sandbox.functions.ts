@@ -37,11 +37,7 @@ export const getSandboxStatus = createServerFn({ method: "GET" }).handler(
       return { kind: "starting", message: "Starting your sandbox..." };
     }
 
-    if (status.containerStatus === "error") {
-      return { kind: "error", message: status.errorLog ?? "Container failed" };
-    }
-
-    // Container is stopped, trigger start
+    // Container is stopped or errored, trigger start
     await sessionDO.start();
     return { kind: "starting", message: "Starting your sandbox..." };
   }
