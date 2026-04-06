@@ -1,0 +1,14 @@
+# Daml build artifacts
+.daml/
+log/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor/IDE files
+*.swp
+*.swo
+*~
+.idea/
+.vscode/

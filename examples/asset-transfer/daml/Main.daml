@@ -1,0 +1,226 @@
+module Main where
+
+import DA.Assert
+import DA.List (head)
+import Daml.Script
+
+-- An asset issued by one party and owned by another.
+-- Both issuer and owner are signatories: the issuer vouches for the asset's
+-- legitimacy, and the owner consents to holding it.
+template Asset
+  with
+    issuer : Party
+    owner : Party
+    description : Text
+    quantity : Decimal
+  where
+    ensure quantity > 0.0
+
+    signatory issuer, owner
+
+    -- The owner proposes transferring this asset to a new party.
+    -- This is a consuming choice: the original Asset is archived,
+    -- and a TransferProposal is created in its place.
+    choice ProposeTransfer : ContractId TransferProposal
+      with
+        newOwner : Party
+      controller owner
+      do
+        create TransferProposal
+          with
+            asset = this
+            newOwner
+
+-- A proposal to transfer an asset to a new owner.
+-- The signatories are inherited from the original asset (issuer + owner).
+-- The newOwner is an observer so they can see and act on the proposal.
+template TransferProposal
+  with
+    asset : Asset
+    newOwner : Party
+  where
+    signatory (signatory asset)
+    observer newOwner
+
+    -- The new owner accepts the transfer.
+    -- This archives the proposal and creates a new Asset with the new owner.
+    choice Accept : ContractId Asset
+      controller asset.issuer, newOwner
+      do
+        create asset with owner = newOwner
+
+    -- The new owner rejects the transfer.
+    -- This archives the proposal and recreates the original Asset,
+    -- returning it to the original owner.
+    choice Reject : ContractId Asset
+      controller newOwner
+      do
+        create asset
+
+    -- The original owner cancels the proposal.
+    -- This archives the proposal and recreates the original Asset.
+    choice Cancel : ContractId Asset
+      controller asset.owner
+      do
+        create asset
+
+-- Test: successful transfer via propose-accept
+testTransfer : Script ()
+testTransfer = script do
+  bank <- allocateParty "Bank"
+  alice <- allocateParty "Alice"
+  bob <- allocateParty "Bob"
+
+  -- Bank issues an asset to Alice (both are signatories)
+  assetCid <- submit (actAs [bank, alice]) do
+    createCmd Asset
+      with
+        issuer = bank
+        owner = alice
+        description = "Gold token"
+        quantity = 10.0
+
+  -- Alice proposes transferring the asset to Bob
+  proposalCid <- submit alice do
+    exerciseCmd assetCid ProposeTransfer
+      with newOwner = bob
+
+  -- The original asset is now archived (consumed by ProposeTransfer)
+  aliceAssets <- query @Asset alice
+  assertEq 0 (length aliceAssets)
+
+  -- Bob can see the proposal (he is an observer)
+  bobProposals <- query @TransferProposal bob
+  assertEq 1 (length bobProposals)
+
+  -- Bob accepts the transfer
+  newAssetCid <- submit (actAs [bank, bob]) do
+    exerciseCmd proposalCid Accept
+
+  -- Bob now owns the asset
+  bobAssets <- query @Asset bob
+  assertEq 1 (length bobAssets)
+  let (_, bobAsset) = head bobAssets
+  assertEq bob bobAsset.owner
+  assertEq bank bobAsset.issuer
+  assertEq 10.0 bobAsset.quantity
+
+  -- Alice no longer has it
+  aliceAssets2 <- query @Asset alice
+  assertEq 0 (length aliceAssets2)
+
+-- Test: rejected transfer returns asset to original owner
+testReject : Script ()
+testReject = script do
+  bank <- allocateParty "Bank"
+  alice <- allocateParty "Alice"
+  bob <- allocateParty "Bob"
+
+  assetCid <- submit (actAs [bank, alice]) do
+    createCmd Asset
+      with
+        issuer = bank
+        owner = alice
+        description = "Silver token"
+        quantity = 5.0
+
+  proposalCid <- submit alice do
+    exerciseCmd assetCid ProposeTransfer
+      with newOwner = bob
+
+  -- Bob rejects the transfer
+  returnedCid <- submit bob do
+    exerciseCmd proposalCid Reject
+
+  -- Alice has her asset back
+  aliceAssets <- query @Asset alice
+  assertEq 1 (length aliceAssets)
+
+  -- Bob has nothing
+  bobAssets <- query @Asset bob
+  assertEq 0 (length bobAssets)
+
+-- Test: cancelled transfer returns asset to original owner
+testCancel : Script ()
+testCancel = script do
+  bank <- allocateParty "Bank"
+  alice <- allocateParty "Alice"
+  bob <- allocateParty "Bob"
+
+  assetCid <- submit (actAs [bank, alice]) do
+    createCmd Asset
+      with
+        issuer = bank
+        owner = alice
+        description = "Bronze token"
+        quantity = 3.0
+
+  proposalCid <- submit alice do
+    exerciseCmd assetCid ProposeTransfer
+      with newOwner = bob
+
+  -- Alice changes her mind and cancels
+  returnedCid <- submit alice do
+    exerciseCmd proposalCid Cancel
+
+  -- Alice has her asset back
+  aliceAssets <- query @Asset alice
+  assertEq 1 (length aliceAssets)
+
+-- Test: unauthorized party cannot accept
+testUnauthorizedAccept : Script ()
+testUnauthorizedAccept = script do
+  bank <- allocateParty "Bank"
+  alice <- allocateParty "Alice"
+  bob <- allocateParty "Bob"
+  charlie <- allocateParty "Charlie"
+
+  assetCid <- submit (actAs [bank, alice]) do
+    createCmd Asset
+      with
+        issuer = bank
+        owner = alice
+        description = "Gold token"
+        quantity = 10.0
+
+  proposalCid <- submit alice do
+    exerciseCmd assetCid ProposeTransfer
+      with newOwner = bob
+
+  -- Charlie cannot accept Bob's proposal
+  submitMustFail (actAs [bank, charlie]) do
+    exerciseCmd proposalCid Accept
+
+  -- Alice cannot accept her own proposal (she is not the newOwner)
+  submitMustFail (actAs [bank, alice]) do
+    exerciseCmd proposalCid Accept
+
+-- Test: transfer preserves asset data, only owner changes
+testTransferPreservesData : Script ()
+testTransferPreservesData = script do
+  bank <- allocateParty "Bank"
+  alice <- allocateParty "Alice"
+  bob <- allocateParty "Bob"
+
+  assetCid <- submit (actAs [bank, alice]) do
+    createCmd Asset
+      with
+        issuer = bank
+        owner = alice
+        description = "Gold token"
+        quantity = 10.0
+
+  proposalCid <- submit alice do
+    exerciseCmd assetCid ProposeTransfer
+      with newOwner = bob
+
+  newAssetCid <- submit (actAs [bank, bob]) do
+    exerciseCmd proposalCid Accept
+
+  -- Verify the new asset has the same data but different owner
+  bobAssets <- query @Asset bob
+  let (_, asset) = head bobAssets
+  assertEq bank asset.issuer
+  assertEq bob asset.owner
+  assertEq "Gold token" asset.description
+  assertEq 10.0 asset.quantity

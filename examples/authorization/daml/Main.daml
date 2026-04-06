@@ -1,0 +1,181 @@
+module Main where
+
+import DA.Assert
+import Daml.Script
+
+template Invoice
+  with
+    issuer : Party
+    client : Party
+    auditor : Party
+    amount : Decimal
+    description : Text
+  where
+    ensure amount > 0.0
+
+    signatory issuer, client
+    observer auditor
+
+    choice MarkPaid : ()
+      controller client
+      do
+        pure ()
+
+    nonconsuming choice AddNote : ContractId InvoiceNote
+      with
+        note : Text
+      controller auditor
+      do
+        create InvoiceNote
+          with
+            invoice = self
+            author = auditor
+            note
+
+template InvoiceNote
+  with
+    invoice : ContractId Invoice
+    author : Party
+    note : Text
+  where
+    signatory author
+
+-- Test: observers can see contracts they are listed on
+testObserverVisibility : Script ()
+testObserverVisibility = script do
+  alice <- allocateParty "Alice"
+  bob <- allocateParty "Bob"
+  auditor <- allocateParty "Auditor"
+
+  invoiceCid <- submit (actAs [alice, bob]) do
+    createCmd Invoice
+      with
+        issuer = alice
+        client = bob
+        auditor = auditor
+        amount = 500.0
+        description = "Consulting services"
+
+  -- Auditor can see the invoice (they are an observer)
+  auditorInvoices <- query @Invoice auditor
+  assertEq 1 (length auditorInvoices)
+
+  -- Both signatories can see the invoice
+  aliceInvoices <- query @Invoice alice
+  assertEq 1 (length aliceInvoices)
+
+  bobInvoices <- query @Invoice bob
+  assertEq 1 (length bobInvoices)
+
+-- Test: observers cannot exercise choices they don't control
+testObserverCannotPay : Script ()
+testObserverCannotPay = script do
+  alice <- allocateParty "Alice"
+  bob <- allocateParty "Bob"
+  auditor <- allocateParty "Auditor"
+
+  invoiceCid <- submit (actAs [alice, bob]) do
+    createCmd Invoice
+      with
+        issuer = alice
+        client = bob
+        auditor = auditor
+        amount = 500.0
+        description = "Consulting services"
+
+  -- Auditor cannot exercise MarkPaid (only the client can)
+  submitMustFail auditor do
+    exerciseCmd invoiceCid MarkPaid
+
+  -- Issuer cannot exercise MarkPaid either
+  submitMustFail alice do
+    exerciseCmd invoiceCid MarkPaid
+
+  -- Client (Bob) can exercise MarkPaid
+  submit bob do
+    exerciseCmd invoiceCid MarkPaid
+
+-- Test: observer can exercise their own choice
+testObserverExercisesOwnChoice : Script ()
+testObserverExercisesOwnChoice = script do
+  alice <- allocateParty "Alice"
+  bob <- allocateParty "Bob"
+  auditor <- allocateParty "Auditor"
+
+  invoiceCid <- submit (actAs [alice, bob]) do
+    createCmd Invoice
+      with
+        issuer = alice
+        client = bob
+        auditor = auditor
+        amount = 500.0
+        description = "Consulting services"
+
+  -- Auditor can exercise AddNote (they are the controller)
+  submit auditor do
+    exerciseCmd invoiceCid AddNote
+      with note = "Reviewed and approved"
+
+  -- Contract is still active (AddNote is nonconsuming)
+  invoices <- query @Invoice auditor
+  assertEq 1 (length invoices)
+
+-- Test: non-stakeholders cannot see the contract
+testNonStakeholderCannotSee : Script ()
+testNonStakeholderCannotSee = script do
+  alice <- allocateParty "Alice"
+  bob <- allocateParty "Bob"
+  auditor <- allocateParty "Auditor"
+  stranger <- allocateParty "Stranger"
+
+  submit (actAs [alice, bob]) do
+    createCmd Invoice
+      with
+        issuer = alice
+        client = bob
+        auditor = auditor
+        amount = 500.0
+        description = "Consulting services"
+
+  -- Stranger cannot see the invoice
+  strangerInvoices <- query @Invoice stranger
+  assertEq 0 (length strangerInvoices)
+
+-- Test: creation requires all signatories
+testCreationRequiresAllSignatories : Script ()
+testCreationRequiresAllSignatories = script do
+  alice <- allocateParty "Alice"
+  bob <- allocateParty "Bob"
+  auditor <- allocateParty "Auditor"
+
+  -- Alice alone cannot create the invoice (Bob is also a signatory)
+  submitMustFail alice do
+    createCmd Invoice
+      with
+        issuer = alice
+        client = bob
+        auditor = auditor
+        amount = 500.0
+        description = "Consulting services"
+
+  -- Bob alone cannot create it either
+  submitMustFail bob do
+    createCmd Invoice
+      with
+        issuer = alice
+        client = bob
+        auditor = auditor
+        amount = 500.0
+        description = "Consulting services"
+
+  -- Both together can create it
+  submit (actAs [alice, bob]) do
+    createCmd Invoice
+      with
+        issuer = alice
+        client = bob
+        auditor = auditor
+        amount = 500.0
+        description = "Consulting services"
+
+  pure ()

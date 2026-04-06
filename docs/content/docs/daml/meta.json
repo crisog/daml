@@ -1,4 +1,12 @@
 {
   "title": "Daml",
-  "icon": "Code"
+  "icon": "Code",
+  "pages": [
+    "index",
+    "creating-your-first-daml-smart-contract",
+    "testing-your-first-daml-smart-contract",
+    "contract-model",
+    "authorization-and-visibility",
+    "multi-party-workflows"
+  ]
 }

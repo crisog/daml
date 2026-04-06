@@ -1,0 +1,129 @@
+module Main where
+
+import DA.Assert
+import Daml.Script
+
+template Contact
+  with
+    owner : Party
+    name : Text
+    telephone : Text
+    address : Text
+  where
+    signatory owner
+
+    choice UpdateTelephone : ContractId Contact
+      with
+        newTelephone : Text
+      controller owner
+      do
+        create this with telephone = newTelephone
+
+    choice UpdateAddress : ContractId Contact
+      with
+        newAddress : Text
+      controller owner
+      do
+        create this with address = newAddress
+
+    nonconsuming choice GetContact : (Text, Text, Text)
+      controller owner
+      do
+        return (name, telephone, address)
+
+-- Test: consuming choice archives old, creates new
+testUpdateContact : Script ()
+testUpdateContact = script do
+  alice <- allocateParty "Alice"
+
+  contactCid <- submit alice do
+    createCmd Contact
+      with
+        owner = alice
+        name = "Bob"
+        telephone = "123 4567"
+        address = "1 Main St"
+
+  -- Verify the original contract exists
+  contacts <- query @Contact alice
+  assertEq 1 (length contacts)
+
+  -- Update the telephone (consuming choice: archives old, creates new)
+  updatedCid <- submit alice do
+    exerciseCmd contactCid UpdateTelephone
+      with newTelephone = "098 7654"
+
+  -- Still one active contract, but it's a different contract
+  contacts2 <- query @Contact alice
+  assertEq 1 (length contacts2)
+
+  -- The old contract ID is gone. Trying to use it will fail.
+  submitMustFail alice do
+    exerciseCmd contactCid UpdateAddress
+      with newAddress = "2 Oak Ave"
+
+  -- The new contract ID works
+  submit alice do
+    exerciseCmd updatedCid UpdateAddress
+      with newAddress = "2 Oak Ave"
+
+  pure ()
+
+-- Test: nonconsuming choice does not archive
+testNonconsumingChoice : Script ()
+testNonconsumingChoice = script do
+  alice <- allocateParty "Alice"
+
+  contactCid <- submit alice do
+    createCmd Contact
+      with
+        owner = alice
+        name = "Bob"
+        telephone = "123 4567"
+        address = "1 Main St"
+
+  -- Exercise nonconsuming choice twice on the same contract
+  submit alice do
+    exerciseCmd contactCid GetContact
+
+  submit alice do
+    exerciseCmd contactCid GetContact
+
+  -- Contract is still active
+  contacts <- query @Contact alice
+  assertEq 1 (length contacts)
+
+-- Test: chaining multiple updates produces new contracts each time
+testChainedUpdates : Script ()
+testChainedUpdates = script do
+  alice <- allocateParty "Alice"
+
+  cid1 <- submit alice do
+    createCmd Contact
+      with
+        owner = alice
+        name = "Bob"
+        telephone = "111"
+        address = "A"
+
+  cid2 <- submit alice do
+    exerciseCmd cid1 UpdateTelephone with newTelephone = "222"
+
+  cid3 <- submit alice do
+    exerciseCmd cid2 UpdateTelephone with newTelephone = "333"
+
+  -- Only one active contract
+  contacts <- query @Contact alice
+  assertEq 1 (length contacts)
+
+  -- Old contract IDs are invalid
+  submitMustFail alice do
+    exerciseCmd cid1 UpdateTelephone with newTelephone = "fail"
+  submitMustFail alice do
+    exerciseCmd cid2 UpdateTelephone with newTelephone = "fail"
+
+  -- Only the latest contract ID works
+  submit alice do
+    exerciseCmd cid3 GetContact
+
+  pure ()
