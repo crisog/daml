@@ -7,6 +7,8 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"net/http/httputil"
+	"net/url"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -141,15 +143,45 @@ dependencies:
 	writeJSON(w, http.StatusOK, CompileResponse{Success: true})
 }
 
+func newCantonProxy() http.Handler {
+	sandboxURL := os.Getenv("SANDBOX_URL")
+	if sandboxURL == "" {
+		sandboxURL = "http://localhost:7575"
+	}
+	target, err := url.Parse(sandboxURL)
+	if err != nil {
+		log.Fatalf("invalid SANDBOX_URL %q: %v", sandboxURL, err)
+	}
+	proxy := httputil.NewSingleHostReverseProxy(target)
+
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// Check if Canton is ready before proxying
+		resp, err := http.Get(sandboxURL + "/v2/packages")
+		if err != nil || resp.StatusCode != 200 {
+			if resp != nil {
+				resp.Body.Close()
+			}
+			writeJSON(w, http.StatusServiceUnavailable, CompileResponse{Errors: []string{"sandbox not ready yet, try again in a few seconds"}})
+			return
+		}
+		resp.Body.Close()
+		proxy.ServeHTTP(w, r)
+	})
+}
+
 func main() {
 	port := os.Getenv("COMPILE_PORT")
 	if port == "" {
 		port = "8081"
 	}
 
+	cantonProxy := newCantonProxy()
+
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /health", handleHealth)
 	mux.HandleFunc("POST /compile", handleCompile)
+	// Proxy all other requests to Canton JSON API
+	mux.Handle("/", cantonProxy)
 
 	log.Printf("compile-service listening on :%s", port)
 	if err := http.ListenAndServe(fmt.Sprintf(":%s", port), mux); err != nil {

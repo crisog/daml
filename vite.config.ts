@@ -10,13 +10,17 @@ export default defineConfig({
     port: 3000,
   },
   plugins: [
-    cloudflare({ viteEnvironment: { name: 'ssr' } }),
     mdx(await import('./source.config')),
     tailwindcss(),
     tanstackStart({
+      server: { entry: './server.ts' },
       prerender: {
         enabled: true,
         crawlLinks: true,
+        filter: (page: { path: string }) =>
+          !page.path.startsWith('/playground') &&
+          !page.path.startsWith('/login') &&
+          !page.path.startsWith('/api/'),
       },
       pages: [
         { path: '/' },
@@ -24,6 +28,7 @@ export default defineConfig({
       ],
     }),
     react(),
+    cloudflare({ viteEnvironment: { name: 'ssr' } }),
   ],
   resolve: {
     tsconfigPaths: true,

@@ -1,6 +1,6 @@
 import type { Party, ActiveContract } from './types'
 
-const API = '/api'
+const API = '/api/sandbox'
 
 let commandCounter = 0
 function nextCommandId(): string {
@@ -47,7 +47,6 @@ export async function submitCreate(
       commands: [{ CreateCommand: { templateId, createArguments } }],
       actAs,
       readAs: actAs,
-      userId: 'playground-user',
       commandId: nextCommandId(),
     }),
   })
@@ -72,7 +71,6 @@ export async function submitExercise(
       commands: [{ ExerciseCommand: { templateId, contractId, choice, choiceArgument } }],
       actAs,
       readAs: actAs,
-      userId: 'playground-user',
       commandId: nextCommandId(),
     }),
   })
