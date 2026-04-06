@@ -41,15 +41,15 @@ export const getSandboxStatus = createServerFn({ method: "GET" }).handler(
       } catch {
         // Container is up but Canton not ready yet
       }
-      return { kind: "starting", message: "Canton sandbox is booting..." };
+      return { kind: "starting", message: "Canton sandbox is booting, this usually takes ~2 minutes..." };
     }
 
     if (status.containerStatus === "starting") {
-      return { kind: "starting", message: "Starting your sandbox..." };
+      return { kind: "starting", message: "Starting your sandbox, this usually takes ~2 minutes..." };
     }
 
     // Container is stopped or errored, trigger start
     await sessionDO.start();
-    return { kind: "starting", message: "Starting your sandbox..." };
+    return { kind: "starting", message: "Starting your sandbox, this usually takes ~2 minutes..." };
   }
 );
