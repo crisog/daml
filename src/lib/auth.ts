@@ -4,18 +4,26 @@ import { tanstackStartCookies } from "better-auth/tanstack-start";
 import { drizzle } from "drizzle-orm/d1";
 import * as schema from "@/db/schema";
 
-export function createAuth(d1: D1Database) {
-  const db = drizzle(d1, { schema });
+interface AuthEnv {
+  DB: D1Database;
+  GITHUB_CLIENT_ID: string;
+  GITHUB_CLIENT_SECRET: string;
+  BETTER_AUTH_SECRET: string;
+}
+
+export function createAuth(env: AuthEnv) {
+  const db = drizzle(env.DB, { schema });
 
   return betterAuth({
+    secret: env.BETTER_AUTH_SECRET,
     database: drizzleAdapter(db, {
       provider: "sqlite",
       schema,
     }),
     socialProviders: {
       github: {
-        clientId: process.env.GITHUB_CLIENT_ID!,
-        clientSecret: process.env.GITHUB_CLIENT_SECRET!,
+        clientId: env.GITHUB_CLIENT_ID,
+        clientSecret: env.GITHUB_CLIENT_SECRET,
       },
     },
     plugins: [tanstackStartCookies()],

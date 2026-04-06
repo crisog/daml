@@ -78,7 +78,11 @@ export class SessionDO extends DurableObject<Env> {
 
     // Start container if not running
     if (this.state.containerStatus !== "running") {
-      await this.start();
+      try {
+        await this.start();
+      } catch {
+        return new Response("Sandbox failed to start", { status: 502 });
+      }
     }
 
     const container = this.getContainerStub();

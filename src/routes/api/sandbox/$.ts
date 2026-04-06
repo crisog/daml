@@ -4,7 +4,7 @@ import { createAuth } from "@/lib/auth";
 
 async function proxyToSandbox(request: Request): Promise<Response> {
   const { env } = await getCloudflareContext();
-  const auth = createAuth(env.DB);
+  const auth = createAuth(env);
   const session = await auth.api.getSession({
     headers: request.headers,
   });

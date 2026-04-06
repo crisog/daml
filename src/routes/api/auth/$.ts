@@ -7,12 +7,12 @@ export const Route = createFileRoute("/api/auth/$")({
     handlers: {
       GET: async ({ request }: { request: Request }) => {
         const { env } = await getCloudflareContext();
-        const auth = createAuth(env.DB);
+        const auth = createAuth(env);
         return auth.handler(request);
       },
       POST: async ({ request }: { request: Request }) => {
         const { env } = await getCloudflareContext();
-        const auth = createAuth(env.DB);
+        const auth = createAuth(env);
         return auth.handler(request);
       },
     },

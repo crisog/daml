@@ -6,7 +6,7 @@ import { getCloudflareContext } from "@cloudflare/vite-plugin/context";
 export const getSession = createServerFn({ method: "GET" }).handler(
   async () => {
     const { env } = await getCloudflareContext();
-    const auth = createAuth(env.DB);
+    const auth = createAuth(env);
     const headers = getRequestHeaders();
     const session = await auth.api.getSession({ headers });
     return session;
@@ -16,7 +16,7 @@ export const getSession = createServerFn({ method: "GET" }).handler(
 export const ensureSession = createServerFn({ method: "GET" }).handler(
   async () => {
     const { env } = await getCloudflareContext();
-    const auth = createAuth(env.DB);
+    const auth = createAuth(env);
     const headers = getRequestHeaders();
     const session = await auth.api.getSession({ headers });
 

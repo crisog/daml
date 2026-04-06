@@ -16,10 +16,15 @@ function LoginPage() {
   const handleGitHub = async () => {
     setLoading(true);
     setError(null);
-    await authClient.signIn.social({
-      provider: "github",
-      callbackURL: "/playground",
-    });
+    try {
+      await authClient.signIn.social({
+        provider: "github",
+        callbackURL: "/playground",
+      });
+    } catch {
+      setError("GitHub sign in failed");
+      setLoading(false);
+    }
   };
 
   const handleEmailSignIn = async (e: React.FormEvent) => {

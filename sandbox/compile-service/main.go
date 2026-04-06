@@ -144,7 +144,14 @@ dependencies:
 }
 
 func newCantonProxy() http.Handler {
-	target, _ := url.Parse("http://localhost:7575")
+	sandboxURL := os.Getenv("SANDBOX_URL")
+	if sandboxURL == "" {
+		sandboxURL = "http://localhost:7575"
+	}
+	target, err := url.Parse(sandboxURL)
+	if err != nil {
+		log.Fatalf("invalid SANDBOX_URL %q: %v", sandboxURL, err)
+	}
 	proxy := httputil.NewSingleHostReverseProxy(target)
 	return proxy
 }
