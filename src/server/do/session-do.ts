@@ -1,0 +1,155 @@
+import { DurableObject } from "cloudflare:workers";
+
+type ContainerStatus = "stopped" | "starting" | "running" | "error";
+
+interface SessionState {
+  containerStatus: ContainerStatus;
+  startedAt: number | null;
+  lastActivityAt: number | null;
+  requestCount: number;
+  errorLog: string | null;
+}
+
+interface Env {
+  SANDBOX: DurableObjectNamespace;
+  GATEKEEPER: DurableObjectNamespace;
+}
+
+export class SessionDO extends DurableObject<Env> {
+  private state: SessionState = {
+    containerStatus: "stopped",
+    startedAt: null,
+    lastActivityAt: null,
+    requestCount: 0,
+    errorLog: null,
+  };
+  private initialized = false;
+
+  private async ensureInitialized() {
+    if (this.initialized) return;
+
+    const stored = await this.ctx.storage.get<SessionState>("state");
+    if (stored) {
+      this.state = stored;
+    }
+
+    this.initialized = true;
+  }
+
+  private async persistState() {
+    await this.ctx.storage.put("state", this.state);
+  }
+
+  private getContainerStub() {
+    // Use the same name as this DO so there's a 1:1 mapping
+    const name = this.ctx.id.toString();
+    return this.env.SANDBOX.getByName(name);
+  }
+
+  async start(): Promise<void> {
+    await this.ensureInitialized();
+
+    if (this.state.containerStatus === "running") return;
+    if (this.state.containerStatus === "starting") return;
+
+    this.state.containerStatus = "starting";
+    this.state.errorLog = null;
+    await this.persistState();
+
+    try {
+      const container = this.getContainerStub();
+      // startAndWaitForPorts waits until the container's defaultPort is reachable
+      await container.startAndWaitForPorts();
+
+      this.state.containerStatus = "running";
+      this.state.startedAt = Date.now();
+      await this.persistState();
+    } catch (err) {
+      this.state.containerStatus = "error";
+      this.state.errorLog =
+        err instanceof Error ? err.message : "Failed to start container";
+      await this.persistState();
+      throw err;
+    }
+  }
+
+  async proxy(request: Request): Promise<Response> {
+    await this.ensureInitialized();
+
+    // Start container if not running
+    if (this.state.containerStatus !== "running") {
+      await this.start();
+    }
+
+    const container = this.getContainerStub();
+
+    try {
+      const response = await container.fetch(request);
+
+      this.state.lastActivityAt = Date.now();
+      this.state.requestCount += 1;
+      await this.persistState();
+
+      return response;
+    } catch (err) {
+      // Attempt one restart
+      if (this.state.containerStatus === "running") {
+        this.state.containerStatus = "stopped";
+        await this.persistState();
+
+        try {
+          await this.start();
+          const retryResponse = await container.fetch(request);
+
+          this.state.lastActivityAt = Date.now();
+          this.state.requestCount += 1;
+          await this.persistState();
+
+          return retryResponse;
+        } catch (retryErr) {
+          this.state.containerStatus = "error";
+          this.state.errorLog =
+            retryErr instanceof Error
+              ? retryErr.message
+              : "Container restart failed";
+          await this.persistState();
+
+          // Release gatekeeper slot on permanent failure
+          const gatekeeper = this.env.GATEKEEPER.getByName("global");
+          await gatekeeper.release(this.ctx.id.toString());
+        }
+      }
+
+      return new Response("Sandbox unavailable", { status: 502 });
+    }
+  }
+
+  async status(): Promise<{
+    containerStatus: ContainerStatus;
+    startedAt: number | null;
+    lastActivityAt: number | null;
+    requestCount: number;
+    errorLog: string | null;
+  }> {
+    await this.ensureInitialized();
+    return { ...this.state };
+  }
+
+  async stop(): Promise<void> {
+    await this.ensureInitialized();
+
+    try {
+      const container = this.getContainerStub();
+      await container.stop();
+    } catch {
+      // Container may already be stopped
+    }
+
+    this.state.containerStatus = "stopped";
+    await this.persistState();
+
+    // Release gatekeeper slot
+    const gatekeeper = this.env.GATEKEEPER.getByName("global");
+    await gatekeeper.release(this.ctx.id.toString());
+  }
+}
