@@ -9,6 +9,15 @@ Thumbs.db
 # Build output
 dist/
 node_modules/
+.output
+.cache
+
+# TanStack Start / Fumadocs
+.tanstack
+.source
+
+# Cloudflare
+.wrangler
 
 # Editor/IDE files
 *.swp
