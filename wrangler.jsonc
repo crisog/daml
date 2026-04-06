@@ -1,10 +1,42 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "canton-guide",
+  "name": "daml-playground",
   "compatibility_date": "2025-04-01",
   "compatibility_flags": ["nodejs_compat"],
   "main": "@tanstack/react-start/server-entry",
   "routes": [
     { "pattern": "daml.run/*", "zone_name": "daml.run" }
+  ],
+
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "daml-playground-db",
+      "database_id": "REPLACE_AFTER_D1_CREATE"
+    }
+  ],
+
+  "containers": [
+    {
+      "class_name": "SandboxContainer",
+      "image": "./sandbox",
+      "max_instances": 50,
+      "instance_type": "standard-1"
+    }
+  ],
+
+  "durable_objects": {
+    "bindings": [
+      { "name": "SESSION", "class_name": "SessionDO" },
+      { "name": "SANDBOX", "class_name": "SandboxContainer" },
+      { "name": "GATEKEEPER", "class_name": "GatekeeperDO" }
+    ]
+  },
+
+  "migrations": [
+    {
+      "tag": "v1",
+      "new_sqlite_classes": ["SessionDO", "SandboxContainer", "GatekeeperDO"]
+    }
   ]
 }
