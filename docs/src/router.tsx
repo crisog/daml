@@ -5,7 +5,6 @@ import { NotFound } from '@/components/not-found';
 export function getRouter() {
   return createTanStackRouter({
     routeTree,
-    basepath: '/docs',
     defaultPreload: 'intent',
     scrollRestoration: true,
     defaultNotFoundComponent: NotFound,

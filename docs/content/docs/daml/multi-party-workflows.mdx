@@ -91,7 +91,7 @@ The owner can propose transferring the asset to a new party. This is a consuming
             newOwner
 ```
 
-Why consuming? Because the asset should not be "live" while a transfer is pending. If the asset remained active, the owner could propose transfers to multiple people simultaneously, which would be like spending the same asset twice. The UTXO model (from the [previous page](/daml/contract-model)) prevents this naturally: once consumed, the asset cannot be used again.
+Why consuming? Because the asset should not be "live" while a transfer is pending. If the asset remained active, the owner could propose transfers to multiple people simultaneously, which would be like spending the same asset twice. The UTXO model (from the [previous page](/docs/daml/contract-model)) prevents this naturally: once consumed, the asset cannot be used again.
 
 ### The TransferProposal template
 
@@ -487,5 +487,5 @@ testTransferPreservesData = script do
 - **Reject** and **Cancel** choices provide clean exits that restore the original state.
 
 <Cards>
-  <Card title="Canton Network overview" href="/canton-network" description="Learn how the network enforces these rules across independent organizations." />
+  <Card title="Canton Network overview" href="/docs/canton-network" description="Learn how the network enforces these rules across independent organizations." />
 </Cards>
