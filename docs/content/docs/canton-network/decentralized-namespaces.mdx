@@ -4,7 +4,7 @@ description: How multiple organizations jointly own a namespace using quorum-bas
 icon: UsersRound
 ---
 
-The [topology management](/canton-network/topology-management) page showed how every namespace has a root key controlled by a single organization. Acme Bank owns `acme_ns`, Keystone Brokers owns `keystone_ns`, and each can manage its namespace independently.
+The [topology management](/docs/canton-network/topology-management) page showed how every namespace has a root key controlled by a single organization. Acme Bank owns `acme_ns`, Keystone Brokers owns `keystone_ns`, and each can manage its namespace independently.
 
 But some namespaces should not be controlled by a single organization. The Global Synchronizer, for example, is operated by multiple Super Validators. If one organization held the root key, it could unilaterally add or remove sequencers, change synchronizer parameters, or revoke other members. That would undermine the entire decentralization model.
 
@@ -28,7 +28,7 @@ To create a decentralized namespace, **all** owners must sign the initial `Decen
 
 ### Authorizing subsequent changes
 
-Once the namespace exists, topology transactions governed by it (adding a sequencer, registering a mediator, changing parameters) require at least the **threshold** number of owner signatures. Some mapping types can still require additional co-signers based on their own authorization rules. This is where Canton's [proposal workflow](/canton-network/topology-management#proposals-and-multi-signature-authorization) comes in: one owner submits a proposal, others co-sign, and once the required signatures are present, the change takes effect.
+Once the namespace exists, topology transactions governed by it (adding a sequencer, registering a mediator, changing parameters) require at least the **threshold** number of owner signatures. Some mapping types can still require additional co-signers based on their own authorization rules. This is where Canton's [proposal workflow](/docs/canton-network/topology-management#proposals-and-multi-signature-authorization) comes in: one owner submits a proposal, others co-sign, and once the required signatures are present, the change takes effect.
 
 ### Updating ownership
 

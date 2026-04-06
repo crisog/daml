@@ -6,7 +6,6 @@ import mdx from 'fumadocs-mdx/vite';
 import { cloudflare } from '@cloudflare/vite-plugin';
 
 export default defineConfig({
-  base: '/docs',
   server: {
     port: 3000,
   },
@@ -17,7 +16,12 @@ export default defineConfig({
     tanstackStart({
       prerender: {
         enabled: true,
+        crawlLinks: true,
       },
+      pages: [
+        { path: '/' },
+        { path: '/docs' },
+      ],
     }),
     react(),
   ],

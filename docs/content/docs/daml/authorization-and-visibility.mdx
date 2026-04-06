@@ -189,7 +189,7 @@ A party not listed as a signatory or observer sees nothing:
   assertEq 0 (length strangerInvoices)
 ```
 
-This connects directly to Canton's [privacy model](/canton-network/concepts). At the network level, participant nodes only receive the parts of a transaction that involve their parties. Daml's signatory and observer declarations determine which parties are involved.
+This connects directly to Canton's [privacy model](/docs/canton-network/concepts). At the network level, participant nodes only receive the parts of a transaction that involve their parties. Daml's signatory and observer declarations determine which parties are involved.
 
 ## Summary of the authorization model
 
@@ -396,5 +396,5 @@ testCreationRequiresAllSignatories = script do
 You now understand who can see and act on contracts. The next page shows how to coordinate multiple parties in a real workflow using the propose-accept pattern, and how to model asset transfers.
 
 <Cards>
-  <Card title="Multi-party workflows" href="/daml/multi-party-workflows" />
+  <Card title="Multi-party workflows" href="/docs/daml/multi-party-workflows" />
 </Cards>

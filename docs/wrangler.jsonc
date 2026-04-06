@@ -5,6 +5,6 @@
   "compatibility_flags": ["nodejs_compat"],
   "main": "@tanstack/react-start/server-entry",
   "routes": [
-    { "pattern": "daml.run/docs*", "zone_name": "daml.run" }
+    { "pattern": "daml.run/*", "zone_name": "daml.run" }
   ]
 }

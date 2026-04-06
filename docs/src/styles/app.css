@@ -1,3 +1,38 @@
 @import 'tailwindcss';
 @import 'fumadocs-ui/css/neutral.css';
 @import 'fumadocs-ui/css/preset.css';
+
+/* Playground theme tokens (Canton palette) */
+@theme {
+  --font-mono: 'SF Mono', 'Cascadia Code', 'Fira Code', monospace;
+
+  --color-page: #030206;
+  --color-surface: #0d0b12;
+  --color-elevated: #16131e;
+
+  --color-ink: #FFFFFC;
+  --color-ink-secondary: #c8c8c4;
+  --color-ink-muted: #5a5660;
+  --color-ink-inverted: #030206;
+
+  --color-stone: #2a2730;
+  --color-stone-strong: #3d3a44;
+
+  --color-accent: #F3FF97;
+  --color-accent-hover: #e6f280;
+  --color-accent-light: #F3FF9722;
+
+  --color-purple: #875CFF;
+  --color-purple-soft: #b8a0ff;
+  --color-purple-muted: #875CFF22;
+
+  --color-lilac: #D5A5E3;
+  --color-lilac-muted: #D5A5E333;
+
+  --color-taupe: #A89F91;
+
+  --color-error: #ff6b6b;
+  --color-error-light: #ff6b6b22;
+  --color-success: #F3FF97;
+  --color-success-light: #F3FF9722;
+}
