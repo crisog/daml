@@ -1,22 +1,29 @@
 import { useEffect, useState } from 'react'
 import { queryContracts } from '../lib/canton'
-import type { ActiveContract } from '../lib/types'
+import { ContractCard } from './contract-card'
+import type { ActiveContract, Party } from '../lib/types'
+import type { DamlTemplate } from '../lib/daml-parser'
 
 type ContractListProps = {
   partyId: string | null
   refreshKey: number
+  templates: DamlTemplate[]
+  parties: Party[]
+  onExercised: () => void
 }
 
-function shortId(id: string): string {
-  return id.split('::')[0] ?? id
+function templateNameFromId(templateId: string): string {
+  const parts = templateId.split(':')
+  return parts[parts.length - 1] ?? templateId
 }
 
-function shortTemplate(id: string): string {
-  const parts = id.split(':')
-  return parts.length >= 3 ? `${parts[parts.length - 2]}:${parts[parts.length - 1]}` : id
-}
-
-export function ContractList({ partyId, refreshKey }: ContractListProps): React.JSX.Element | null {
+export function ContractList({
+  partyId,
+  refreshKey,
+  templates,
+  parties,
+  onExercised,
+}: ContractListProps): React.JSX.Element | null {
   const [contracts, setContracts] = useState<ActiveContract[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -45,26 +52,21 @@ export function ContractList({ partyId, refreshKey }: ContractListProps): React.
         Active Contracts ({contracts.length})
       </h3>
       <div className="flex flex-col gap-2">
-        {contracts.map((c) => (
-          <div key={c.contractId} className="rounded-md border border-stone bg-page p-2">
-            <div className="mb-1 text-xs font-medium text-accent">{shortTemplate(c.templateId)}</div>
-            <div className="mb-1 font-mono text-xs text-ink-muted">
-              {c.contractId.slice(0, 24)}...
-            </div>
-            <table className="w-full text-xs">
-              <tbody>
-                {Object.entries(c.createArguments).map(([key, val]) => (
-                  <tr key={key}>
-                    <td className="pr-3 align-top text-ink-muted">{key}</td>
-                    <td className="text-ink">
-                      {typeof val === 'string' ? shortId(val) : JSON.stringify(val)}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        ))}
+        {contracts.map((c) => {
+          const name = templateNameFromId(c.templateId)
+          const template = templates.find((t) => t.name === name)
+          const choices = template?.choices ?? []
+
+          return (
+            <ContractCard
+              key={c.contractId}
+              contract={c}
+              choices={choices}
+              parties={parties}
+              onExercised={onExercised}
+            />
+          )
+        })}
       </div>
     </div>
   )

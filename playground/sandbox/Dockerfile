@@ -5,7 +5,7 @@ RUN curl -fsSL https://get.digitalasset.com/install/install.sh | sh
 ENV PATH="/root/.dpm/bin:${PATH}"
 RUN dpm install 3.4.11
 
-FROM golang:1.22-bookworm AS builder
+FROM golang:1.23-bookworm AS builder
 WORKDIR /build
 COPY compile-service/go.mod ./
 RUN go mod download
