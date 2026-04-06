@@ -1,4 +1,4 @@
-name: Deploy Docs
+name: Deploy
 
 on:
   push:
@@ -6,6 +6,7 @@ on:
     paths:
       - "src/**"
       - "content/**"
+      - "sandbox/**"
       - "package.json"
       - "package-lock.json"
       - "vite.config.ts"
@@ -17,6 +18,7 @@ on:
     paths:
       - "src/**"
       - "content/**"
+      - "sandbox/**"
       - "package.json"
       - "package-lock.json"
       - "vite.config.ts"
