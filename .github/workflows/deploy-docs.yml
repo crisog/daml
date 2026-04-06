@@ -7,6 +7,7 @@ on:
       - "src/**"
       - "content/**"
       - "sandbox/**"
+      - "migrations/**"
       - "package.json"
       - "package-lock.json"
       - "vite.config.ts"
@@ -19,6 +20,7 @@ on:
       - "src/**"
       - "content/**"
       - "sandbox/**"
+      - "migrations/**"
       - "package.json"
       - "package-lock.json"
       - "vite.config.ts"
@@ -59,6 +61,9 @@ jobs:
 
       - run: npm ci
       - run: npm run build
+      - run: npx wrangler d1 migrations apply daml-playground-db --remote
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
       - run: npx wrangler deploy
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
