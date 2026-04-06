@@ -153,7 +153,20 @@ func newCantonProxy() http.Handler {
 		log.Fatalf("invalid SANDBOX_URL %q: %v", sandboxURL, err)
 	}
 	proxy := httputil.NewSingleHostReverseProxy(target)
-	return proxy
+
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// Check if Canton is ready before proxying
+		resp, err := http.Get(sandboxURL + "/v2/packages")
+		if err != nil || resp.StatusCode != 200 {
+			if resp != nil {
+				resp.Body.Close()
+			}
+			writeJSON(w, http.StatusServiceUnavailable, CompileResponse{Errors: []string{"sandbox not ready yet, try again in a few seconds"}})
+			return
+		}
+		resp.Body.Close()
+		proxy.ServeHTTP(w, r)
+	})
 }
 
 func main() {
