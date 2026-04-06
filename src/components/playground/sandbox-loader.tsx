@@ -11,10 +11,11 @@ type SandboxState =
 
 type Props = {
   enabled: boolean;
+  onReady?: () => void;
   children: (sandboxReady: boolean) => ReactNode;
 };
 
-export function SandboxLoader({ enabled, children }: Props) {
+export function SandboxLoader({ enabled, onReady, children }: Props) {
   const [state, setState] = useState<SandboxState>({ kind: "idle" });
 
   useEffect(() => {
@@ -32,6 +33,7 @@ export function SandboxLoader({ enabled, children }: Props) {
 
         if (status.kind === "ready") {
           setState({ kind: "ready" });
+          onReady?.();
           return;
         }
 

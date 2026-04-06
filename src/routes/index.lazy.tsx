@@ -78,7 +78,10 @@ function PlaygroundPage(): React.JSX.Element {
   )
 
   const interactPanel = isAuthed ? (
-    <SandboxLoader enabled={isAuthed}>
+    <SandboxLoader
+      enabled={isAuthed}
+      onReady={() => consoleRef.current?.success('Connected to sandbox')}
+    >
       {(sandboxReady) =>
         sandboxReady ? (
           <>
