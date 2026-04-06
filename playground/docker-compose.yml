@@ -1,0 +1,13 @@
+services:
+  sandbox:
+    build:
+      context: ./sandbox
+    ports:
+      - "7575:7575"
+      - "8081:8081"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8081/health"]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+      start_period: 20s
