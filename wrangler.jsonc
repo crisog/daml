@@ -12,14 +12,14 @@
     {
       "binding": "DB",
       "database_name": "daml-playground-db",
-      "database_id": "REPLACE_AFTER_D1_CREATE"
+      "database_id": "4e1840b6-ad1a-4268-9a35-ba23872dea2f"
     }
   ],
 
   "containers": [
     {
       "class_name": "SandboxContainer",
-      "image": "./sandbox",
+      "image": "./sandbox/Dockerfile",
       "max_instances": 50,
       "instance_type": "standard-1"
     }
