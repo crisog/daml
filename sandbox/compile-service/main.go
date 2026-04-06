@@ -7,6 +7,8 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"net/http/httputil"
+	"net/url"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -141,15 +143,25 @@ dependencies:
 	writeJSON(w, http.StatusOK, CompileResponse{Success: true})
 }
 
+func newCantonProxy() http.Handler {
+	target, _ := url.Parse("http://localhost:7575")
+	proxy := httputil.NewSingleHostReverseProxy(target)
+	return proxy
+}
+
 func main() {
 	port := os.Getenv("COMPILE_PORT")
 	if port == "" {
 		port = "8081"
 	}
 
+	cantonProxy := newCantonProxy()
+
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /health", handleHealth)
 	mux.HandleFunc("POST /compile", handleCompile)
+	// Proxy all other requests to Canton JSON API
+	mux.Handle("/", cantonProxy)
 
 	log.Printf("compile-service listening on :%s", port)
 	if err := http.ListenAndServe(fmt.Sprintf(":%s", port), mux); err != nil {
