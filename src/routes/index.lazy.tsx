@@ -46,6 +46,37 @@ function PlaygroundPage(): React.JSX.Element {
     window.location.reload()
   }
 
+  const handleExampleSelect = (src: string, name: string) => {
+    setSource(src)
+    setDeployed(false)
+    consoleRef.current?.info(`Loaded example: ${name}`)
+  }
+
+  const compileStatus = (
+    <CompileStatus
+      getSource={() => ({ 'Main.daml': source })}
+      onSuccess={() => {
+        setDeployed(true)
+        const names = templates.map((t) => t.name).join(', ')
+        consoleRef.current?.success(`Deployed: ${names}`)
+      }}
+      onError={(err) => {
+        consoleRef.current?.error(`Deploy failed: ${err}`)
+      }}
+    />
+  )
+
+  const signInButton = (
+    <button
+      type="button"
+      onClick={handleSignIn}
+      disabled={auth.status === 'loading'}
+      className="rounded-md bg-success px-3 py-1 text-xs font-medium text-ink-inverted hover:opacity-90 disabled:opacity-50"
+    >
+      Sign in
+    </button>
+  )
+
   const interactPanel = isAuthed ? (
     <SandboxLoader enabled={isAuthed}>
       {(sandboxReady) =>
@@ -117,43 +148,16 @@ function PlaygroundPage(): React.JSX.Element {
   return (
     <div className="flex h-dvh flex-col bg-page text-ink">
       <header className="flex items-center gap-2 border-b border-stone bg-surface px-3 py-2 md:gap-4 md:px-4">
-        <h1 className="text-sm font-medium text-accent">Daml Playground</h1>
-        <div className="hidden sm:flex sm:items-center sm:gap-4">
-          {isAuthed ? (
-            <CompileStatus
-              getSource={() => ({ 'Main.daml': source })}
-              onSuccess={() => {
-                setDeployed(true)
-                const names = templates.map((t) => t.name).join(', ')
-                consoleRef.current?.success(`Deployed: ${names}`)
-              }}
-              onError={(err) => {
-                consoleRef.current?.error(`Deploy failed: ${err}`)
-              }}
-            />
-          ) : (
-            <button
-              type="button"
-              onClick={handleSignIn}
-              disabled={auth.status === 'loading'}
-              className="rounded-md bg-success px-3 py-1 text-xs font-medium text-ink-inverted hover:opacity-90 disabled:opacity-50"
-            >
-              Sign in to Deploy
-            </button>
-          )}
-          <ExamplePicker
-            onSelect={(src, name) => {
-              setSource(src)
-              setDeployed(false)
-              consoleRef.current?.info(`Loaded example: ${name}`)
-            }}
-          />
+        <h1 className="shrink-0 text-sm font-medium text-accent">Daml Playground</h1>
+        {isAuthed && compileStatus}
+        <div className="hidden sm:block">
+          <ExamplePicker onSelect={handleExampleSelect} />
         </div>
-        <span className="ml-auto flex items-center gap-2 text-xs text-ink-muted md:gap-3">
+        <span className="ml-auto flex items-center gap-2 text-xs text-ink-muted">
           {activeParty && (
             <span className="hidden sm:inline">Viewing as {activeParty.displayName}</span>
           )}
-          {isAuthed && (
+          {isAuthed ? (
             <>
               <span className="hidden md:inline">{auth.user.name}</span>
               <button
@@ -164,41 +168,11 @@ function PlaygroundPage(): React.JSX.Element {
                 Sign out
               </button>
             </>
+          ) : (
+            signInButton
           )}
         </span>
       </header>
-
-      <div className="flex items-center gap-2 border-b border-stone bg-surface px-3 py-1.5 sm:hidden">
-        {isAuthed ? (
-          <CompileStatus
-            getSource={() => ({ 'Main.daml': source })}
-            onSuccess={() => {
-              setDeployed(true)
-              const names = templates.map((t) => t.name).join(', ')
-              consoleRef.current?.success(`Deployed: ${names}`)
-            }}
-            onError={(err) => {
-              consoleRef.current?.error(`Deploy failed: ${err}`)
-            }}
-          />
-        ) : (
-          <button
-            type="button"
-            onClick={handleSignIn}
-            disabled={auth.status === 'loading'}
-            className="rounded-md bg-success px-3 py-1 text-xs font-medium text-ink-inverted hover:opacity-90 disabled:opacity-50"
-          >
-            Sign in
-          </button>
-        )}
-        <ExamplePicker
-          onSelect={(src, name) => {
-            setSource(src)
-            setDeployed(false)
-            consoleRef.current?.info(`Loaded example: ${name}`)
-          }}
-        />
-      </div>
 
       <div className="flex border-b border-stone bg-surface sm:hidden">
         {(['editor', 'interact', 'console'] as const).map((tab) => (
@@ -227,8 +201,29 @@ function PlaygroundPage(): React.JSX.Element {
       </div>
 
       <div className="flex-1 overflow-hidden sm:hidden">
-        <div className={mobileTab === 'editor' ? 'h-full' : 'hidden'}>
-          <DamlEditor value={source} onChange={setSource} />
+        <div className={mobileTab === 'editor' ? 'flex h-full flex-col' : 'hidden'}>
+          <div className="flex items-center gap-2 border-b border-stone bg-surface px-3 py-1.5">
+            <select
+              onChange={(e) => {
+                const ex = EXAMPLES.find((x) => x.name === e.target.value)
+                if (ex) handleExampleSelect(ex.source, ex.name)
+              }}
+              defaultValue=""
+              className="rounded-md border border-stone bg-page px-2 py-1 text-xs text-ink"
+            >
+              <option value="" disabled>
+                Load example...
+              </option>
+              {EXAMPLES.map((ex) => (
+                <option key={ex.name} value={ex.name}>
+                  {ex.name}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="flex-1">
+            <DamlEditor value={source} onChange={setSource} />
+          </div>
         </div>
         <div className={mobileTab === 'interact' ? 'h-full overflow-y-auto bg-surface' : 'hidden'}>
           {interactPanel}
