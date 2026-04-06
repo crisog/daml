@@ -3,26 +3,42 @@
 @theme {
   --font-mono: 'SF Mono', 'Cascadia Code', 'Fira Code', monospace;
 
-  --color-page: #F7F3EE;
-  --color-surface: #EFEBE5;
-  --color-elevated: #E7E2DA;
+  /* Canton Black - primary dark */
+  --color-page: #030206;
+  --color-surface: #0d0b12;
+  --color-elevated: #16131e;
 
-  --color-ink: #2C2825;
-  --color-ink-secondary: #5C5550;
-  --color-ink-muted: #746B62;
-  --color-ink-inverted: #F7F3EE;
+  /* Canton White / light tones for text */
+  --color-ink: #FFFFFC;
+  --color-ink-secondary: #c8c8c4;
+  --color-ink-muted: #8a8880;
+  --color-ink-inverted: #030206;
 
-  --color-stone: #D5CFC7;
-  --color-stone-strong: #B8B0A5;
+  /* Borders - derived from taupe */
+  --color-stone: #2a2730;
+  --color-stone-strong: #3d3a44;
 
-  --color-accent: #5F628F;
-  --color-accent-hover: #53567E;
-  --color-accent-light: #EEEEF5;
+  /* Canton Purple - primary accent */
+  --color-accent: #875CFF;
+  --color-accent-hover: #7a4ff0;
+  --color-accent-light: #875CFF22;
 
-  --color-error: #A15C4B;
-  --color-error-light: #F5EBE7;
-  --color-success: #4F765C;
-  --color-success-light: #EBF2ED;
+  /* Canton Yellow - primary highlight */
+  --color-yellow: #F3FF97;
+  --color-yellow-muted: #F3FF9733;
+
+  /* Canton Lilac - secondary */
+  --color-lilac: #D5A5E3;
+  --color-lilac-muted: #D5A5E333;
+
+  /* Canton Taupe - accent neutral */
+  --color-taupe: #A89F91;
+
+  /* Semantic */
+  --color-error: #ff6b6b;
+  --color-error-light: #ff6b6b22;
+  --color-success: #F3FF97;
+  --color-success-light: #F3FF9722;
 
   --text-xs: 0.6875rem;
   --text-sm: 0.8125rem;
@@ -72,4 +88,11 @@ button, [role='button'] {
 button:disabled, [role='button']:disabled {
   cursor: default;
   opacity: 0.5;
+}
+
+/* Form inputs for dark theme */
+input, select, textarea {
+  background-color: var(--color-surface);
+  border-color: var(--color-stone);
+  color: var(--color-ink);
 }

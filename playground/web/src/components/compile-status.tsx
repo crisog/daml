@@ -42,11 +42,7 @@ export function CompileStatus({ getSource, onSuccess, onError }: CompileStatusPr
         {compiling ? 'Compiling...' : 'Deploy'}
       </Button>
       {result?.success && <span className="text-xs text-success">Deployed</span>}
-      {result && !result.success && (
-        <span className="text-xs text-error" title={result.errors?.join('\n')}>
-          Build failed
-        </span>
-      )}
+      {result && !result.success && <span className="text-xs text-error">Build failed</span>}
     </div>
   )
 }

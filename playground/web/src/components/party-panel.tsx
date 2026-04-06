@@ -18,18 +18,15 @@ export function PartyPanel({
 }: PartyPanelProps): React.JSX.Element {
   const [name, setName] = useState('')
   const [creating, setCreating] = useState(false)
-  const [error, setError] = useState<string | null>(null)
 
   async function handleCreate() {
     if (!name.trim()) return
     setCreating(true)
-    setError(null)
     try {
       const party = await createParty(name.trim())
       onPartyCreated(party)
       setName('')
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Failed to create party')
     } finally {
       setCreating(false)
     }
@@ -55,7 +52,6 @@ export function PartyPanel({
           {creating ? '...' : 'Create'}
         </Button>
       </div>
-      {error && <p className="mb-2 text-xs text-error">{error}</p>}
       <div className="flex flex-wrap gap-1">
         {parties.map((p) => (
           <button

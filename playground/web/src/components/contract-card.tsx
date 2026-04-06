@@ -32,7 +32,6 @@ export function ContractCard({
   const [choiceArgs, setChoiceArgs] = useState<Record<string, string>>({})
   const [actAsIds, setActAsIds] = useState<string[]>([])
   const [submitting, setSubmitting] = useState(false)
-  const [error, setError] = useState<string | null>(null)
 
   function toggleActAs(id: string) {
     setActAsIds((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]))
@@ -46,7 +45,6 @@ export function ContractCard({
   async function handleExercise(choice: DamlChoice) {
     if (actAsIds.length === 0) return
     setSubmitting(true)
-    setError(null)
 
     try {
       const args: Record<string, unknown> = {}
@@ -68,7 +66,6 @@ export function ContractCard({
       onExercised()
     } catch (e) {
       const msg = e instanceof Error ? e.message : 'Exercise failed'
-      setError(msg)
       onLog?.('error', `Exercise ${choice.name} failed: ${msg}`)
     } finally {
       setSubmitting(false)
@@ -107,8 +104,7 @@ export function ContractCard({
                 key={c.name}
                 onClick={() => {
                   setExpandedChoice(expandedChoice === c.name ? null : c.name)
-                  setError(null)
-                }}
+                              }}
                 className={`rounded-sm px-2 py-0.5 text-xs ${
                   expandedChoice === c.name
                     ? 'bg-accent text-ink-inverted'
@@ -185,11 +181,6 @@ export function ContractCard({
                   {submitting ? '...' : `Exercise ${choice.name}`}
                 </Button>
 
-                {error && (
-                  <pre className="mt-1.5 whitespace-pre-wrap rounded-md bg-error-light p-2 text-xs text-error">
-                    {error}
-                  </pre>
-                )}
               </div>
             )
           })()}

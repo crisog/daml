@@ -17,7 +17,6 @@ export function CreateForm({ templates, parties, onSuccess, onError }: CreateFor
   const [actAsIds, setActAsIds] = useState<string[]>([])
   const [submitting, setSubmitting] = useState(false)
   const [result, setResult] = useState<string | null>(null)
-  const [error, setError] = useState<string | null>(null)
 
   if (templates.length === 0) {
     return <p className="p-3 text-xs text-ink-muted">Deploy a contract to get started</p>
@@ -41,7 +40,7 @@ export function CreateForm({ templates, parties, onSuccess, onError }: CreateFor
   async function handleSubmit() {
     if (!template) return
     setSubmitting(true)
-    setError(null)
+
     setResult(null)
 
     try {
@@ -72,7 +71,6 @@ export function CreateForm({ templates, parties, onSuccess, onError }: CreateFor
       onSuccess(template.name)
     } catch (e) {
       const msg = e instanceof Error ? e.message : 'Create failed'
-      setError(msg)
       onError?.(msg)
     } finally {
       setSubmitting(false)
@@ -174,11 +172,6 @@ export function CreateForm({ templates, parties, onSuccess, onError }: CreateFor
       )}
 
       {result && <p className="mt-2 text-xs text-success">{result}</p>}
-      {error && (
-        <pre className="mt-2 whitespace-pre-wrap rounded-md bg-error-light p-2 text-xs text-error">
-          {error}
-        </pre>
-      )}
     </div>
   )
 }
