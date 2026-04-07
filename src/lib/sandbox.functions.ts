@@ -30,17 +30,21 @@ export const getSandboxStatus = createServerFn({ method: "GET" }).handler(
     const status = await sessionDO.status();
 
     if (status.containerStatus === "running") {
-      // Container port 8081 is up, but Canton JVM may still be booting or
-      // the synchronizer may not be connected yet. Check the connected
-      // synchronizers endpoint to confirm the sandbox is fully operational.
+      // Container port 8081 is up, but Canton may still be booting.
+      // The only reliable readiness test: try an actual compile.
+      // A trivial Daml module that compiles instantly.
       try {
         const container = env.SANDBOX.getByName(userId);
-        const syncRes = await container.fetch("http://container/v2/state/connected-synchronizers");
-        if (syncRes.ok) {
-          const data = await syncRes.json() as Record<string, unknown>;
-          // Canton may use camelCase or snake_case depending on version
-          const syncs = (data.connectedSynchronizers ?? data.connected_synchronizers) as unknown[] | undefined;
-          if (syncs && syncs.length > 0) {
+        const probeRes = await container.fetch("http://container/compile", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            files: { "Probe.daml": "module Probe where" },
+          }),
+        });
+        if (probeRes.ok) {
+          const result = await probeRes.json() as { success?: boolean };
+          if (result.success) {
             return { kind: "ready" };
           }
         }
@@ -59,4 +63,3 @@ export const getSandboxStatus = createServerFn({ method: "GET" }).handler(
     return { kind: "starting", message: "Provisioning your sandbox..." };
   }
 );
-
