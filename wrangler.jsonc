@@ -25,8 +25,12 @@
       "name": "daml-sandbox",
       "class_name": "SandboxContainer",
       "image": "./sandbox/Dockerfile",
-      "max_instances": 50,
-      "instance_type": "standard-1",
+      "max_instances": 10,
+      "instance_type": {
+        "vcpu": 1,
+        "memory_mib": 4096,
+        "disk_mb": 8000
+      },
       "rollout_active_grace_period": 0
     }
   ],
