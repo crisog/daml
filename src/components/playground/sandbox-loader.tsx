@@ -1,4 +1,4 @@
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { getSandboxStatus } from "@/lib/sandbox.functions";
 
 type SandboxState =
@@ -17,10 +17,12 @@ type Props = {
 
 export function SandboxLoader({ enabled, onReady, children }: Props) {
   const [state, setState] = useState<SandboxState>({ kind: "idle" });
+  const readyFired = useRef(false);
 
   useEffect(() => {
     if (!enabled) {
       setState({ kind: "idle" });
+      readyFired.current = false;
       return;
     }
 
@@ -33,7 +35,10 @@ export function SandboxLoader({ enabled, onReady, children }: Props) {
 
         if (status.kind === "ready") {
           setState({ kind: "ready" });
-          onReady?.();
+          if (!readyFired.current) {
+            readyFired.current = true;
+            onReady?.();
+          }
           return;
         }
 

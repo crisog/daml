@@ -37,8 +37,10 @@ export const getSandboxStatus = createServerFn({ method: "GET" }).handler(
         const container = env.SANDBOX.getByName(userId);
         const syncRes = await container.fetch("http://container/v2/state/connected-synchronizers");
         if (syncRes.ok) {
-          const data = await syncRes.json() as { connectedSynchronizers?: unknown[] };
-          if (data.connectedSynchronizers && data.connectedSynchronizers.length > 0) {
+          const data = await syncRes.json() as Record<string, unknown>;
+          // Canton may use camelCase or snake_case depending on version
+          const syncs = (data.connectedSynchronizers ?? data.connected_synchronizers) as unknown[] | undefined;
+          if (syncs && syncs.length > 0) {
             return { kind: "ready" };
           }
         }
