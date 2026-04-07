@@ -11,7 +11,7 @@ type SandboxState =
 
 type Props = {
   enabled: boolean;
-  onReady?: () => void;
+  onReady?: (needsRestore: boolean) => void;
   children: (sandboxReady: boolean) => ReactNode;
 };
 
@@ -37,7 +37,7 @@ export function SandboxLoader({ enabled, onReady, children }: Props) {
           setState({ kind: "ready" });
           if (!readyFired.current) {
             readyFired.current = true;
-            onReady?.();
+            onReady?.(status.needsRestore);
           }
           return;
         }

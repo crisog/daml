@@ -14,7 +14,8 @@ import { SandboxLoader } from '@/components/playground/sandbox-loader'
 import { useAuth } from '@/lib/use-auth'
 import { authClient } from '@/lib/auth-client'
 import { restoreSession } from '@/lib/playground/restore-session'
-import { saveUserSessionFn, type UserSessionData } from '@/lib/session.functions'
+import { saveUserSessionFn } from '@/lib/session.functions'
+import { clearRestore } from '@/lib/sandbox.functions'
 
 export const Route = createLazyFileRoute('/')({
   component: PlaygroundPage,
@@ -73,13 +74,14 @@ function PlaygroundPage(): React.JSX.Element {
     consoleRef.current?.info(`Loaded example: ${name}`)
   }
 
-  const handleSandboxReady = useCallback(async () => {
+  const handleSandboxReady = useCallback(async (needsRestore: boolean) => {
     consoleRef.current?.success('Connected to sandbox')
 
-    if (!saved?.deployed && !saved?.partyNames?.length) return
+    if (!needsRestore || !saved) return
+    if (!saved.deployed && !saved.partyNames?.length) return
 
     setRestoring(true)
-    const result = await restoreSession(saved!, (type, msg) => {
+    const result = await restoreSession(saved, (type, msg) => {
       if (type === 'info') consoleRef.current?.info(msg)
       else if (type === 'success') consoleRef.current?.success(msg)
       else consoleRef.current?.error(msg)
@@ -93,7 +95,9 @@ function PlaygroundPage(): React.JSX.Element {
       }
     }
     setRestoring(false)
-  }, [])
+
+    clearRestore().catch(() => {})
+  }, [saved])
 
   const compileStatus = (
     <CompileStatus

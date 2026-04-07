@@ -3,7 +3,7 @@ import { env } from "cloudflare:workers";
 import { ensureSession } from "@/lib/auth.functions";
 
 type SandboxStatus =
-  | { kind: "ready" }
+  | { kind: "ready"; needsRestore: boolean }
   | { kind: "starting"; message: string }
   | { kind: "at-capacity"; active: number; max: number }
   | { kind: "error"; message: string };
@@ -46,7 +46,8 @@ export const getSandboxStatus = createServerFn({ method: "GET" }).handler(
             data.connectedSynchronizers &&
             data.connectedSynchronizers.length > 0
           ) {
-            return { kind: "ready" };
+            const needsRestore = await sessionDO.needsRestore();
+            return { kind: "ready", needsRestore };
           }
         }
       } catch {
@@ -65,5 +66,13 @@ export const getSandboxStatus = createServerFn({ method: "GET" }).handler(
     // Container is stopped or errored, trigger start
     await sessionDO.start();
     return { kind: "starting", message: "Provisioning your sandbox..." };
+  }
+);
+
+export const clearRestore = createServerFn({ method: "POST" }).handler(
+  async () => {
+    const session = await ensureSession();
+    const sessionDO = env.SESSION.getByName(session.user.id);
+    await sessionDO.clearNeedsRestore();
   }
 );
