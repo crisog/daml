@@ -1,7 +1,7 @@
 import { compileAndDeploy } from './compiler'
 import { createParty } from './canton'
 import type { Party } from './types'
-import { loadSession } from './session-store'
+import type { UserSessionData } from '@/lib/session.functions'
 
 export interface RestoreResult {
   parties: Party[]
@@ -9,12 +9,9 @@ export interface RestoreResult {
 }
 
 export async function restoreSession(
+  session: UserSessionData,
   onLog?: (type: 'info' | 'success' | 'error', msg: string) => void,
-): Promise<RestoreResult | null> {
-  const session = loadSession()
-  if (!session) return null
-  if (!session.deployed && session.partyNames.length === 0) return null
-
+): Promise<RestoreResult> {
   onLog?.('info', 'Restoring previous session...')
 
   let deployed = false

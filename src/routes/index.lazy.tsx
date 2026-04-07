@@ -13,8 +13,8 @@ import type { Party } from '@/lib/playground/types'
 import { SandboxLoader } from '@/components/playground/sandbox-loader'
 import { useAuth } from '@/lib/use-auth'
 import { authClient } from '@/lib/auth-client'
-import { saveSession, loadSession } from '@/lib/playground/session-store'
 import { restoreSession } from '@/lib/playground/restore-session'
+import { saveUserSessionFn, type UserSessionData } from '@/lib/session.functions'
 
 export const Route = createLazyFileRoute('/')({
   component: PlaygroundPage,
@@ -26,7 +26,7 @@ function PlaygroundPage(): React.JSX.Element {
   const auth = useAuth()
   const isAuthed = auth.status === 'authenticated'
 
-  const saved = loadSession()
+  const saved = Route.useLoaderData()
   const [parties, setParties] = useState<Party[]>(() =>
     (saved?.partyNames ?? []).map((name) => ({ id: '', displayName: name }))
   )
@@ -37,16 +37,23 @@ function PlaygroundPage(): React.JSX.Element {
   const [restoring, setRestoring] = useState(false)
   const consoleRef = useRef<ConsoleHandle>(null)
   const [mobileTab, setMobileTab] = useState<MobileTab>('editor')
+  const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const templates = useMemo(() => parseDamlSource(source), [source])
 
   useEffect(() => {
-    saveSession({
-      source,
-      partyNames: parties.filter((p) => p.id).map((p) => p.displayName),
-      deployed,
-    })
-  }, [source, parties, deployed])
+    if (!isAuthed) return
+    if (saveTimer.current) clearTimeout(saveTimer.current)
+    saveTimer.current = setTimeout(() => {
+      saveUserSessionFn({
+        data: {
+          source,
+          partyNames: parties.filter((p) => p.id).map((p) => p.displayName),
+          deployed,
+        },
+      }).catch(() => {})
+    }, 1000)
+  }, [source, parties, deployed, isAuthed])
 
   const handleSignIn = () => {
     authClient.signIn.social({
@@ -69,11 +76,10 @@ function PlaygroundPage(): React.JSX.Element {
   const handleSandboxReady = useCallback(async () => {
     consoleRef.current?.success('Connected to sandbox')
 
-    const session = loadSession()
-    if (!session?.deployed && !session?.partyNames.length) return
+    if (!saved?.deployed && !saved?.partyNames?.length) return
 
     setRestoring(true)
-    const result = await restoreSession((type, msg) => {
+    const result = await restoreSession(saved!, (type, msg) => {
       if (type === 'info') consoleRef.current?.info(msg)
       else if (type === 'success') consoleRef.current?.success(msg)
       else consoleRef.current?.error(msg)
