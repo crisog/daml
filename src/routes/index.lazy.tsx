@@ -1,5 +1,5 @@
 import { createLazyFileRoute } from '@tanstack/react-router'
-import { useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { PartyPanel } from '@/components/playground/party-panel'
 import { ContractList } from '@/components/playground/contract-list'
 import { CreateForm } from '@/components/playground/create-form'
@@ -13,6 +13,7 @@ import type { Party } from '@/lib/playground/types'
 import { SandboxLoader } from '@/components/playground/sandbox-loader'
 import { useAuth } from '@/lib/use-auth'
 import { authClient } from '@/lib/auth-client'
+import { saveSession, loadSession } from '@/lib/playground/session-store'
 
 export const Route = createLazyFileRoute('/')({
   component: PlaygroundPage,
@@ -24,15 +25,27 @@ function PlaygroundPage(): React.JSX.Element {
   const auth = useAuth()
   const isAuthed = auth.status === 'authenticated'
 
-  const [parties, setParties] = useState<Party[]>([])
+  const saved = useRef(loadSession())
+  const [parties, setParties] = useState<Party[]>(() => {
+    const names = saved.current?.partyNames ?? []
+    return names.map((name) => ({ id: '', displayName: name }))
+  })
   const [activeParty, setActiveParty] = useState<Party | null>(null)
   const [refreshKey, setRefreshKey] = useState(0)
-  const [source, setSource] = useState(EXAMPLES[0]?.source ?? '')
-  const [deployed, setDeployed] = useState(false)
+  const [source, setSource] = useState(saved.current?.source ?? EXAMPLES[0]?.source ?? '')
+  const [deployed, setDeployed] = useState(saved.current?.deployed ?? false)
   const consoleRef = useRef<ConsoleHandle>(null)
   const [mobileTab, setMobileTab] = useState<MobileTab>('editor')
 
   const templates = useMemo(() => parseDamlSource(source), [source])
+
+  useEffect(() => {
+    saveSession({
+      source,
+      partyNames: parties.filter((p) => p.id).map((p) => p.displayName),
+      deployed,
+    })
+  }, [source, parties, deployed])
 
   const handleSignIn = () => {
     authClient.signIn.social({
@@ -89,7 +102,17 @@ function PlaygroundPage(): React.JSX.Element {
               parties={parties}
               activeParty={activeParty}
               onPartyCreated={(p) => {
-                setParties((prev) => [...prev, p])
+                setParties((prev) => {
+                  const placeholder = prev.findIndex(
+                    (x) => x.displayName === p.displayName && !x.id,
+                  )
+                  if (placeholder >= 0) {
+                    const updated = [...prev]
+                    updated[placeholder] = p
+                    return updated
+                  }
+                  return [...prev, p]
+                })
                 if (!activeParty) setActiveParty(p)
                 consoleRef.current?.info(`Party created: ${p.displayName}`)
               }}
