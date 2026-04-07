@@ -1,0 +1,4 @@
+BETTER_AUTH_SECRET=your-secret-here
+GITHUB_CLIENT_ID=your-github-client-id
+GITHUB_CLIENT_SECRET=your-github-client-secret
+LOCAL_SANDBOX_URL=http://127.0.0.1:8081

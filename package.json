@@ -4,7 +4,11 @@
   "type": "module",
   "sideEffects": false,
   "scripts": {
-    "dev": "wrangler d1 migrations apply daml-playground-db --local && vite dev",
+    "dev": "npm run db:migrate && npm run sandbox:up && vite dev",
+    "db:migrate": "wrangler d1 migrations apply daml-playground-db --local",
+    "sandbox:up": "docker compose -f sandbox/docker-compose.yml up -d",
+    "sandbox:down": "docker compose -f sandbox/docker-compose.yml down",
+    "sandbox:logs": "docker compose -f sandbox/docker-compose.yml logs -f",
     "build": "vite build",
     "preview": "vite preview",
     "deploy": "npm run build && wrangler deploy",

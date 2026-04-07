@@ -47,6 +47,21 @@ async function restoreOnSandbox(
 
 export const getSandboxStatus = createServerFn({ method: "GET" }).handler(
   async (): Promise<SandboxStatus> => {
+    const localUrl = (env as Record<string, unknown>).LOCAL_SANDBOX_URL as
+      | string
+      | undefined;
+
+    // Local dev: health-check the docker-compose container directly
+    if (localUrl) {
+      try {
+        const res = await fetch(`${localUrl}/health`);
+        if (res.ok) return { kind: "ready" };
+        return { kind: "starting", message: "Sandbox is booting..." };
+      } catch {
+        return { kind: "starting", message: "Waiting for local sandbox..." };
+      }
+    }
+
     const session = await ensureSession();
     const userId = session.user.id;
 
