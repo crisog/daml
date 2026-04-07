@@ -142,6 +142,7 @@ function PlaygroundPage(): React.JSX.Element {
                 consoleRef.current?.info(`Party created: ${p.displayName}`)
               }}
               onPartySelected={setActiveParty}
+              onError={(msg) => consoleRef.current?.error(`Party creation failed: ${msg}`)}
             />
 
             {!deployed && (
