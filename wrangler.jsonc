@@ -27,7 +27,7 @@
       "image": "./sandbox/Dockerfile",
       "max_instances": 50,
       "instance_type": "standard-1",
-      "rollout_active_grace_period": 300
+      "rollout_active_grace_period": 0
     }
   ],
 
