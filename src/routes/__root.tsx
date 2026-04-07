@@ -18,15 +18,15 @@ export const Route = createRootRoute({
       },
       {
         name: 'description',
-        content: 'Write, deploy, and interact with Daml smart contracts in your browser.',
+        content: 'An interactive sandbox for writing, compiling, and deploying Daml smart contracts. Create parties, exercise choices, and explore Canton ledger workflows without any local setup.',
       },
       {
         property: 'og:title',
-        content: 'Daml Playground',
+        content: 'Daml Playground: Write and Deploy Smart Contracts in Your Browser',
       },
       {
         property: 'og:description',
-        content: 'Write, deploy, and interact with Daml smart contracts in your browser.',
+        content: 'An interactive sandbox for writing, compiling, and deploying Daml smart contracts. Create parties, exercise choices, and explore Canton ledger workflows without any local setup.',
       },
       {
         property: 'og:image',
@@ -42,11 +42,11 @@ export const Route = createRootRoute({
       },
       {
         name: 'twitter:title',
-        content: 'Daml Playground',
+        content: 'Daml Playground: Write and Deploy Smart Contracts in Your Browser',
       },
       {
         name: 'twitter:description',
-        content: 'Write, deploy, and interact with Daml smart contracts in your browser.',
+        content: 'An interactive sandbox for writing, compiling, and deploying Daml smart contracts. Create parties, exercise choices, and explore Canton ledger workflows without any local setup.',
       },
       {
         name: 'twitter:image',
