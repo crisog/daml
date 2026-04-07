@@ -39,20 +39,10 @@ func handleHealth(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleCompile(w http.ResponseWriter, r *http.Request) {
-	// Check sandbox readiness before compiling
 	sandboxURL := os.Getenv("SANDBOX_URL")
 	if sandboxURL == "" {
 		sandboxURL = "http://localhost:7575"
 	}
-	readyResp, err := http.Get(sandboxURL + "/v2/state/connected-synchronizers")
-	if err != nil || readyResp.StatusCode != 200 {
-		writeJSON(w, http.StatusServiceUnavailable, CompileResponse{Errors: []string{"sandbox not ready yet, try again in a few seconds"}})
-		if readyResp != nil {
-			readyResp.Body.Close()
-		}
-		return
-	}
-	readyResp.Body.Close()
 
 	if r.Body == nil {
 		writeJSON(w, http.StatusBadRequest, CompileResponse{Errors: []string{"missing request body"}})
