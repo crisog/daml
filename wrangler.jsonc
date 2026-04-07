@@ -26,7 +26,8 @@
       "class_name": "SandboxContainer",
       "image": "./sandbox/Dockerfile",
       "max_instances": 50,
-      "instance_type": "standard-1"
+      "instance_type": "standard-1",
+      "rollout_active_grace_period": 0
     }
   ],
 

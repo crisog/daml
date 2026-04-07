@@ -1,5 +1,6 @@
 import { createLazyFileRoute } from '@tanstack/react-router'
-import { useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+
 import { PartyPanel } from '@/components/playground/party-panel'
 import { ContractList } from '@/components/playground/contract-list'
 import { CreateForm } from '@/components/playground/create-form'
@@ -13,6 +14,7 @@ import type { Party } from '@/lib/playground/types'
 import { SandboxLoader } from '@/components/playground/sandbox-loader'
 import { useAuth } from '@/lib/use-auth'
 import { authClient } from '@/lib/auth-client'
+import { saveUserSessionFn } from '@/lib/session.functions'
 
 export const Route = createLazyFileRoute('/')({
   component: PlaygroundPage,
@@ -24,15 +26,33 @@ function PlaygroundPage(): React.JSX.Element {
   const auth = useAuth()
   const isAuthed = auth.status === 'authenticated'
 
-  const [parties, setParties] = useState<Party[]>([])
+  const saved = Route.useLoaderData()
+  const [parties, setParties] = useState<Party[]>(() =>
+    (saved?.partyNames ?? []).map((name) => ({ id: '', displayName: name }))
+  )
   const [activeParty, setActiveParty] = useState<Party | null>(null)
   const [refreshKey, setRefreshKey] = useState(0)
-  const [source, setSource] = useState(EXAMPLES[0]?.source ?? '')
-  const [deployed, setDeployed] = useState(false)
+  const [source, setSource] = useState(saved?.source ?? EXAMPLES[0]?.source ?? '')
+  const [deployed, setDeployed] = useState(saved?.deployed ?? false)
   const consoleRef = useRef<ConsoleHandle>(null)
   const [mobileTab, setMobileTab] = useState<MobileTab>('editor')
+  const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const templates = useMemo(() => parseDamlSource(source), [source])
+
+  useEffect(() => {
+    if (!isAuthed) return
+    if (saveTimer.current) clearTimeout(saveTimer.current)
+    saveTimer.current = setTimeout(() => {
+      saveUserSessionFn({
+        data: {
+          source,
+          partyNames: parties.filter((p) => p.id).map((p) => p.displayName),
+          deployed,
+        },
+      }).catch(() => {})
+    }, 1000)
+  }, [source, parties, deployed, isAuthed])
 
   const handleSignIn = () => {
     authClient.signIn.social({
@@ -51,6 +71,10 @@ function PlaygroundPage(): React.JSX.Element {
     setDeployed(false)
     consoleRef.current?.info(`Loaded example: ${name}`)
   }
+
+  const handleSandboxReady = useCallback(() => {
+    consoleRef.current?.success('Connected to sandbox')
+  }, [])
 
   const compileStatus = (
     <CompileStatus
@@ -78,10 +102,7 @@ function PlaygroundPage(): React.JSX.Element {
   )
 
   const interactPanel = isAuthed ? (
-    <SandboxLoader
-      enabled={isAuthed}
-      onReady={() => consoleRef.current?.success('Connected to sandbox')}
-    >
+    <SandboxLoader enabled={isAuthed} onReady={handleSandboxReady}>
       {(sandboxReady) =>
         sandboxReady ? (
           <>
@@ -89,11 +110,22 @@ function PlaygroundPage(): React.JSX.Element {
               parties={parties}
               activeParty={activeParty}
               onPartyCreated={(p) => {
-                setParties((prev) => [...prev, p])
+                setParties((prev) => {
+                  const placeholder = prev.findIndex(
+                    (x) => x.displayName === p.displayName && !x.id,
+                  )
+                  if (placeholder >= 0) {
+                    const updated = [...prev]
+                    updated[placeholder] = p
+                    return updated
+                  }
+                  return [...prev, p]
+                })
                 if (!activeParty) setActiveParty(p)
                 consoleRef.current?.info(`Party created: ${p.displayName}`)
               }}
               onPartySelected={setActiveParty}
+              onError={(msg) => consoleRef.current?.error(`Party creation failed: ${msg}`)}
             />
 
             {!deployed && (
@@ -158,7 +190,7 @@ function PlaygroundPage(): React.JSX.Element {
     <div className="flex h-dvh flex-col bg-page text-ink">
       <header className="flex items-center gap-2 border-b border-stone bg-surface px-3 py-2 md:gap-4 md:px-4">
         <h1 className="shrink-0 text-sm font-medium text-accent">Daml Playground</h1>
-        {isAuthed && compileStatus}
+        <div className="hidden sm:contents">{isAuthed && compileStatus}</div>
         <div className="hidden sm:block">
           <ExamplePicker onSelect={handleExampleSelect} />
         </div>
@@ -209,7 +241,7 @@ function PlaygroundPage(): React.JSX.Element {
         </div>
       </div>
 
-      <div className="flex-1 overflow-hidden sm:hidden">
+      <div className={`flex-1 overflow-hidden sm:hidden ${mobileTab === 'console' ? 'hidden' : ''}`}>
         <div className={mobileTab === 'editor' ? 'flex h-full flex-col' : 'hidden'}>
           <div className="flex items-center gap-2 border-b border-stone bg-surface px-3 py-1.5">
             <select
@@ -229,6 +261,7 @@ function PlaygroundPage(): React.JSX.Element {
                 </option>
               ))}
             </select>
+            <div className="ml-auto">{isAuthed && compileStatus}</div>
           </div>
           <div className="flex-1">
             <DamlEditor value={source} onChange={setSource} />
@@ -237,12 +270,9 @@ function PlaygroundPage(): React.JSX.Element {
         <div className={mobileTab === 'interact' ? 'h-full overflow-y-auto bg-surface' : 'hidden'}>
           {interactPanel}
         </div>
-        <div className={mobileTab === 'console' ? 'h-full' : 'hidden'}>
-          <Console ref={consoleRef} />
-        </div>
       </div>
 
-      <div className="hidden h-56 shrink-0 border-t border-stone-strong sm:block">
+      <div className={`shrink-0 border-t border-stone-strong sm:block sm:h-56 ${mobileTab === 'console' ? 'flex-1' : 'hidden'}`}>
         <Console ref={consoleRef} />
       </div>
     </div>

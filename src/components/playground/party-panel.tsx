@@ -8,6 +8,7 @@ type PartyPanelProps = {
   activeParty: Party | null
   onPartyCreated: (party: Party) => void
   onPartySelected: (party: Party) => void
+  onError?: (msg: string) => void
 }
 
 export function PartyPanel({
@@ -15,6 +16,7 @@ export function PartyPanel({
   activeParty,
   onPartyCreated,
   onPartySelected,
+  onError,
 }: PartyPanelProps): React.JSX.Element {
   const [name, setName] = useState('')
   const [creating, setCreating] = useState(false)
@@ -27,6 +29,8 @@ export function PartyPanel({
       onPartyCreated(party)
       setName('')
     } catch (e) {
+      const msg = e instanceof Error ? e.message : 'Failed to create party'
+      onError?.(msg)
     } finally {
       setCreating(false)
     }
@@ -47,15 +51,18 @@ export function PartyPanel({
         <Button
           onClick={handleCreate}
           disabled={creating || !name.trim()}
-          className="rounded-md bg-accent px-3 py-1 text-xs text-ink-inverted hover:bg-accent-hover"
+          className="flex items-center gap-1.5 rounded-md bg-accent px-3 py-1 text-xs text-ink-inverted hover:bg-accent-hover disabled:opacity-70"
         >
-          {creating ? '...' : 'Create'}
+          {creating && (
+            <span className="inline-block h-3 w-3 animate-spin rounded-full border border-ink-inverted/30 border-t-ink-inverted" />
+          )}
+          {creating ? 'Creating...' : 'Create'}
         </Button>
       </div>
       <div className="flex flex-wrap gap-1">
         {parties.map((p) => (
           <button
-            key={p.id}
+            key={p.id || p.displayName}
             onClick={() => onPartySelected(p)}
             className={`rounded-sm border px-2 py-0.5 text-xs transition-colors ${
               activeParty?.id === p.id

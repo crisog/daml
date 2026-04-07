@@ -10,14 +10,11 @@ type CompileStatusProps = {
 
 export function CompileStatus({ getSource, onSuccess, onError }: CompileStatusProps): React.JSX.Element {
   const [compiling, setCompiling] = useState(false)
-  const [result, setResult] = useState<{ success: boolean; errors?: string[] } | null>(null)
 
   async function handleCompile() {
     setCompiling(true)
-    setResult(null)
     try {
       const res = await compileAndDeploy(getSource())
-      setResult(res)
       if (res.success) {
         onSuccess?.()
       } else {
@@ -25,7 +22,6 @@ export function CompileStatus({ getSource, onSuccess, onError }: CompileStatusPr
       }
     } catch (e) {
       const msg = e instanceof Error ? e.message : 'Compile failed'
-      setResult({ success: false, errors: [msg] })
       onError?.(msg)
     } finally {
       setCompiling(false)
@@ -33,16 +29,15 @@ export function CompileStatus({ getSource, onSuccess, onError }: CompileStatusPr
   }
 
   return (
-    <div className="flex items-center gap-3">
-      <Button
-        onClick={handleCompile}
-        disabled={compiling}
-        className="rounded-md bg-success px-3 py-1 text-xs font-medium text-ink-inverted hover:opacity-90"
-      >
-        {compiling ? 'Compiling...' : 'Deploy'}
-      </Button>
-      {result?.success && <span className="text-xs text-success">Deployed</span>}
-      {result && !result.success && <span className="text-xs text-error">Build failed</span>}
-    </div>
+    <Button
+      onClick={handleCompile}
+      disabled={compiling}
+      className="flex items-center gap-1.5 rounded-md bg-success px-3 py-1 text-xs font-medium text-ink-inverted hover:opacity-90 disabled:opacity-70"
+    >
+      {compiling && (
+        <span className="inline-block h-3 w-3 animate-spin rounded-full border border-ink-inverted/30 border-t-ink-inverted" />
+      )}
+      {compiling ? 'Compiling...' : 'Deploy'}
+    </Button>
   )
 }

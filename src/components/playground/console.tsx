@@ -1,4 +1,4 @@
-import { useEffect, useImperativeHandle, useRef, forwardRef } from 'react'
+import { useEffect, useImperativeHandle, useRef, forwardRef, useState } from 'react'
 import { Terminal } from '@xterm/xterm'
 import { FitAddon } from '@xterm/addon-fit'
 import '@xterm/xterm/css/xterm.css'
@@ -11,7 +11,6 @@ export type ConsoleHandle = {
   clear: () => void
 }
 
-// ANSI color codes
 const RESET = '\x1B[0m'
 const GREEN = '\x1B[32m'
 const RED = '\x1B[31m'
@@ -27,10 +26,14 @@ function timestamp(): string {
   return `${DIM}${h}:${m}:${s}${RESET}`
 }
 
+const ANSI_REGEX = /\x1B\[[0-9;]*m/g
+
 export const Console = forwardRef<ConsoleHandle>(function Console(_, ref) {
   const containerRef = useRef<HTMLDivElement>(null)
   const termRef = useRef<Terminal | null>(null)
   const fitRef = useRef<FitAddon | null>(null)
+  const linesRef = useRef<string[]>([])
+  const [copied, setCopied] = useState(false)
 
   useEffect(() => {
     const term = new Terminal({
@@ -63,9 +66,12 @@ export const Console = forwardRef<ConsoleHandle>(function Console(_, ref) {
     termRef.current = term
     fitRef.current = fit
 
+    const isMobile = window.matchMedia('(max-width: 639px)').matches
     term.writeln('')
-    term.writeln(`  ${GREEN}Daml Playground Console${RESET}`)
-    term.writeln('')
+    if (!isMobile) {
+      term.writeln(`  ${GREEN}Daml Playground Console${RESET}`)
+      term.writeln('')
+    }
 
     const observer = new ResizeObserver(() => fit.fit())
     observer.observe(containerRef.current!)
@@ -76,23 +82,49 @@ export const Console = forwardRef<ConsoleHandle>(function Console(_, ref) {
     }
   }, [])
 
+  function writeLine(line: string) {
+    termRef.current?.writeln(line)
+    linesRef.current.push(line.replace(ANSI_REGEX, ''))
+  }
+
   useImperativeHandle(ref, () => ({
     info(msg: string) {
-      termRef.current?.writeln(`  ${timestamp()} ${CYAN}INFO${RESET}  ${msg}`)
+      writeLine(`  ${timestamp()} ${CYAN}INFO${RESET}  ${msg}`)
     },
     success(msg: string) {
-      termRef.current?.writeln(`  ${timestamp()} ${GREEN}OK${RESET}    ${msg}`)
+      writeLine(`  ${timestamp()} ${GREEN}OK${RESET}    ${msg}`)
     },
     error(msg: string) {
-      termRef.current?.writeln(`  ${timestamp()} ${RED}ERR${RESET}   ${msg}`)
+      writeLine(`  ${timestamp()} ${RED}ERR${RESET}   ${msg}`)
     },
     warn(msg: string) {
-      termRef.current?.writeln(`  ${timestamp()} ${YELLOW}WARN${RESET}  ${msg}`)
+      writeLine(`  ${timestamp()} ${YELLOW}WARN${RESET}  ${msg}`)
     },
     clear() {
       termRef.current?.clear()
+      linesRef.current = []
     },
   }))
 
-  return <div ref={containerRef} className="h-full w-full" />
+  const handleCopy = async () => {
+    const text = linesRef.current.join('\n')
+    await navigator.clipboard.writeText(text)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 1500)
+  }
+
+  return (
+    <div className="relative h-full w-full">
+      <div ref={containerRef} className="h-full w-full" />
+      {linesRef.current.length > 0 && (
+        <button
+          type="button"
+          onClick={handleCopy}
+          className="absolute right-2 top-2 rounded border border-stone bg-surface px-2 py-0.5 text-xs text-ink-muted hover:text-ink"
+        >
+          {copied ? 'Copied' : 'Copy'}
+        </button>
+      )}
+    </div>
+  )
 })
