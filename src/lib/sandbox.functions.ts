@@ -30,10 +30,9 @@ export const getSandboxStatus = createServerFn({ method: "GET" }).handler(
     const status = await sessionDO.status();
 
     if (status.containerStatus === "running") {
-      // Container port 8081 is up, but Canton may still be booting or
+      // Container port 8081 is up, but Canton JVM may still be booting or
       // the synchronizer may not be connected yet. Check the connected
       // synchronizers endpoint to confirm the sandbox is fully operational.
-      // See: /v2/state/connected-synchronizers in the Canton HTTP API
       try {
         const container = env.SANDBOX.getByName(userId);
         const syncRes = await container.fetch("http://container/v2/state/connected-synchronizers");
@@ -46,15 +45,15 @@ export const getSandboxStatus = createServerFn({ method: "GET" }).handler(
       } catch {
         // Container is up but Canton not fully ready yet
       }
-      return { kind: "starting", message: "Canton sandbox is booting, this usually takes ~2 minutes..." };
+      return { kind: "starting", message: "Canton is booting, this usually takes ~2 minutes..." };
     }
 
     if (status.containerStatus === "starting") {
-      return { kind: "starting", message: "Starting your sandbox, this usually takes ~2 minutes..." };
+      return { kind: "starting", message: "Provisioning your sandbox..." };
     }
 
     // Container is stopped or errored, trigger start
     await sessionDO.start();
-    return { kind: "starting", message: "Starting your sandbox, this usually takes ~2 minutes..." };
+    return { kind: "starting", message: "Provisioning your sandbox..." };
   }
 );
