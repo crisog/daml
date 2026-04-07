@@ -162,7 +162,29 @@ func newCantonProxy() http.Handler {
 		log.Fatalf("invalid SANDBOX_URL %q: %v", sandboxURL, err)
 	}
 	proxy := httputil.NewSingleHostReverseProxy(target)
+	proxy.ErrorHandler = func(w http.ResponseWriter, r *http.Request, err error) {
+		log.Printf("[proxy] %s %s -> error: %v", r.Method, r.URL.Path, err)
+		http.Error(w, fmt.Sprintf("proxy error: %v", err), http.StatusBadGateway)
+	}
 	return proxy
+}
+
+func withLogging(name string, next http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		start := time.Now()
+		log.Printf("[%s] %s %s started", name, r.Method, r.URL.Path)
+		next(w, r)
+		log.Printf("[%s] %s %s completed in %s", name, r.Method, r.URL.Path, time.Since(start))
+	}
+}
+
+func withProxyLogging(name string, next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		start := time.Now()
+		log.Printf("[%s] %s %s started", name, r.Method, r.URL.Path)
+		next.ServeHTTP(w, r)
+		log.Printf("[%s] %s %s completed in %s", name, r.Method, r.URL.Path, time.Since(start))
+	})
 }
 
 func main() {
@@ -175,9 +197,9 @@ func main() {
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /health", handleHealth)
-	mux.HandleFunc("POST /compile", handleCompile)
+	mux.HandleFunc("POST /compile", withLogging("compile", handleCompile))
 	// Proxy all other requests to Canton JSON API
-	mux.Handle("/", cantonProxy)
+	mux.Handle("/", withProxyLogging("canton", cantonProxy))
 
 	log.Printf("compile-service listening on :%s", port)
 	if err := http.ListenAndServe(fmt.Sprintf(":%s", port), mux); err != nil {

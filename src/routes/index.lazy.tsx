@@ -11,6 +11,7 @@ import { ExamplePicker } from '@/components/playground/example-picker'
 import { parseDamlSource } from '@/lib/playground/daml-parser'
 import { EXAMPLES } from '@/lib/playground/examples'
 import type { Party } from '@/lib/playground/types'
+import { resolveParties } from '@/lib/playground/canton'
 import { SandboxLoader } from '@/components/playground/sandbox-loader'
 import { useSandboxStatus } from '@/lib/use-sandbox-status'
 import { useAuth } from '@/lib/use-auth'
@@ -50,7 +51,7 @@ function PlaygroundPage(): React.JSX.Element {
       saveUserSessionFn({
         data: {
           source,
-          partyNames: parties.filter((p) => p.id).map((p) => p.displayName),
+          partyNames: parties.map((p) => p.displayName),
           deployed,
         },
       }).catch(() => {})
@@ -79,6 +80,22 @@ function PlaygroundPage(): React.JSX.Element {
     if (sandboxReady && !readyLogged.current) {
       readyLogged.current = true
       consoleRef.current?.success('Connected to sandbox')
+
+      // Resolve placeholder parties (restored from persistence with empty IDs)
+      const placeholders = parties.filter((p) => !p.id)
+      if (placeholders.length > 0) {
+        resolveParties(placeholders.map((p) => p.displayName)).then((resolved) => {
+          if (resolved.length > 0) {
+            setParties((prev) =>
+              prev.map((p) => {
+                const match = resolved.find((r) => r.displayName === p.displayName)
+                return match ?? p
+              }),
+            )
+            setActiveParty(resolved[0])
+          }
+        })
+      }
     }
   }, [sandboxReady])
 
