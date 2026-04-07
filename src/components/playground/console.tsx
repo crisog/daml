@@ -67,8 +67,8 @@ export const Console = forwardRef<ConsoleHandle>(function Console(_, ref) {
     fitRef.current = fit
 
     const isMobile = window.matchMedia('(max-width: 639px)').matches
+    term.writeln('')
     if (!isMobile) {
-      term.writeln('')
       term.writeln(`  ${GREEN}Daml Playground Console${RESET}`)
       term.writeln('')
     }
