@@ -1,5 +1,5 @@
 import { createLazyFileRoute } from '@tanstack/react-router'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { PartyPanel } from '@/components/playground/party-panel'
 import { ContractList } from '@/components/playground/contract-list'
 import { CreateForm } from '@/components/playground/create-form'
@@ -14,6 +14,7 @@ import { SandboxLoader } from '@/components/playground/sandbox-loader'
 import { useAuth } from '@/lib/use-auth'
 import { authClient } from '@/lib/auth-client'
 import { saveSession, loadSession } from '@/lib/playground/session-store'
+import { restoreSession } from '@/lib/playground/restore-session'
 
 export const Route = createLazyFileRoute('/')({
   component: PlaygroundPage,
@@ -26,14 +27,12 @@ function PlaygroundPage(): React.JSX.Element {
   const isAuthed = auth.status === 'authenticated'
 
   const saved = useRef(loadSession())
-  const [parties, setParties] = useState<Party[]>(() => {
-    const names = saved.current?.partyNames ?? []
-    return names.map((name) => ({ id: '', displayName: name }))
-  })
+  const [parties, setParties] = useState<Party[]>([])
   const [activeParty, setActiveParty] = useState<Party | null>(null)
   const [refreshKey, setRefreshKey] = useState(0)
   const [source, setSource] = useState(saved.current?.source ?? EXAMPLES[0]?.source ?? '')
-  const [deployed, setDeployed] = useState(saved.current?.deployed ?? false)
+  const [deployed, setDeployed] = useState(false)
+  const [restoring, setRestoring] = useState(false)
   const consoleRef = useRef<ConsoleHandle>(null)
   const [mobileTab, setMobileTab] = useState<MobileTab>('editor')
 
@@ -65,6 +64,29 @@ function PlaygroundPage(): React.JSX.Element {
     consoleRef.current?.info(`Loaded example: ${name}`)
   }
 
+  const handleSandboxReady = useCallback(async () => {
+    consoleRef.current?.success('Connected to sandbox')
+
+    const session = saved.current
+    if (!session?.deployed && !session?.partyNames.length) return
+
+    setRestoring(true)
+    const result = await restoreSession((type, msg) => {
+      if (type === 'info') consoleRef.current?.info(msg)
+      else if (type === 'success') consoleRef.current?.success(msg)
+      else consoleRef.current?.error(msg)
+    })
+
+    if (result) {
+      if (result.deployed) setDeployed(true)
+      if (result.parties.length > 0) {
+        setParties(result.parties)
+        setActiveParty(result.parties[0] ?? null)
+      }
+    }
+    setRestoring(false)
+  }, [])
+
   const compileStatus = (
     <CompileStatus
       getSource={() => ({ 'Main.daml': source })}
@@ -91,12 +113,15 @@ function PlaygroundPage(): React.JSX.Element {
   )
 
   const interactPanel = isAuthed ? (
-    <SandboxLoader
-      enabled={isAuthed}
-      onReady={() => consoleRef.current?.success('Connected to sandbox')}
-    >
+    <SandboxLoader enabled={isAuthed} onReady={handleSandboxReady}>
       {(sandboxReady) =>
         sandboxReady ? (
+          restoring ? (
+            <div className="flex flex-col items-center gap-2 p-6 text-center">
+              <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-stone border-t-accent" />
+              <p className="text-xs text-ink-muted">Restoring your session...</p>
+            </div>
+          ) : (
           <>
             <PartyPanel
               parties={parties}
@@ -154,6 +179,7 @@ function PlaygroundPage(): React.JSX.Element {
               }}
             />
           </>
+          )
         ) : null
       }
     </SandboxLoader>
