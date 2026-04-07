@@ -1,7 +1,7 @@
 services:
   sandbox:
     build:
-      context: ./sandbox
+      context: .
     ports:
       - "7575:7575"
       - "8081:8081"

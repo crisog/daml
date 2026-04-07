@@ -4,11 +4,12 @@ import { compileAndDeploy } from '@/lib/playground/compiler'
 
 type CompileStatusProps = {
   getSource: () => Record<string, string>
+  deployed?: boolean
   onSuccess?: (durationMs: number) => void
   onError?: (error: string) => void
 }
 
-export function CompileStatus({ getSource, onSuccess, onError }: CompileStatusProps): React.JSX.Element {
+export function CompileStatus({ getSource, deployed, onSuccess, onError }: CompileStatusProps): React.JSX.Element {
   const [compiling, setCompiling] = useState(false)
 
   async function handleCompile() {
@@ -35,10 +36,14 @@ export function CompileStatus({ getSource, onSuccess, onError }: CompileStatusPr
       disabled={compiling}
       className="flex items-center gap-1.5 rounded-md bg-success px-3 py-1 text-xs font-medium text-ink-inverted hover:opacity-90 disabled:opacity-70"
     >
-      {compiling && (
+      {compiling ? (
         <span className="inline-block h-3 w-3 animate-spin rounded-full border border-ink-inverted/30 border-t-ink-inverted" />
-      )}
-      {compiling ? 'Compiling...' : 'Deploy'}
+      ) : deployed ? (
+        <svg className="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={3} strokeLinecap="round" strokeLinejoin="round">
+          <path d="M20 6 9 17l-5-5" />
+        </svg>
+      ) : null}
+      {compiling ? 'Compiling...' : deployed ? 'Deployed' : 'Deploy'}
     </Button>
   )
 }

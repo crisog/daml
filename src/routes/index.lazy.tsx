@@ -105,6 +105,7 @@ function PlaygroundPage(): React.JSX.Element {
   const compileStatus = (
     <CompileStatus
       getSource={() => ({ 'Main.daml': source })}
+      deployed={deployed}
       onSuccess={(durationMs) => {
         setDeployed(true)
         const names = templates.map((t) => t.name).join(', ')
