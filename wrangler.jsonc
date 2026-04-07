@@ -24,7 +24,7 @@
     {
       "name": "daml-sandbox",
       "class_name": "SandboxContainer",
-      "image": "./sandbox/Dockerfile",
+      "image": "ghcr.io/crisog/daml-playground/sandbox:latest",
       "max_instances": 50,
       "instance_type": "standard-1",
       "rollout_active_grace_period": 0
