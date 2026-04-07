@@ -45,7 +45,7 @@ function PlaygroundPage(): React.JSX.Element {
   const templates = useMemo(() => parseDamlSource(source), [source])
 
   useEffect(() => {
-    if (!isAuthed) return
+    if (!isAuthed || !sandboxReady) return
     if (saveTimer.current) clearTimeout(saveTimer.current)
     saveTimer.current = setTimeout(() => {
       saveUserSessionFn({
@@ -56,7 +56,7 @@ function PlaygroundPage(): React.JSX.Element {
         },
       }).catch(() => {})
     }, 1000)
-  }, [source, parties, deployed, isAuthed])
+  }, [source, parties, deployed, isAuthed, sandboxReady])
 
   const handleSignIn = () => {
     authClient.signIn.social({
@@ -94,6 +94,8 @@ function PlaygroundPage(): React.JSX.Element {
               }),
             )
             setActiveParty(resolved[0])
+            // Trigger contract list refresh now that parties are resolved
+            setRefreshKey((k) => k + 1)
           }
         })
       }

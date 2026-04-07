@@ -17,11 +17,11 @@ export const loadUserSession = createServerFn({ method: "GET" }).handler(
   }
 );
 
-export const saveUserSessionFn = createServerFn({ method: "POST" }).handler(
-  async ({ data }: { data: UserSessionData }) => {
+export const saveUserSessionFn = createServerFn({ method: "POST" })
+  .inputValidator((data: UserSessionData) => data)
+  .handler(async ({ data }) => {
     const session = await getSession();
     if (!session) return;
     const sessionDO = env.SESSION.getByName(session.user.id);
     await sessionDO.saveUserSession(data);
-  }
-);
+  });
