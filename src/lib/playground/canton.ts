@@ -80,6 +80,7 @@ export async function submitCreate(
       actAs,
       readAs: actAs,
       commandId: nextCommandId(),
+      userId: 'playground',
     }),
   })
   if (!res.ok) {
@@ -104,6 +105,7 @@ export async function submitExercise(
       actAs,
       readAs: actAs,
       commandId: nextCommandId(),
+      userId: 'playground',
     }),
   })
   if (!res.ok) {
