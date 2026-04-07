@@ -6,7 +6,7 @@ interface Env {
 
 export class SandboxContainer extends Container<Env> {
   defaultPort = 8081;
-  sleepAfter = "5m";
+  sleepAfter = "15m";
 
   private alive = false;
 

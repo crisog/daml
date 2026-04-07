@@ -42,7 +42,7 @@ func handleHealth(w http.ResponseWriter, r *http.Request) {
 func handleCompile(w http.ResponseWriter, r *http.Request) {
 	sandboxURL := os.Getenv("SANDBOX_URL")
 	if sandboxURL == "" {
-		sandboxURL = "http://localhost:7575"
+		sandboxURL = "http://127.0.0.1:7575"
 	}
 
 	if r.Body == nil {
@@ -155,7 +155,7 @@ dependencies:
 func newCantonProxy() http.Handler {
 	sandboxURL := os.Getenv("SANDBOX_URL")
 	if sandboxURL == "" {
-		sandboxURL = "http://localhost:7575"
+		sandboxURL = "http://127.0.0.1:7575"
 	}
 	target, err := url.Parse(sandboxURL)
 	if err != nil {
@@ -178,12 +178,40 @@ func withLogging(name string, next http.HandlerFunc) http.HandlerFunc {
 	}
 }
 
+type statusRecorder struct {
+	http.ResponseWriter
+	statusCode int
+	body       bytes.Buffer
+}
+
+func (sr *statusRecorder) WriteHeader(code int) {
+	sr.statusCode = code
+	sr.ResponseWriter.WriteHeader(code)
+}
+
+func (sr *statusRecorder) Write(b []byte) (int, error) {
+	if sr.statusCode >= 400 {
+		sr.body.Write(b)
+	}
+	return sr.ResponseWriter.Write(b)
+}
+
 func withProxyLogging(name string, next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		start := time.Now()
 		log.Printf("[%s] %s %s started", name, r.Method, r.URL.Path)
-		next.ServeHTTP(w, r)
-		log.Printf("[%s] %s %s completed in %s", name, r.Method, r.URL.Path, time.Since(start))
+		rec := &statusRecorder{ResponseWriter: w, statusCode: 200}
+		next.ServeHTTP(rec, r)
+		elapsed := time.Since(start)
+		if rec.statusCode >= 400 {
+			snippet := rec.body.String()
+			if len(snippet) > 256 {
+				snippet = snippet[:256] + "..."
+			}
+			log.Printf("[%s] %s %s -> %d in %s: %s", name, r.Method, r.URL.Path, rec.statusCode, elapsed, snippet)
+		} else {
+			log.Printf("[%s] %s %s -> %d in %s", name, r.Method, r.URL.Path, rec.statusCode, elapsed)
+		}
 	})
 }
 
