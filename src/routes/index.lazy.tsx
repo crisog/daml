@@ -27,11 +27,13 @@ function PlaygroundPage(): React.JSX.Element {
   const isAuthed = auth.status === 'authenticated'
 
   const saved = loadSession()
-  const [parties, setParties] = useState<Party[]>([])
+  const [parties, setParties] = useState<Party[]>(() =>
+    (saved?.partyNames ?? []).map((name) => ({ id: '', displayName: name }))
+  )
   const [activeParty, setActiveParty] = useState<Party | null>(null)
   const [refreshKey, setRefreshKey] = useState(0)
   const [source, setSource] = useState(saved?.source ?? EXAMPLES[0]?.source ?? '')
-  const [deployed, setDeployed] = useState(false)
+  const [deployed, setDeployed] = useState(saved?.deployed ?? false)
   const [restoring, setRestoring] = useState(false)
   const consoleRef = useRef<ConsoleHandle>(null)
   const [mobileTab, setMobileTab] = useState<MobileTab>('editor')
