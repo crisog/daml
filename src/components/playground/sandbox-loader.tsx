@@ -1,88 +1,17 @@
-import { useEffect, useRef, useState, type ReactNode } from "react";
-import { getSandboxStatus } from "@/lib/sandbox.functions";
-
-type SandboxState =
-  | { kind: "idle" }
-  | { kind: "loading" }
-  | { kind: "starting"; message: string }
-  | { kind: "restoring"; message: string }
-  | { kind: "ready" }
-  | { kind: "at-capacity"; active: number; max: number }
-  | { kind: "error"; message: string };
+import type { ReactNode } from "react";
+import type { SandboxState } from "@/lib/use-sandbox-status";
 
 type Props = {
-  enabled: boolean;
-  onReady?: () => void;
+  state: SandboxState;
+  sandboxReady: boolean;
   children: (sandboxReady: boolean) => ReactNode;
 };
 
-export function SandboxLoader({ enabled, onReady, children }: Props) {
-  const [state, setState] = useState<SandboxState>({ kind: "idle" });
-  const readyFired = useRef(false);
-
-  useEffect(() => {
-    if (!enabled) {
-      setState({ kind: "idle" });
-      readyFired.current = false;
-      return;
-    }
-
-    let cancelled = false;
-
-    async function poll() {
-      try {
-        const status = await getSandboxStatus();
-        if (cancelled) return;
-
-        if (status.kind === "ready") {
-          setState({ kind: "ready" });
-          if (!readyFired.current) {
-            readyFired.current = true;
-            onReady?.();
-          }
-          return;
-        }
-
-        if (status.kind === "restoring") {
-          setState({ kind: "restoring", message: status.message });
-          setTimeout(poll, 2_000);
-          return;
-        }
-
-        if (status.kind === "at-capacity") {
-          setState({ kind: "at-capacity", active: status.active, max: status.max });
-          setTimeout(poll, 15_000);
-          return;
-        }
-
-        if (status.kind === "starting") {
-          setState({ kind: "starting", message: status.message });
-          setTimeout(poll, 2_000);
-          return;
-        }
-
-        setState({ kind: "error", message: status.message ?? "Unknown error" });
-      } catch (err) {
-        if (!cancelled) {
-          setState({
-            kind: "error",
-            message: err instanceof Error ? err.message : "Failed to reach sandbox",
-          });
-        }
-      }
-    }
-
-    setState({ kind: "loading" });
-    poll();
-    return () => { cancelled = true; };
-  }, [enabled]);
-
-  const sandboxReady = state.kind === "ready";
-
+export function SandboxLoader({ state, sandboxReady, children }: Props) {
   return (
     <>
       {children(sandboxReady)}
-      {enabled && !sandboxReady && (
+      {!sandboxReady && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-page/80">
           <div className="max-w-sm space-y-4 rounded-lg border border-stone bg-surface p-6 text-center">
             {(state.kind === "loading" || state.kind === "idle") && (
@@ -98,7 +27,9 @@ export function SandboxLoader({ enabled, onReady, children }: Props) {
 
             {state.kind === "at-capacity" && (
               <>
-                <p className="text-sm font-medium text-ink">All sandboxes are in use</p>
+                <p className="text-sm font-medium text-ink">
+                  All sandboxes are in use
+                </p>
                 <p className="text-xs text-ink-muted">
                   {state.active}/{state.max} active. Retrying automatically...
                 </p>
@@ -107,7 +38,9 @@ export function SandboxLoader({ enabled, onReady, children }: Props) {
 
             {state.kind === "error" && (
               <>
-                <p className="text-sm font-medium text-red-400">Sandbox error</p>
+                <p className="text-sm font-medium text-red-400">
+                  Sandbox error
+                </p>
                 <p className="text-xs text-ink-muted">{state.message}</p>
                 <button
                   type="button"

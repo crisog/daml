@@ -82,6 +82,13 @@ export class SessionDO extends DurableObject<Env> {
     }
   }
 
+  async restart(): Promise<void> {
+    await this.ensureInitialized();
+    this.state.containerStatus = "stopped";
+    await this.persistState();
+    await this.start();
+  }
+
   async proxy(request: Request): Promise<Response> {
     await this.ensureInitialized();
 

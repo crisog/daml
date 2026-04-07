@@ -14,6 +14,7 @@ import (
 	"path/filepath"
 	"strings"
 	"sync/atomic"
+	"time"
 )
 
 var buildCounter atomic.Int64
@@ -117,20 +118,38 @@ dependencies:
 		return
 	}
 
-	uploadResp, err := http.Post(sandboxURL+"/v2/packages", "application/octet-stream", bytes.NewReader(darBytes))
-	if err != nil {
-		writeJSON(w, http.StatusBadGateway, CompileResponse{Errors: []string{"failed to upload DAR: " + err.Error()}})
+	// Retry DAR upload for transient Canton errors during startup.
+	const maxRetries = 3
+	var lastErr string
+	for attempt := range maxRetries {
+		uploadResp, err := http.Post(sandboxURL+"/v2/packages", "application/octet-stream", bytes.NewReader(darBytes))
+		if err != nil {
+			lastErr = "failed to upload DAR: " + err.Error()
+			time.Sleep(time.Duration(attempt+1) * 2 * time.Second)
+			continue
+		}
+		respBody, _ := io.ReadAll(uploadResp.Body)
+		uploadResp.Body.Close()
+
+		if uploadResp.StatusCode >= 200 && uploadResp.StatusCode < 300 {
+			writeJSON(w, http.StatusOK, CompileResponse{Success: true})
+			return
+		}
+
+		lastErr = fmt.Sprintf("sandbox returned %d: %s", uploadResp.StatusCode, string(respBody))
+
+		// Only retry on 503 or Canton "not ready" errors
+		if uploadResp.StatusCode == 503 || strings.Contains(string(respBody), "not ready") || strings.Contains(string(respBody), "CANNOT_AUTODETECT_SYNCHRONIZER") {
+			time.Sleep(time.Duration(attempt+1) * 2 * time.Second)
+			continue
+		}
+
+		// Non-transient error, fail immediately
+		writeJSON(w, http.StatusBadGateway, CompileResponse{Errors: []string{lastErr}})
 		return
 	}
-	defer uploadResp.Body.Close()
-	respBody, _ := io.ReadAll(uploadResp.Body)
 
-	if uploadResp.StatusCode < 200 || uploadResp.StatusCode >= 300 {
-		writeJSON(w, http.StatusBadGateway, CompileResponse{Errors: []string{fmt.Sprintf("sandbox returned %d: %s", uploadResp.StatusCode, string(respBody))}})
-		return
-	}
-
-	writeJSON(w, http.StatusOK, CompileResponse{Success: true})
+	writeJSON(w, http.StatusBadGateway, CompileResponse{Errors: []string{lastErr}})
 }
 
 func newCantonProxy() http.Handler {

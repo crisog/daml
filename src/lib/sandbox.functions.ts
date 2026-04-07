@@ -10,13 +10,13 @@ type SandboxStatus =
   | { kind: "error"; message: string };
 
 async function restoreOnSandbox(
-  userId: string,
   sessionDO: DurableObjectStub
 ): Promise<void> {
   const session = await sessionDO.loadUserSession();
   if (!session) return;
 
-  const container = env.SANDBOX.getByName(userId);
+  const doId = sessionDO.id.toString();
+  const container = env.SANDBOX.getByName(doId);
 
   if (session.deployed && session.source) {
     const res = await container.fetch("http://container/compile", {
@@ -66,32 +66,72 @@ export const getSandboxStatus = createServerFn({ method: "GET" }).handler(
 
     if (status.containerStatus === "running") {
       try {
-        const container = env.SANDBOX.getByName(userId);
-        const res = await container.fetch(
+        const doId = sessionDO.id.toString();
+        const container = env.SANDBOX.getByName(doId);
+
+        // Check 1: synchronizers connected
+        const syncRes = await container.fetch(
           "http://container/v2/state/connected-synchronizers"
         );
-        if (res.ok) {
-          const data = (await res.json()) as {
-            connectedSynchronizers?: unknown[];
+        if (!syncRes.ok) {
+          return {
+            kind: "starting",
+            message: "Canton is booting, this usually takes ~2 minutes...",
           };
-          if (
-            data.connectedSynchronizers &&
-            data.connectedSynchronizers.length > 0
-          ) {
-            const needs = await sessionDO.needsRestore();
-            if (needs) {
-              // Restore server-side before telling the client we're ready
-              await restoreOnSandbox(userId, sessionDO);
-              return {
-                kind: "restoring",
-                message: "Restoring your previous session...",
-              };
-            }
-            return { kind: "ready" };
-          }
         }
+        const syncData = (await syncRes.json()) as {
+          connectedSynchronizers?: unknown[];
+        };
+        if (
+          !syncData.connectedSynchronizers ||
+          syncData.connectedSynchronizers.length === 0
+        ) {
+          return {
+            kind: "starting",
+            message: "Canton is booting, this usually takes ~2 minutes...",
+          };
+        }
+
+        // Check 2: ledger API initialized (offset > 0)
+        const ledgerRes = await container.fetch(
+          "http://container/v2/state/ledger-end"
+        );
+        if (!ledgerRes.ok) {
+          return {
+            kind: "starting",
+            message: "Ledger API is initializing...",
+          };
+        }
+        const ledger = (await ledgerRes.json()) as { offset?: number };
+        if (!ledger.offset || ledger.offset <= 0) {
+          return {
+            kind: "starting",
+            message: "Ledger API is initializing...",
+          };
+        }
+
+        // Check 3: package service accepting requests
+        const pkgRes = await container.fetch("http://container/v2/packages");
+        if (!pkgRes.ok) {
+          return {
+            kind: "starting",
+            message: "Package service is initializing...",
+          };
+        }
+
+        // All checks passed
+        const needs = await sessionDO.needsRestore();
+        if (needs) {
+          await restoreOnSandbox(sessionDO);
+          return {
+            kind: "restoring",
+            message: "Restoring your previous session...",
+          };
+        }
+        return { kind: "ready" };
       } catch {
-        // Container up but Canton not ready yet
+        // Container slept or crashed; restart it
+        await sessionDO.restart().catch(() => {});
       }
       return {
         kind: "starting",

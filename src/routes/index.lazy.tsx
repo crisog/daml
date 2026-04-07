@@ -1,5 +1,5 @@
 import { createLazyFileRoute } from '@tanstack/react-router'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 
 import { PartyPanel } from '@/components/playground/party-panel'
 import { ContractList } from '@/components/playground/contract-list'
@@ -12,6 +12,7 @@ import { parseDamlSource } from '@/lib/playground/daml-parser'
 import { EXAMPLES } from '@/lib/playground/examples'
 import type { Party } from '@/lib/playground/types'
 import { SandboxLoader } from '@/components/playground/sandbox-loader'
+import { useSandboxStatus } from '@/lib/use-sandbox-status'
 import { useAuth } from '@/lib/use-auth'
 import { authClient } from '@/lib/auth-client'
 import { saveUserSessionFn } from '@/lib/session.functions'
@@ -37,6 +38,8 @@ function PlaygroundPage(): React.JSX.Element {
   const consoleRef = useRef<ConsoleHandle>(null)
   const [mobileTab, setMobileTab] = useState<MobileTab>('editor')
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const { state: sandboxState, sandboxReady } = useSandboxStatus(isAuthed)
+  const readyLogged = useRef(false)
 
   const templates = useMemo(() => parseDamlSource(source), [source])
 
@@ -72,9 +75,12 @@ function PlaygroundPage(): React.JSX.Element {
     consoleRef.current?.info(`Loaded example: ${name}`)
   }
 
-  const handleSandboxReady = useCallback(() => {
-    consoleRef.current?.success('Connected to sandbox')
-  }, [])
+  useEffect(() => {
+    if (sandboxReady && !readyLogged.current) {
+      readyLogged.current = true
+      consoleRef.current?.success('Connected to sandbox')
+    }
+  }, [sandboxReady])
 
   const compileStatus = (
     <CompileStatus
@@ -102,9 +108,9 @@ function PlaygroundPage(): React.JSX.Element {
   )
 
   const interactPanel = isAuthed ? (
-    <SandboxLoader enabled={isAuthed} onReady={handleSandboxReady}>
-      {(sandboxReady) =>
-        sandboxReady ? (
+    <SandboxLoader state={sandboxState} sandboxReady={sandboxReady}>
+      {(ready) =>
+        ready ? (
           <>
             <PartyPanel
               parties={parties}
@@ -190,7 +196,7 @@ function PlaygroundPage(): React.JSX.Element {
     <div className="flex h-dvh flex-col bg-page text-ink">
       <header className="flex items-center gap-2 border-b border-stone bg-surface px-3 py-2 md:gap-4 md:px-4">
         <h1 className="shrink-0 text-sm font-medium text-accent">Daml Playground</h1>
-        <div className="hidden sm:contents">{isAuthed && compileStatus}</div>
+        <div className="hidden sm:contents">{isAuthed && sandboxReady && compileStatus}</div>
         <div className="hidden sm:block">
           <ExamplePicker onSelect={handleExampleSelect} />
         </div>
@@ -261,7 +267,7 @@ function PlaygroundPage(): React.JSX.Element {
                 </option>
               ))}
             </select>
-            <div className="ml-auto">{isAuthed && compileStatus}</div>
+            <div className="ml-auto">{isAuthed && sandboxReady && compileStatus}</div>
           </div>
           <div className="flex-1">
             <DamlEditor value={source} onChange={setSource} />
