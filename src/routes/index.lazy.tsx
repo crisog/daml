@@ -1,5 +1,6 @@
 import { createLazyFileRoute } from '@tanstack/react-router'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+
 import { PartyPanel } from '@/components/playground/party-panel'
 import { ContractList } from '@/components/playground/contract-list'
 import { CreateForm } from '@/components/playground/create-form'
@@ -13,9 +14,7 @@ import type { Party } from '@/lib/playground/types'
 import { SandboxLoader } from '@/components/playground/sandbox-loader'
 import { useAuth } from '@/lib/use-auth'
 import { authClient } from '@/lib/auth-client'
-import { restoreSession } from '@/lib/playground/restore-session'
 import { saveUserSessionFn } from '@/lib/session.functions'
-import { clearRestore } from '@/lib/sandbox.functions'
 
 export const Route = createLazyFileRoute('/')({
   component: PlaygroundPage,
@@ -35,7 +34,6 @@ function PlaygroundPage(): React.JSX.Element {
   const [refreshKey, setRefreshKey] = useState(0)
   const [source, setSource] = useState(saved?.source ?? EXAMPLES[0]?.source ?? '')
   const [deployed, setDeployed] = useState(saved?.deployed ?? false)
-  const [restoring, setRestoring] = useState(false)
   const consoleRef = useRef<ConsoleHandle>(null)
   const [mobileTab, setMobileTab] = useState<MobileTab>('editor')
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -74,30 +72,9 @@ function PlaygroundPage(): React.JSX.Element {
     consoleRef.current?.info(`Loaded example: ${name}`)
   }
 
-  const handleSandboxReady = useCallback(async (needsRestore: boolean) => {
+  const handleSandboxReady = useCallback(() => {
     consoleRef.current?.success('Connected to sandbox')
-
-    if (!needsRestore || !saved) return
-    if (!saved.deployed && !saved.partyNames?.length) return
-
-    setRestoring(true)
-    const result = await restoreSession(saved, (type, msg) => {
-      if (type === 'info') consoleRef.current?.info(msg)
-      else if (type === 'success') consoleRef.current?.success(msg)
-      else consoleRef.current?.error(msg)
-    })
-
-    if (result) {
-      if (result.deployed) setDeployed(true)
-      if (result.parties.length > 0) {
-        setParties(result.parties)
-        setActiveParty(result.parties[0] ?? null)
-      }
-    }
-    setRestoring(false)
-
-    clearRestore().catch(() => {})
-  }, [saved])
+  }, [])
 
   const compileStatus = (
     <CompileStatus
@@ -128,12 +105,6 @@ function PlaygroundPage(): React.JSX.Element {
     <SandboxLoader enabled={isAuthed} onReady={handleSandboxReady}>
       {(sandboxReady) =>
         sandboxReady ? (
-          restoring ? (
-            <div className="flex flex-col items-center gap-2 p-6 text-center">
-              <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-stone border-t-accent" />
-              <p className="text-xs text-ink-muted">Restoring your session...</p>
-            </div>
-          ) : (
           <>
             <PartyPanel
               parties={parties}
@@ -192,7 +163,6 @@ function PlaygroundPage(): React.JSX.Element {
               }}
             />
           </>
-          )
         ) : null
       }
     </SandboxLoader>

@@ -3,17 +3,53 @@ import { env } from "cloudflare:workers";
 import { ensureSession } from "@/lib/auth.functions";
 
 type SandboxStatus =
-  | { kind: "ready"; needsRestore: boolean }
+  | { kind: "ready" }
   | { kind: "starting"; message: string }
+  | { kind: "restoring"; message: string }
   | { kind: "at-capacity"; active: number; max: number }
   | { kind: "error"; message: string };
+
+async function restoreOnSandbox(
+  userId: string,
+  sessionDO: DurableObjectStub
+): Promise<void> {
+  const session = await sessionDO.loadUserSession();
+  if (!session) return;
+
+  const container = env.SANDBOX.getByName(userId);
+
+  if (session.deployed && session.source) {
+    const res = await container.fetch("http://container/compile", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ files: { "Main.daml": session.source } }),
+    });
+    const result = (await res.json()) as { success?: boolean };
+    if (!result.success) {
+      console.error("Failed to restore contract on sandbox");
+    }
+  }
+
+  for (const name of session.partyNames) {
+    try {
+      await container.fetch("http://container/v2/parties", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ partyIdHint: name, identityProviderId: "" }),
+      });
+    } catch {
+      console.error(`Failed to restore party: ${name}`);
+    }
+  }
+
+  await sessionDO.clearNeedsRestore();
+}
 
 export const getSandboxStatus = createServerFn({ method: "GET" }).handler(
   async (): Promise<SandboxStatus> => {
     const session = await ensureSession();
     const userId = session.user.id;
 
-    // Check capacity
     const gatekeeper = env.GATEKEEPER.getByName("global");
     const capacity = await gatekeeper.acquire(userId);
 
@@ -25,14 +61,10 @@ export const getSandboxStatus = createServerFn({ method: "GET" }).handler(
       };
     }
 
-    // Get sandbox status via Session DO
     const sessionDO = env.SESSION.getByName(userId);
     const status = await sessionDO.status();
 
     if (status.containerStatus === "running") {
-      // Container port 8081 is up, but Canton may still be booting.
-      // Check connected synchronizers to confirm Canton is fully ready.
-      // Verified locally: field is camelCase "connectedSynchronizers"
       try {
         const container = env.SANDBOX.getByName(userId);
         const res = await container.fetch(
@@ -46,8 +78,16 @@ export const getSandboxStatus = createServerFn({ method: "GET" }).handler(
             data.connectedSynchronizers &&
             data.connectedSynchronizers.length > 0
           ) {
-            const needsRestore = await sessionDO.needsRestore();
-            return { kind: "ready", needsRestore };
+            const needs = await sessionDO.needsRestore();
+            if (needs) {
+              // Restore server-side before telling the client we're ready
+              await restoreOnSandbox(userId, sessionDO);
+              return {
+                kind: "restoring",
+                message: "Restoring your previous session...",
+              };
+            }
+            return { kind: "ready" };
           }
         }
       } catch {
@@ -63,16 +103,7 @@ export const getSandboxStatus = createServerFn({ method: "GET" }).handler(
       return { kind: "starting", message: "Provisioning your sandbox..." };
     }
 
-    // Container is stopped or errored, trigger start
     await sessionDO.start();
     return { kind: "starting", message: "Provisioning your sandbox..." };
-  }
-);
-
-export const clearRestore = createServerFn({ method: "POST" }).handler(
-  async () => {
-    const session = await ensureSession();
-    const sessionDO = env.SESSION.getByName(session.user.id);
-    await sessionDO.clearNeedsRestore();
   }
 );

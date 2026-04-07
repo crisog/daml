@@ -5,13 +5,14 @@ type SandboxState =
   | { kind: "idle" }
   | { kind: "loading" }
   | { kind: "starting"; message: string }
+  | { kind: "restoring"; message: string }
   | { kind: "ready" }
   | { kind: "at-capacity"; active: number; max: number }
   | { kind: "error"; message: string };
 
 type Props = {
   enabled: boolean;
-  onReady?: (needsRestore: boolean) => void;
+  onReady?: () => void;
   children: (sandboxReady: boolean) => ReactNode;
 };
 
@@ -37,8 +38,14 @@ export function SandboxLoader({ enabled, onReady, children }: Props) {
           setState({ kind: "ready" });
           if (!readyFired.current) {
             readyFired.current = true;
-            onReady?.(status.needsRestore);
+            onReady?.();
           }
+          return;
+        }
+
+        if (status.kind === "restoring") {
+          setState({ kind: "restoring", message: status.message });
+          setTimeout(poll, 2_000);
           return;
         }
 
@@ -82,7 +89,7 @@ export function SandboxLoader({ enabled, onReady, children }: Props) {
               <p className="text-sm text-ink-muted">Connecting to sandbox...</p>
             )}
 
-            {state.kind === "starting" && (
+            {(state.kind === "starting" || state.kind === "restoring") && (
               <>
                 <div className="mx-auto h-8 w-8 animate-spin rounded-full border-2 border-stone border-t-accent" />
                 <p className="text-sm text-ink-muted">{state.message}</p>
