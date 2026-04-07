@@ -32,8 +32,11 @@ export function CompileStatus({ getSource, onSuccess, onError }: CompileStatusPr
     <Button
       onClick={handleCompile}
       disabled={compiling}
-      className="rounded-md bg-success px-3 py-1 text-xs font-medium text-ink-inverted hover:opacity-90"
+      className="flex items-center gap-1.5 rounded-md bg-success px-3 py-1 text-xs font-medium text-ink-inverted hover:opacity-90 disabled:opacity-70"
     >
+      {compiling && (
+        <span className="inline-block h-3 w-3 animate-spin rounded-full border border-ink-inverted/30 border-t-ink-inverted" />
+      )}
       {compiling ? 'Compiling...' : 'Deploy'}
     </Button>
   )
