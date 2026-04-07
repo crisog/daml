@@ -39,7 +39,7 @@ function PlaygroundPage(): React.JSX.Element {
   const consoleRef = useRef<ConsoleHandle>(null)
   const [mobileTab, setMobileTab] = useState<MobileTab>('editor')
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
-  const { state: sandboxState, sandboxReady } = useSandboxStatus(isAuthed)
+  const { state: sandboxState, sandboxReady, bootTimeMs } = useSandboxStatus(isAuthed)
   const readyLogged = useRef(false)
 
   const templates = useMemo(() => parseDamlSource(source), [source])
@@ -79,7 +79,8 @@ function PlaygroundPage(): React.JSX.Element {
   useEffect(() => {
     if (sandboxReady && !readyLogged.current) {
       readyLogged.current = true
-      consoleRef.current?.success('Connected to sandbox')
+      const bootSuffix = bootTimeMs ? ` (${(bootTimeMs / 1000).toFixed(1)}s)` : ''
+      consoleRef.current?.success(`Connected to sandbox${bootSuffix}`)
 
       // Resolve placeholder parties (restored from persistence with empty IDs)
       const placeholders = parties.filter((p) => !p.id)
@@ -102,10 +103,10 @@ function PlaygroundPage(): React.JSX.Element {
   const compileStatus = (
     <CompileStatus
       getSource={() => ({ 'Main.daml': source })}
-      onSuccess={() => {
+      onSuccess={(durationMs) => {
         setDeployed(true)
         const names = templates.map((t) => t.name).join(', ')
-        consoleRef.current?.success(`Deployed: ${names}`)
+        consoleRef.current?.success(`Deployed: ${names} (${(durationMs / 1000).toFixed(1)}s)`)
       }}
       onError={(err) => {
         consoleRef.current?.error(`Deploy failed: ${err}`)
@@ -132,7 +133,7 @@ function PlaygroundPage(): React.JSX.Element {
             <PartyPanel
               parties={parties}
               activeParty={activeParty}
-              onPartyCreated={(p) => {
+              onPartyCreated={(p, ms) => {
                 setParties((prev) => {
                   const placeholder = prev.findIndex(
                     (x) => x.displayName === p.displayName && !x.id,
@@ -145,7 +146,7 @@ function PlaygroundPage(): React.JSX.Element {
                   return [...prev, p]
                 })
                 if (!activeParty) setActiveParty(p)
-                consoleRef.current?.info(`Party created: ${p.displayName}`)
+                consoleRef.current?.info(`Party created: ${p.displayName} (${(ms / 1000).toFixed(1)}s)`)
               }}
               onPartySelected={setActiveParty}
               onError={(msg) => consoleRef.current?.error(`Party creation failed: ${msg}`)}
@@ -164,9 +165,9 @@ function PlaygroundPage(): React.JSX.Element {
               <CreateForm
                 templates={templates}
                 parties={parties}
-                onSuccess={(templateName) => {
+                onSuccess={(templateName, ms) => {
                   setRefreshKey((k) => k + 1)
-                  consoleRef.current?.success(`Contract created: ${templateName}`)
+                  consoleRef.current?.success(`Contract created: ${templateName} (${(ms / 1000).toFixed(1)}s)`)
                 }}
                 onError={(err) => {
                   consoleRef.current?.error(err)

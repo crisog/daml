@@ -6,7 +6,7 @@ import type { Party } from '@/lib/playground/types'
 type PartyPanelProps = {
   parties: Party[]
   activeParty: Party | null
-  onPartyCreated: (party: Party) => void
+  onPartyCreated: (party: Party, durationMs: number) => void
   onPartySelected: (party: Party) => void
   onError?: (msg: string) => void
 }
@@ -24,9 +24,11 @@ export function PartyPanel({
   async function handleCreate() {
     if (!name.trim()) return
     setCreating(true)
+    const start = Date.now()
     try {
       const party = await createParty(name.trim())
-      onPartyCreated(party)
+      const ms = Date.now() - start
+      onPartyCreated(party, ms)
       setName('')
     } catch (e) {
       const msg = e instanceof Error ? e.message : 'Failed to create party'

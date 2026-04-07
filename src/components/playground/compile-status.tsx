@@ -4,7 +4,7 @@ import { compileAndDeploy } from '@/lib/playground/compiler'
 
 type CompileStatusProps = {
   getSource: () => Record<string, string>
-  onSuccess?: () => void
+  onSuccess?: (durationMs: number) => void
   onError?: (error: string) => void
 }
 
@@ -13,10 +13,11 @@ export function CompileStatus({ getSource, onSuccess, onError }: CompileStatusPr
 
   async function handleCompile() {
     setCompiling(true)
+    const start = Date.now()
     try {
       const res = await compileAndDeploy(getSource())
       if (res.success) {
-        onSuccess?.()
+        onSuccess?.(Date.now() - start)
       } else {
         onError?.(res.errors?.join('\n') ?? 'Unknown error')
       }

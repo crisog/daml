@@ -7,7 +7,7 @@ import type { DamlTemplate } from '@/lib/playground/daml-parser'
 type CreateFormProps = {
   templates: DamlTemplate[]
   parties: Party[]
-  onSuccess: (templateName: string) => void
+  onSuccess: (templateName: string, durationMs: number) => void
   onError?: (error: string) => void
 }
 
@@ -40,7 +40,7 @@ export function CreateForm({ templates, parties, onSuccess, onError }: CreateFor
   async function handleSubmit() {
     if (!template) return
     setSubmitting(true)
-
+    const start = Date.now()
     setResult(null)
 
     try {
@@ -66,9 +66,10 @@ export function CreateForm({ templates, parties, onSuccess, onError }: CreateFor
       const derivedActAs = partyIds.size > 0 ? [...partyIds] : actAsIds
 
       await submitCreate(derivedActAs, `#playground-project:Main:${template.name}`, args)
+      const ms = Date.now() - start
       setResult(`${template.name} created`)
       setFieldValues({})
-      onSuccess(template.name)
+      onSuccess(template.name, ms)
     } catch (e) {
       const msg = e instanceof Error ? e.message : 'Create failed'
       onError?.(msg)

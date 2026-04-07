@@ -13,15 +13,20 @@ export type SandboxState =
 export function useSandboxStatus(enabled: boolean) {
   const [state, setState] = useState<SandboxState>({ kind: "idle" });
   const readyFired = useRef(false);
+  const startedAt = useRef<number | null>(null);
+  const bootTimeMs = useRef<number | null>(null);
 
   useEffect(() => {
     if (!enabled) {
       setState({ kind: "idle" });
       readyFired.current = false;
+      startedAt.current = null;
+      bootTimeMs.current = null;
       return;
     }
 
     let cancelled = false;
+    startedAt.current = Date.now();
 
     async function poll() {
       try {
@@ -29,6 +34,9 @@ export function useSandboxStatus(enabled: boolean) {
         if (cancelled) return;
 
         if (status.kind === "ready") {
+          if (startedAt.current) {
+            bootTimeMs.current = Date.now() - startedAt.current;
+          }
           setState({ kind: "ready" });
           readyFired.current = true;
           return;
@@ -80,5 +88,5 @@ export function useSandboxStatus(enabled: boolean) {
 
   const sandboxReady = state.kind === "ready";
 
-  return { state, sandboxReady } as const;
+  return { state, sandboxReady, bootTimeMs: bootTimeMs.current } as const;
 }
