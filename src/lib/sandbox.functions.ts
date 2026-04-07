@@ -1,7 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { env } from "cloudflare:workers";
 import { ensureSession } from "@/lib/auth.functions";
-import type { UserSessionData } from "@/server/do/session-do";
 
 type SandboxStatus =
   | { kind: "ready" }
@@ -61,18 +60,3 @@ export const getSandboxStatus = createServerFn({ method: "GET" }).handler(
   }
 );
 
-export const saveUserSession = createServerFn({ method: "POST" })
-  .validator((data: UserSessionData) => data)
-  .handler(async ({ data }) => {
-    const session = await ensureSession();
-    const sessionDO = env.SESSION.getByName(session.user.id);
-    await sessionDO.saveUserSession(data);
-  });
-
-export const loadUserSession = createServerFn({ method: "GET" }).handler(
-  async (): Promise<UserSessionData | null> => {
-    const session = await ensureSession();
-    const sessionDO = env.SESSION.getByName(session.user.id);
-    return sessionDO.loadUserSession();
-  }
-);

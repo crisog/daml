@@ -26,10 +26,11 @@ function PlaygroundPage(): React.JSX.Element {
   const auth = useAuth()
   const isAuthed = auth.status === 'authenticated'
 
+  const saved = loadSession()
   const [parties, setParties] = useState<Party[]>([])
   const [activeParty, setActiveParty] = useState<Party | null>(null)
   const [refreshKey, setRefreshKey] = useState(0)
-  const [source, setSource] = useState(EXAMPLES[0]?.source ?? '')
+  const [source, setSource] = useState(saved?.source ?? EXAMPLES[0]?.source ?? '')
   const [deployed, setDeployed] = useState(false)
   const [restoring, setRestoring] = useState(false)
   const consoleRef = useRef<ConsoleHandle>(null)
@@ -66,10 +67,8 @@ function PlaygroundPage(): React.JSX.Element {
   const handleSandboxReady = useCallback(async () => {
     consoleRef.current?.success('Connected to sandbox')
 
-    const session = await loadSession()
+    const session = loadSession()
     if (!session?.deployed && !session?.partyNames.length) return
-
-    if (session.source) setSource(session.source)
 
     setRestoring(true)
     const result = await restoreSession((type, msg) => {

@@ -1,21 +1,24 @@
-import { saveUserSession, loadUserSession } from '@/lib/sandbox.functions'
+const STORAGE_KEY = 'daml-playground-session'
 
-interface SessionData {
+export interface SessionData {
   source: string
   partyNames: string[]
   deployed: boolean
 }
 
-let pending: Promise<void> | null = null
-
 export function saveSession(data: SessionData): void {
-  // Debounce: only the last save wins
-  pending = saveUserSession({ data }).catch(() => {})
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data))
+  } catch {
+    // localStorage unavailable or full
+  }
 }
 
-export async function loadSession(): Promise<SessionData | null> {
+export function loadSession(): SessionData | null {
   try {
-    return await loadUserSession()
+    const raw = localStorage.getItem(STORAGE_KEY)
+    if (!raw) return null
+    return JSON.parse(raw) as SessionData
   } catch {
     return null
   }

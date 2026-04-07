@@ -11,7 +11,7 @@ export interface RestoreResult {
 export async function restoreSession(
   onLog?: (type: 'info' | 'success' | 'error', msg: string) => void,
 ): Promise<RestoreResult | null> {
-  const session = await loadSession()
+  const session = loadSession()
   if (!session) return null
   if (!session.deployed && session.partyNames.length === 0) return null
 
