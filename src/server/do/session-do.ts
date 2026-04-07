@@ -1,6 +1,9 @@
 import { DurableObject } from "cloudflare:workers";
+import { retry, AbortError } from "./retry";
 
 type ContainerStatus = "stopped" | "starting" | "running" | "error";
+
+const FETCH_TIMEOUT_MS = 120_000;
 
 export interface UserSessionData {
   source: string;
@@ -64,6 +67,9 @@ export class SessionDO extends DurableObject<Env> {
 
     try {
       const container = this.getContainerStub();
+      // Register this SessionDO so the container can push status changes back
+      await (container as unknown as { setSessionId(id: string): Promise<void> })
+        .setSessionId(this.ctx.id.toString());
       // startAndWaitForPorts waits until the container's defaultPort is reachable
       await container.startAndWaitForPorts();
 
@@ -89,6 +95,15 @@ export class SessionDO extends DurableObject<Env> {
     await this.start();
   }
 
+  /** Called by SandboxContainer status hooks when the container stops or errors. */
+  async reportContainerDown(reason: string): Promise<void> {
+    await this.ensureInitialized();
+    this.state.containerStatus = "stopped";
+    this.state.errorLog = reason;
+    await this.persistState();
+    console.log(`SessionDO: container reported down: ${reason}`);
+  }
+
   async proxy(request: Request): Promise<Response> {
     await this.ensureInitialized();
 
@@ -101,10 +116,58 @@ export class SessionDO extends DurableObject<Env> {
       }
     }
 
+    // Buffer the body upfront so retries can resend it
+    const body = request.body ? await request.arrayBuffer() : null;
+    const makeRequest = () =>
+      new Request(request.url, {
+        method: request.method,
+        headers: request.headers,
+        body,
+      });
+
     const container = this.getContainerStub();
 
     try {
-      const response = await container.fetch(request);
+      const response = await retry(
+        async () => {
+          const res = await this.fetchWithTimeout(container, makeRequest());
+          return res;
+        },
+        {
+          retries: 1,
+          minTimeout: 500,
+          shouldRetry: async ({ error }) => {
+            // Ask the container if it's actually alive via status hooks
+            const healthy = await (
+              container as unknown as { isHealthy(): Promise<boolean> }
+            ).isHealthy();
+
+            if (healthy) {
+              // Transient error, worth retrying without restart
+              return true;
+            }
+
+            // Container is confirmed down. Restart it before the retry.
+            if (this.state.containerStatus !== "stopped") {
+              this.state.containerStatus = "stopped";
+              await this.persistState();
+            }
+
+            try {
+              await this.start();
+              return true;
+            } catch {
+              // Restart failed, abort retries
+              throw new AbortError(error);
+            }
+          },
+          onFailedAttempt: ({ attemptNumber, error }) => {
+            console.log(
+              `SessionDO proxy attempt ${attemptNumber} failed: ${error.message}`
+            );
+          },
+        }
+      );
 
       this.state.lastActivityAt = Date.now();
       this.state.requestCount += 1;
@@ -112,35 +175,30 @@ export class SessionDO extends DurableObject<Env> {
 
       return response;
     } catch (err) {
-      // Attempt one restart
-      if (this.state.containerStatus === "running") {
-        this.state.containerStatus = "stopped";
-        await this.persistState();
+      this.state.containerStatus = "error";
+      this.state.errorLog =
+        err instanceof Error ? err.message : "Sandbox request failed";
+      await this.persistState();
 
-        try {
-          await this.start();
-          const retryResponse = await container.fetch(request);
-
-          this.state.lastActivityAt = Date.now();
-          this.state.requestCount += 1;
-          await this.persistState();
-
-          return retryResponse;
-        } catch (retryErr) {
-          this.state.containerStatus = "error";
-          this.state.errorLog =
-            retryErr instanceof Error
-              ? retryErr.message
-              : "Container restart failed";
-          await this.persistState();
-
-          // Release gatekeeper slot on permanent failure
-          const gatekeeper = this.env.GATEKEEPER.getByName("global");
-          await gatekeeper.release(this.ctx.id.toString());
-        }
-      }
+      // Release gatekeeper slot on permanent failure
+      const gatekeeper = this.env.GATEKEEPER.getByName("global");
+      await gatekeeper.release(this.ctx.id.toString());
 
       return new Response("Sandbox unavailable", { status: 502 });
+    }
+  }
+
+  private async fetchWithTimeout(
+    container: DurableObjectStub,
+    request: Request
+  ): Promise<Response> {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
+    try {
+      const req = new Request(request, { signal: controller.signal });
+      return await container.fetch(req);
+    } finally {
+      clearTimeout(timeout);
     }
   }
 

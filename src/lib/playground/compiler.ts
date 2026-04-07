@@ -25,7 +25,9 @@ export async function compileAndDeploy(files: Record<string, string>): Promise<C
       }
     }
 
-    return await res.json()
+    // Use the same abort signal for body read so timeout covers the full request
+    const text = await res.text()
+    return JSON.parse(text) as CompileResult
   } catch (err) {
     if (err instanceof DOMException && err.name === 'AbortError') {
       return { success: false, errors: ['Deploy timed out after 30s. Try again.'] }
