@@ -11,7 +11,7 @@ export interface RestoreResult {
 export async function restoreSession(
   onLog?: (type: 'info' | 'success' | 'error', msg: string) => void,
 ): Promise<RestoreResult | null> {
-  const session = loadSession()
+  const session = await loadSession()
   if (!session) return null
   if (!session.deployed && session.partyNames.length === 0) return null
 
@@ -34,12 +34,10 @@ export async function restoreSession(
     try {
       const party = await createParty(name)
       parties.push(party)
+      onLog?.('success', `Restored party: ${name}`)
     } catch {
       onLog?.('error', `Failed to restore party: ${name}`)
     }
-  }
-  if (parties.length > 0) {
-    onLog?.('success', `Restored ${parties.length} ${parties.length === 1 ? 'party' : 'parties'}`)
   }
 
   return { parties, deployed }

@@ -2,6 +2,12 @@ import { DurableObject } from "cloudflare:workers";
 
 type ContainerStatus = "stopped" | "starting" | "running" | "error";
 
+export interface UserSessionData {
+  source: string;
+  partyNames: string[];
+  deployed: boolean;
+}
+
 interface SessionState {
   containerStatus: ContainerStatus;
   startedAt: number | null;
@@ -137,6 +143,14 @@ export class SessionDO extends DurableObject<Env> {
   }> {
     await this.ensureInitialized();
     return { ...this.state };
+  }
+
+  async saveUserSession(data: UserSessionData): Promise<void> {
+    await this.ctx.storage.put("userSession", data);
+  }
+
+  async loadUserSession(): Promise<UserSessionData | null> {
+    return (await this.ctx.storage.get<UserSessionData>("userSession")) ?? null;
   }
 
   async stop(): Promise<void> {
