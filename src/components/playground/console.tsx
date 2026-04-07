@@ -66,9 +66,12 @@ export const Console = forwardRef<ConsoleHandle>(function Console(_, ref) {
     termRef.current = term
     fitRef.current = fit
 
-    term.writeln('')
-    term.writeln(`  ${GREEN}Daml Playground Console${RESET}`)
-    term.writeln('')
+    const isMobile = window.matchMedia('(max-width: 639px)').matches
+    if (!isMobile) {
+      term.writeln('')
+      term.writeln(`  ${GREEN}Daml Playground Console${RESET}`)
+      term.writeln('')
+    }
 
     const observer = new ResizeObserver(() => fit.fit())
     observer.observe(containerRef.current!)

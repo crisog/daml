@@ -158,7 +158,7 @@ function PlaygroundPage(): React.JSX.Element {
     <div className="flex h-dvh flex-col bg-page text-ink">
       <header className="flex items-center gap-2 border-b border-stone bg-surface px-3 py-2 md:gap-4 md:px-4">
         <h1 className="shrink-0 text-sm font-medium text-accent">Daml Playground</h1>
-        {isAuthed && compileStatus}
+        <div className="hidden sm:contents">{isAuthed && compileStatus}</div>
         <div className="hidden sm:block">
           <ExamplePicker onSelect={handleExampleSelect} />
         </div>
@@ -229,6 +229,7 @@ function PlaygroundPage(): React.JSX.Element {
                 </option>
               ))}
             </select>
+            <div className="ml-auto">{isAuthed && compileStatus}</div>
           </div>
           <div className="flex-1">
             <DamlEditor value={source} onChange={setSource} />
