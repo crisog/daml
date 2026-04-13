@@ -13,5 +13,6 @@ export function baseOptions(): BaseLayoutProps {
       title: 'Canton Guide',
     },
     githubUrl: `https://github.com/${gitConfig.user}/${gitConfig.repo}`,
+    themeSwitch: { enabled: false },
   };
 }
