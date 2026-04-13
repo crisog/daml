@@ -158,7 +158,7 @@ function PlaygroundPage(): React.JSX.Element {
             {!deployed && (
               <p className="p-3 text-xs text-ink-muted">
                 Deploy your contract and create parties to get started.{' '}
-                <a href="/docs/daml/creating-your-first-daml-smart-contract" className="text-accent hover:underline">
+                <a href="/docs/daml/creating-your-first-daml-smart-contract" className="text-accent-hover hover:underline">
                   Learn how
                 </a>
               </p>
@@ -199,7 +199,7 @@ function PlaygroundPage(): React.JSX.Element {
       <p className="text-sm text-ink-muted">
         Sign in to deploy contracts, create parties, and interact with the ledger.
       </p>
-      <a href="/docs/daml/creating-your-first-daml-smart-contract" className="text-xs text-accent hover:underline">
+      <a href="/docs/daml/creating-your-first-daml-smart-contract" className="text-xs text-accent-hover hover:underline">
         Read the docs
       </a>
       {auth.status !== 'loading' && (
@@ -217,7 +217,7 @@ function PlaygroundPage(): React.JSX.Element {
   return (
     <div className="flex h-dvh flex-col bg-page text-ink">
       <header className="flex items-center gap-2 border-b border-stone bg-surface px-3 py-2 md:gap-4 md:px-4">
-        <h1 className="shrink-0 text-sm font-medium text-accent">Daml Playground</h1>
+        <h1 className="shrink-0 text-sm font-medium text-ink">Daml Playground</h1>
         <div className="hidden sm:contents">{isAuthed && sandboxReady && compileStatus}</div>
         <div className="hidden sm:block">
           <ExamplePicker onSelect={handleExampleSelect} />
