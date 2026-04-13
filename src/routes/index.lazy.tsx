@@ -195,6 +195,7 @@ function PlaygroundPage(): React.JSX.Element {
     </SandboxLoader>
   ) : (
     <div className="flex flex-1 flex-col items-center justify-center gap-3 p-6 text-center">
+      <img src="/send-logo.png" alt="Send" className="mb-1 h-16 w-16" />
       <p className="text-sm text-ink-muted">
         Sign in to deploy contracts, create parties, and interact with the ledger.
       </p>
