@@ -50,7 +50,7 @@ function LoginPage() {
     <div className="flex min-h-screen items-center justify-center bg-page text-ink">
       <div className="w-full max-w-sm space-y-6 rounded-lg border border-stone bg-surface p-8">
         <div className="text-center">
-          <h1 className="text-lg font-semibold text-accent">Daml Playground</h1>
+          <h1 className="text-lg font-semibold text-ink">Daml Playground</h1>
           <p className="mt-1 text-sm text-ink-muted">Sign in to access your sandbox</p>
         </div>
 
@@ -99,7 +99,7 @@ function LoginPage() {
         </form>
 
         {error && (
-          <p className="text-center text-xs text-red-400">{error}</p>
+          <p className="text-center text-xs text-error">{error}</p>
         )}
       </div>
     </div>
