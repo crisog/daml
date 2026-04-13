@@ -82,7 +82,7 @@ export function CreateForm({ templates, parties, onSuccess, onError }: CreateFor
 
   return (
     <div className="border-t border-stone p-3">
-      <h3 className="mb-2 text-xs font-medium text-lilac">Create Contract</h3>
+      <h3 className="mb-2 text-xs font-medium text-ink-secondary">Create Contract</h3>
 
       {templates.length > 1 && (
         <div className="mb-2 flex flex-wrap gap-1">
@@ -108,7 +108,7 @@ export function CreateForm({ templates, parties, onSuccess, onError }: CreateFor
       {template && (
         <>
           {templates.length <= 1 && (
-            <p className="mb-2 text-xs text-lilac">{template.name}</p>
+            <p className="mb-2 text-xs text-ink-secondary">{template.name}</p>
           )}
 
           <div className="mb-2">

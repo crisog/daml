@@ -1,79 +1,86 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300;1,400;1,500&display=swap');
 @import 'tailwindcss';
 @import 'fumadocs-ui/css/preset.css';
 
-/* Canton theme for fumadocs - dark only, matching playground palette */
+/* Send theme - dark primary, green accent on charcoal */
 @theme {
-  --font-mono: 'SF Mono', 'Cascadia Code', 'Fira Code', monospace;
+  --font-sans: 'DM Sans', system-ui, -apple-system, sans-serif;
+  --font-mono: 'DM Mono', 'SF Mono', 'Cascadia Code', monospace;
 
-  /* Playground tokens */
-  --color-page: #030206;
-  --color-surface: #0d0b12;
-  --color-elevated: #16131e;
+  /* Layered surfaces - charcoal base */
+  --color-page: #0E1A1C;
+  --color-surface: #122023;
+  --color-elevated: #162A2D;
 
-  --color-ink: #FFFFFC;
-  --color-ink-secondary: #c8c8c4;
-  --color-ink-muted: #5a5660;
-  --color-ink-inverted: #030206;
+  /* Ink */
+  --color-ink: #FFFFFF;
+  --color-ink-secondary: #B3B3B3;
+  --color-ink-muted: #6B7779;
+  --color-ink-inverted: #0E1A1C;
 
-  --color-stone: #2a2730;
-  --color-stone-strong: #3d3a44;
+  /* Borders */
+  --color-stone: #414D4F;
+  --color-stone-strong: #556062;
 
-  --color-accent: #F3FF97;
-  --color-accent-hover: #e6f280;
-  --color-accent-light: #F3FF9722;
+  /* Brand accent - Send neon green */
+  --color-accent: #40FB50;
+  --color-accent-hover: #33C940;
+  --color-accent-light: #40FB5022;
 
-  --color-purple: #875CFF;
-  --color-purple-soft: #b8a0ff;
-  --color-purple-muted: #875CFF22;
+  /* Status */
+  --color-error: #DE4747;
+  --color-error-light: #DE474722;
+  --color-success: #40FB50;
+  --color-success-light: #40FB5022;
+  --color-warning: #FFD66E;
+  --color-warning-light: #FFD66E22;
 
-  --color-lilac: #D5A5E3;
-  --color-lilac-muted: #D5A5E333;
+  /* Fumadocs light theme - Send light palette */
+  --color-fd-background: #F2F2F2;
+  --color-fd-foreground: #1A1A1A;
+  --color-fd-muted: #E8E8E8;
+  --color-fd-muted-foreground: #6B6B6B;
+  --color-fd-popover: #FFFFFF;
+  --color-fd-popover-foreground: #1A1A1A;
+  --color-fd-card: #FFFFFF;
+  --color-fd-card-foreground: #1A1A1A;
+  --color-fd-border: #CCCCCC;
+  --color-fd-primary: #33C940;
+  --color-fd-primary-foreground: #FFFFFF;
+  --color-fd-secondary: #E8E8E8;
+  --color-fd-secondary-foreground: #1A1A1A;
+  --color-fd-accent: #40FB5022;
+  --color-fd-accent-foreground: #1A1A1A;
+  --color-fd-ring: #40FB50;
+  --color-fd-overlay: rgba(26, 26, 26, 0.2);
+}
 
-  --color-taupe: #A89F91;
-
-  --color-error: #ff6b6b;
-  --color-error-light: #ff6b6b22;
-  --color-success: #F3FF97;
-  --color-success-light: #F3FF9722;
-
-  /* Fumadocs light theme - soft purple-tinted Canton palette */
-  --color-fd-background: #f8f7fc;
-  --color-fd-foreground: #1a1525;
-  --color-fd-muted: #eeeaf5;
-  --color-fd-muted-foreground: #6b6280;
-  --color-fd-popover: #f4f2fa;
-  --color-fd-popover-foreground: #1a1525;
-  --color-fd-card: #eeeaf5;
-  --color-fd-card-foreground: #1a1525;
-  --color-fd-border: #d8d2e8;
-  --color-fd-primary: #5a3cc0;
-  --color-fd-primary-foreground: #f8f7fc;
-  --color-fd-secondary: #e8e3f3;
-  --color-fd-secondary-foreground: #1a1525;
-  --color-fd-accent: #875CFF22;
-  --color-fd-accent-foreground: #1a1525;
-  --color-fd-ring: #875CFF;
-  --color-fd-overlay: rgba(26, 21, 37, 0.2);
+@layer base {
+  html,
+  body {
+    font-family: var(--font-sans);
+  }
 }
 
 .dark {
-  --color-fd-background: #030206;
-  --color-fd-foreground: #FFFFFC;
-  --color-fd-muted: #0d0b12;
-  --color-fd-muted-foreground: #5a5660;
-  --color-fd-popover: #0d0b12;
-  --color-fd-popover-foreground: #c8c8c4;
-  --color-fd-card: #0d0b12;
-  --color-fd-card-foreground: #FFFFFC;
-  --color-fd-border: #2a2730;
-  --color-fd-primary: #F3FF97;
-  --color-fd-primary-foreground: #030206;
-  --color-fd-secondary: #16131e;
-  --color-fd-secondary-foreground: #c8c8c4;
-  --color-fd-accent: #875CFF33;
-  --color-fd-accent-foreground: #FFFFFC;
-  --color-fd-ring: #875CFF;
-  --color-fd-overlay: rgba(3, 2, 6, 0.8);
+  --color-fd-background: #0E1A1C;
+  --color-fd-foreground: #FFFFFF;
+  --color-fd-muted: #122023;
+  --color-fd-muted-foreground: #B3B3B3;
+  --color-fd-popover: #122023;
+  --color-fd-popover-foreground: #FFFFFF;
+  --color-fd-card: #122023;
+  --color-fd-card-foreground: #FFFFFF;
+  --color-fd-border: #414D4F;
+  --color-fd-primary: #40FB50;
+  --color-fd-primary-foreground: #0E1A1C;
+  --color-fd-secondary: #162A2D;
+  --color-fd-secondary-foreground: #FFFFFF;
+  --color-fd-accent: #40FB5033;
+  --color-fd-accent-foreground: #FFFFFF;
+  --color-fd-ring: #40FB50;
+  --color-fd-overlay: rgba(14, 26, 28, 0.8);
 }
 
 @theme static {
@@ -89,7 +96,7 @@
 }
 
 .dark #nd-sidebar {
-  --color-fd-muted: #16131e;
-  --color-fd-secondary: #1e1a28;
-  --color-fd-muted-foreground: #A89F91;
+  --color-fd-muted: #162A2D;
+  --color-fd-secondary: #1A3134;
+  --color-fd-muted-foreground: #B3B3B3;
 }
