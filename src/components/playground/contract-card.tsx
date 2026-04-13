@@ -76,7 +76,7 @@ export function ContractCard({
 
   return (
     <div className="rounded-md border border-stone bg-page p-2">
-      <div className="mb-1 text-xs font-medium text-lilac">
+      <div className="mb-1 text-xs font-medium text-ink-secondary">
         {shortTemplate(contract.templateId)}
       </div>
       <div className="mb-1.5 font-mono text-xs text-ink-muted">

@@ -40,7 +40,7 @@ export function PartyPanel({
 
   return (
     <div className="border-b border-stone p-3">
-      <h3 className="mb-2 text-xs font-medium text-lilac">Parties</h3>
+      <h3 className="mb-2 text-xs font-medium text-ink-secondary">Parties</h3>
       <div className="mb-2 flex gap-2">
         <input
           value={name}

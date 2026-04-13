@@ -14,44 +14,44 @@ export function DamlEditor({ value, onChange }: DamlEditorProps): React.JSX.Elem
     if (!registered.current) {
       registerDamlLanguage(monaco)
 
-      monaco.editor.defineTheme('canton', {
+      monaco.editor.defineTheme('send', {
         base: 'vs-dark',
         inherit: true,
         rules: [
-          { token: 'keyword', foreground: 'F3FF97', fontStyle: 'bold' },
-          { token: 'type', foreground: 'D5A5E3' },
-          { token: 'type.identifier', foreground: 'D5A5E3' },
-          { token: 'identifier', foreground: 'FFFFFC' },
-          { token: 'number', foreground: 'b8a0ff' },
-          { token: 'string', foreground: 'b8a0ff' },
-          { token: 'string.escape', foreground: '875CFF' },
-          { token: 'comment', foreground: '5a5660', fontStyle: 'italic' },
-          { token: 'comment.doc', foreground: '7a7580', fontStyle: 'italic' },
-          { token: 'operator', foreground: 'A89F91' },
+          { token: 'keyword', foreground: '40FB50', fontStyle: 'bold' },
+          { token: 'type', foreground: 'FFD66E' },
+          { token: 'type.identifier', foreground: 'FFD66E' },
+          { token: 'identifier', foreground: 'FFFFFF' },
+          { token: 'number', foreground: 'FFD66E' },
+          { token: 'string', foreground: 'A8F5B0' },
+          { token: 'string.escape', foreground: '40FB50' },
+          { token: 'comment', foreground: '6B7779', fontStyle: 'italic' },
+          { token: 'comment.doc', foreground: '8C9799', fontStyle: 'italic' },
+          { token: 'operator', foreground: 'B3B3B3' },
         ],
         colors: {
-          'editor.background': '#030206',
-          'editor.foreground': '#FFFFFC',
-          'editor.lineHighlightBackground': '#0d0b1280',
-          'editor.selectionBackground': '#875CFF44',
-          'editor.inactiveSelectionBackground': '#875CFF22',
-          'editorCursor.foreground': '#F3FF97',
-          'editorLineNumber.foreground': '#3d3a44',
-          'editorLineNumber.activeForeground': '#A89F91',
-          'editorIndentGuide.background': '#1a1720',
-          'editorIndentGuide.activeBackground': '#2a2730',
-          'editorWidget.background': '#0d0b12',
-          'editorWidget.border': '#2a2730',
-          'scrollbarSlider.background': '#875CFF33',
-          'scrollbarSlider.hoverBackground': '#875CFF55',
-          'scrollbarSlider.activeBackground': '#875CFF77',
+          'editor.background': '#0E1A1C',
+          'editor.foreground': '#FFFFFF',
+          'editor.lineHighlightBackground': '#12202380',
+          'editor.selectionBackground': '#40FB5044',
+          'editor.inactiveSelectionBackground': '#40FB5022',
+          'editorCursor.foreground': '#40FB50',
+          'editorLineNumber.foreground': '#556062',
+          'editorLineNumber.activeForeground': '#B3B3B3',
+          'editorIndentGuide.background': '#162A2D',
+          'editorIndentGuide.activeBackground': '#414D4F',
+          'editorWidget.background': '#122023',
+          'editorWidget.border': '#414D4F',
+          'scrollbarSlider.background': '#40FB5033',
+          'scrollbarSlider.hoverBackground': '#40FB5055',
+          'scrollbarSlider.activeBackground': '#40FB5077',
         },
       })
 
       registered.current = true
     }
 
-    monaco.editor.setTheme('canton')
+    monaco.editor.setTheme('send')
     const model = editor.getModel()
     if (model) monaco.editor.setModelLanguage(model, 'daml')
   }
@@ -72,7 +72,7 @@ export function DamlEditor({ value, onChange }: DamlEditorProps): React.JSX.Elem
         scrollBeyondLastLine: false,
         tabSize: 2,
         automaticLayout: true,
-        fontFamily: 'SF Mono, Cascadia Code, Fira Code, monospace',
+        fontFamily: 'DM Mono, SF Mono, Cascadia Code, monospace',
       }}
     />
   )
