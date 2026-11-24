@@ -56,6 +56,7 @@ These instructions apply to this repository unless the user explicitly overrides
 - If external DPM docs are needed for reference, read from `external/dpm/`.
 - If external Canton docs are needed for reference, read from `external/canton/`.
 - If Splice source code is needed for reference, read from `external/splice/`.
+- If Canton Improvement Proposals (CIPs) are needed for reference, read from `external/cips/`. Each proposal is at `cip-NNNN/cip-NNNN.md`, and `README.md` lists every proposal with its status.
 
 ## Splice submodule (`external/splice/`)
 
