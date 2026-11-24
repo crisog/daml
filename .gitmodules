@@ -7,6 +7,9 @@
 [submodule "external/canton"]
 	path = external/canton
 	url = https://github.com/digital-asset/canton.git
-[submodule "external/decentralized-canton-sync"]
-	path = external/decentralized-canton-sync
-	url = https://github.com/digital-asset/decentralized-canton-sync.git
+[submodule "external/cips"]
+	path = external/cips
+	url = https://github.com/canton-foundation/cips.git
+[submodule "external/splice"]
+	path = external/splice
+	url = https://github.com/canton-network/splice.git
