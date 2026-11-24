@@ -55,17 +55,16 @@ These instructions apply to this repository unless the user explicitly overrides
 - If external Canton/SDK docs are needed for reference, read from `external/daml/sdk/docs/`.
 - If external DPM docs are needed for reference, read from `external/dpm/`.
 - If external Canton docs are needed for reference, read from `external/canton/`.
-- If Splice (decentralized Canton sync) source code is needed for reference, read from `external/decentralized-canton-sync/`.
+- If Splice source code is needed for reference, read from `external/splice/`.
 
-## Splice submodule (`external/decentralized-canton-sync/`)
+## Splice submodule (`external/splice/`)
 
-- This submodule points to the `decentralized-canton-sync` repository. Its `main` branch is a placeholder with only a README.
-- The actual source code lives on release-line branches. There are two naming schemes:
-  - `release-line-*` (e.g., `release-line-0.5.16`): Splice application version.
-  - `canton-*` (e.g., `canton-3.3`): Canton protocol version the code is based on.
-- Before reading from this submodule, ensure it is checked out on the most recent release branch:
+- This submodule is a shallow clone of the `main` branch of `canton-network/splice`, the Splice development repository. `main` can include changes that are not released yet.
+- Released code lives on `release-line-*` branches (e.g., `release-line-0.10.3`). The clone does not contain them. When a doc must match a release, fetch the release branch and check it out:
   ```bash
-  cd external/decentralized-canton-sync && git fetch origin && git branch -r | sort -V
+  cd external/splice
+  git ls-remote --heads origin 'release-line-*' | awk '{print $2}' | sort -V | tail -1
+  git fetch --depth 1 origin release-line-0.10.3 && git checkout FETCH_HEAD
   ```
-  Then checkout the latest branch. Prefer `canton-*` branches when looking at Canton protocol concepts (topology, namespaces, identity). Prefer `release-line-*` branches when looking at Splice application code.
+  The first command prints the latest release branch.
 - The repo contains both Canton core code (`canton/`) and the Splice application layer (`apps/`), which demonstrates real-world usage of Canton topology features like decentralized namespaces and namespace delegation.
