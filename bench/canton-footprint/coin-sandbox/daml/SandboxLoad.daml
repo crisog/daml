@@ -1,0 +1,78 @@
+-- Adds Canton Coin holdings to wallets on two participants of a Canton sandbox,
+-- so that a test can measure the sandbox with a larger set of active contracts.
+-- A wallet here is a party that owns holdings. The DSO party is on the first
+-- participant, so that participant stores every holding, and the second
+-- participant stores the holdings of its own wallets.
+module SandboxLoad where
+
+import DA.Action (unless)
+import DA.Foldable (forA_)
+import DA.List (chunksOf, sortOn)
+import Daml.Script
+
+import Splice.Amulet (Amulet)
+import Splice.AmuletRules (AmuletRules, AmuletRules_DevNet_Tap(..))
+import Splice.Round (OpenMiningRound(..))
+import Splice.Testing.Utils
+
+import SandboxRegistry (createRegistry)
+
+-- | The faucet calls of one transaction.
+tapsPerTransaction : Int
+tapsPerTransaction = 100
+
+faucetAmount : Decimal
+faucetAmount = 1.0
+
+data RegistryInput = RegistryInput with
+    dso : Party
+
+createRegistryOnly : RegistryInput -> Script ()
+createRegistryOnly RegistryInput{..} = do
+  _ <- createRegistry dso
+  pure ()
+
+-- | The caller allocates the parties. Each list has the wallets of one
+-- participant, because one transaction acts as wallets of one participant.
+data LoadInput = LoadInput with
+    dso : Party
+    walletsOne : [Party]
+    walletsTwo : [Party]
+    holdings : Int
+      -- ^ Holdings to add to each wallet.
+    expected : Int
+      -- ^ Holdings of each wallet after this step.
+
+addHoldings : LoadInput -> Script ()
+addHoldings LoadInput{..} = do
+  [(rulesCid, _)] <- query @AmuletRules dso
+  now <- getTime
+  openRounds <- queryFilter @OpenMiningRound dso (\round -> now >= round.opensAt)
+  (roundCid, _) :: _ <- pure (sortOn (\(_, round) -> negate round.round.number) openRounds)
+  rulesDisclosure <- queryDisclosure' @AmuletRules dso rulesCid
+  roundDisclosure <- queryDisclosure' @OpenMiningRound dso roundCid
+  let disclosures = rulesDisclosure <> roundDisclosure
+      tap wallet = exerciseCmd rulesCid AmuletRules_DevNet_Tap with
+        receiver = wallet
+        amount = faucetAmount
+        openRound = roundCid
+      -- One transaction holds at most tapsPerTransaction faucet calls: many
+      -- calls for one wallet, or one call for each of many wallets.
+      walletsPerTransaction = max 1 (tapsPerTransaction / holdings)
+      tapsPerWallet = chunkSizes holdings (tapsPerTransaction / walletsPerTransaction)
+  forA_ [walletsOne, walletsTwo] \wallets ->
+    forA_ (chunksOf walletsPerTransaction wallets) \walletChunk ->
+      forA_ tapsPerWallet \taps ->
+        submit (actAs walletChunk <> discloseMany' disclosures) $
+          forA_ walletChunk \wallet -> forA_ [1 .. taps] \_ -> tap wallet
+  forA_ (take 1 walletsOne <> take 1 walletsTwo) \wallet -> do
+    owned <- query @Amulet wallet
+    unless (length owned == expected) $
+      fail ("wallet " <> show wallet <> " has " <> show (length owned) <> " holdings, expected " <> show expected)
+  debug ("wallets " <> show (length walletsOne + length walletsTwo) <> ", holdings of each " <> show expected)
+
+-- | Splits a total into sizes of at most the given maximum.
+chunkSizes : Int -> Int -> [Int]
+chunkSizes total maximum
+  | total <= 0 = []
+  | otherwise = min total maximum :: chunkSizes (total - maximum) maximum

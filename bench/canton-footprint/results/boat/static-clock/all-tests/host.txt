@@ -1,0 +1,2 @@
+4
+ AMD EPYC 9355P 32-Core Processor

@@ -1,0 +1,4 @@
+4
+ AMD EPYC 9355P 32-Core Processor
+Mem:            7940         869        6333           0        1045        7071
+Swap:           2047         131        1916

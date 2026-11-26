@@ -1,0 +1,4 @@
+4
+ AMD EPYC 9455 48-Core Processor
+Mem:            7940         899        3558           0        3789        7040
+openjdk version "11.0.31" 2026-04-21

@@ -1,0 +1,6 @@
+small-r1	lowest_available_mib=1569	most_swap_mib=67
+shipped-r1	lowest_available_mib=900	most_swap_mib=1024
+small-r2	lowest_available_mib=1656	most_swap_mib=139
+shipped-r2	lowest_available_mib=571	most_swap_mib=1507
+small-r3	lowest_available_mib=1743	most_swap_mib=162
+shipped-r3	lowest_available_mib=748	most_swap_mib=1824

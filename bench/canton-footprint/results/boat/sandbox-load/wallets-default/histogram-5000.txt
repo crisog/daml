@@ -1,0 +1,45 @@
+1:
+ num     #instances         #bytes  class name (module)
+-------------------------------------------------------
+   1:       2275378      294989112  [B (java.base@21.0.13.1)
+   2:       1682443       40378632  java.lang.String (java.base@21.0.13.1)
+   3:       1117457       39534312  [Ljava.lang.Object; (java.base@21.0.13.1)
+   4:        488826       20401336  [I (java.base@21.0.13.1)
+   5:        835422       20050128  scala.Tuple2
+   6:        490905       18277816  [Lorg.h2.value.Value;
+   7:        396692       15867680  scala.collection.immutable.BitmapIndexedSetNode
+   8:        614934       14758416  java.lang.Long (java.base@21.0.13.1)
+   9:        348440       13937600  org.h2.result.Sparse
+  10:        342783       13711320  org.h2.value.ValueBlob
+  11:        793325       12693200  scala.collection.immutable.ArraySeq$ofRef
+  12:        462688       11104512  com.digitalasset.daml.lf.data.ImmArray
+  13:        342783       10969056  org.h2.value.lob.LobDataDatabase
+  14:         41625       10865872  [Ljdk.internal.vm.FillerElement; (java.base@21.0.13.1)
+  15:        440849       10580376  org.h2.mvstore.db.LobStorageMap$BlobReference
+  16:        631539       10104624  scala.Some
+  17:        210282        8411280  org.h2.mvstore.db.LobStorageMap$BlobMeta
+  18:        338901        8133624  com.google.protobuf.ByteString$LiteralByteString
+  19:        163650        7855200  scala.reflect.io.FileZipArchive$LeakyEntry
+  20:        236903        7580896  java.util.concurrent.ConcurrentHashMap$Node (java.base@21.0.13.1)
+  21:         65691        7564816  java.lang.Class (java.base@21.0.13.1)
+  22:        306415        7353960  com.digitalasset.daml.lf.data.Ref$FullReference
+  23:        306319        7351656  com.digitalasset.daml.lf.data.Ref$QualifiedName
+  24:        219388        7020416  scala.Tuple2$mcII$sp
+  25:        227626        5463024  com.digitalasset.daml.lf.language.Ast$TApp
+  26:        169900        5436800  scala.collection.mutable.HashMap$Node
+  27:        208501        5004024  scala.collection.immutable.$colon$colon
+  28:        205952        4942848  com.digitalasset.daml.lf.language.Ast$GenDValue
+  29:        180924        4342176  com.digitalasset.daml.lf.language.Ast$EApp
+  30:        130774        4184768  org.h2.result.SimpleRowValue
+  31:        127033        4065056  org.h2.result.DefaultRow
+  32:        143032        3625680  [Lcom.digitalasset.daml.lf.speedy.SExpr$SExprAtomic;
+  33:        111068        3554176  com.digitalasset.daml.lf.value.GenValue$Record
+  34:         73905        3547440  java.lang.invoke.MemberName (java.base@21.0.13.1)
+  35:        109684        3509888  com.digitalasset.daml.lf.data.Ref$Location
+  36:         31266        3501792  io.opentelemetry.sdk.trace.SdkSpan
+  37:        140260        3366240  com.digitalasset.canton.config.CantonRequireTypes$String68
+  38:         81464        3258560  scala.collection.mutable.RedBlackTree$Node
+  39:        132501        3180024  java.util.LinkedList$Node (java.base@21.0.13.1)
+  40:        132501        3180024  org.h2.engine.SessionLocal$TimeoutValue
+  41:        131796        3163104  com.digitalasset.daml.lf.speedy.SExpr$LfDefRef
+  42:        131207        3148968  com.digitalasset.daml.lf.speedy.SExpr$SELet1General

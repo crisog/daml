@@ -1,0 +1,3 @@
+cache-sandbox-r1	sandbox	1	4	8g	default	16848	2048	UseG1GC	1369	1387	1463	1482	1493	181	98	5329	ok	0.00
+cache-sandbox-r2	sandbox	1	4	8g	default	13489	2048	UseG1GC	1268	1284	1373	1375	1388	174	100	5245	ok	0.83
+cache-sandbox-r3	sandbox	1	4	8g	default	13603	2048	UseG1GC	1293	1309	1490	1491	1504	173	102	5330	ok	1.33

@@ -1,0 +1,47 @@
+all-capped-r1	capped	sv app-provider app-user	ans-web-ui-app-provider	24	26	256	running	1.94
+all-capped-r1	capped	sv app-provider app-user	ans-web-ui-app-user	24	27	256	running	1.94
+all-capped-r1	capped	sv app-provider app-user	canton	2641	3551	4096	running	1.94
+all-capped-r1	capped	sv app-provider app-user	nginx	3	6	32	running	1.94
+all-capped-r1	capped	sv app-provider app-user	postgres	1751	1759	2048	running	1.94
+all-capped-r1	capped	sv app-provider app-user	scan-web-ui	23	26	256	running	1.94
+all-capped-r1	capped	sv app-provider app-user	splice	1686	2377	3072	running	1.94
+all-capped-r1	capped	sv app-provider app-user	sv-web-ui	24	27	512	running	1.94
+all-capped-r1	capped	sv app-provider app-user	wallet-web-ui-app-provider	23	26	256	running	1.94
+all-capped-r1	capped	sv app-provider app-user	wallet-web-ui-app-user	23	26	256	running	1.94
+all-capped-r1	capped	sv app-provider app-user	wallet-web-ui-sv	24	26	256	running	1.94
+all-capped-r1	capped	sv app-provider app-user	TOTAL	6246	7877	NA	healthy_ms=161858	1.94
+all-capped-r1	capped	sv app-provider app-user	RESTART	NA	NA	NA	restart_ms=102929,healthy,ledger=kept	1.94
+all-capped-r2	capped	sv app-provider app-user	ans-web-ui-app-provider	23	26	256	running	2.48
+all-capped-r2	capped	sv app-provider app-user	ans-web-ui-app-user	24	28	256	running	2.48
+all-capped-r2	capped	sv app-provider app-user	canton	2604	3547	4096	running	2.48
+all-capped-r2	capped	sv app-provider app-user	nginx	3	6	32	running	2.48
+all-capped-r2	capped	sv app-provider app-user	postgres	1761	1765	2048	running	2.48
+all-capped-r2	capped	sv app-provider app-user	scan-web-ui	23	26	256	running	2.48
+all-capped-r2	capped	sv app-provider app-user	splice	1584	2119	3072	running	2.48
+all-capped-r2	capped	sv app-provider app-user	sv-web-ui	24	27	512	running	2.48
+all-capped-r2	capped	sv app-provider app-user	wallet-web-ui-app-provider	23	26	256	running	2.48
+all-capped-r2	capped	sv app-provider app-user	wallet-web-ui-app-user	24	27	256	running	2.48
+all-capped-r2	capped	sv app-provider app-user	wallet-web-ui-sv	24	26	256	running	2.48
+all-capped-r2	capped	sv app-provider app-user	TOTAL	6117	7623	NA	healthy_ms=188005	2.48
+sv-capped-r1	capped	sv	canton	1744	2699	4096	running	1.47
+sv-capped-r1	capped	sv	nginx	2	5	32	running	1.47
+sv-capped-r1	capped	sv	postgres	946	950	2048	running	1.47
+sv-capped-r1	capped	sv	scan-web-ui	23	26	256	running	1.47
+sv-capped-r1	capped	sv	splice	1534	1991	3072	running	1.47
+sv-capped-r1	capped	sv	sv-web-ui	24	26	512	running	1.47
+sv-capped-r1	capped	sv	wallet-web-ui-sv	24	27	256	running	1.47
+sv-capped-r1	capped	sv	TOTAL	4297	5724	NA	healthy_ms=145795	1.47
+sv-capped-r1	capped	sv	RESTART	NA	NA	NA	restart_ms=88391,healthy,ledger=kept	1.47
+all-uncapped-r1	uncapped	sv app-provider app-user	ans-web-ui-app-provider	23	26	0	running	8.18
+all-uncapped-r1	uncapped	sv app-provider app-user	ans-web-ui-app-user	24	26	0	running	8.18
+all-uncapped-r1	uncapped	sv app-provider app-user	canton	11644	11653	0	running	8.18
+all-uncapped-r1	uncapped	sv app-provider app-user	nginx	3	6	0	running	8.18
+all-uncapped-r1	uncapped	sv app-provider app-user	postgres	1762	1765	0	running	8.18
+all-uncapped-r1	uncapped	sv app-provider app-user	scan-web-ui	24	26	0	running	8.18
+all-uncapped-r1	uncapped	sv app-provider app-user	splice	1705	5884	0	running	8.18
+all-uncapped-r1	uncapped	sv app-provider app-user	sv-web-ui	24	27	0	running	8.18
+all-uncapped-r1	uncapped	sv app-provider app-user	wallet-web-ui-app-provider	24	27	0	running	8.18
+all-uncapped-r1	uncapped	sv app-provider app-user	wallet-web-ui-app-user	24	27	0	running	8.18
+all-uncapped-r1	uncapped	sv app-provider app-user	wallet-web-ui-sv	24	27	0	running	8.18
+all-uncapped-r1	uncapped	sv app-provider app-user	TOTAL	15281	19494	NA	healthy_ms=186471	8.18
+all-uncapped-r1	uncapped	sv app-provider app-user	RESTART	NA	NA	NA	restart_ms=109264,healthy,ledger=kept	8.18

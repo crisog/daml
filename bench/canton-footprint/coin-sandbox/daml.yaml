@@ -1,0 +1,24 @@
+# Canton Coin on a Canton sandbox, with no Splice app. Run prepare.sh first: it
+# copies Splice's Daml Script test code and the released DAR files into this
+# directory. Build with `dpm build`. `dpm test` runs Splice's own transfer
+# tests with no network, and ../sandbox-coin.sh runs SandboxTransfer.daml
+# against a sandbox with two participants.
+sdk-version: 3.5.2
+name: canton-coin-on-sandbox
+version: 0.0.1
+source: daml
+dependencies:
+  - daml-prim
+  - daml-stdlib
+  - daml-script
+data-dependencies:
+  - dars/splice-api-token-metadata-v1-1.0.0.dar
+  - dars/splice-api-token-holding-v1-1.0.0.dar
+  - dars/splice-api-token-transfer-instruction-v1-1.0.0.dar
+  - dars/splice-api-token-allocation-v1-1.0.0.dar
+  - dars/splice-api-token-allocation-request-v1-1.0.0.dar
+  - dars/splice-api-token-allocation-instruction-v1-1.0.0.dar
+  - dars/splice-util-0.1.9.dar
+  - dars/splice-amulet-0.1.25.dar
+build-options:
+  - --target=2.3

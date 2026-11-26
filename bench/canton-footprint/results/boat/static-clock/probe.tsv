@@ -1,0 +1,3 @@
+static-clock	ran	exit=1	30015
+real-clock	ran	exit=1	8274
+static-clock-r2	ran	exit=1	22478

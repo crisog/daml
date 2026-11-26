@@ -1,0 +1,9 @@
+[DA.Internal.Prelude:557]: \"registry created\"
+[DA.Internal.Prelude:557]: \"sender funded\"
+[DA.Internal.Prelude:557]: \"transfer 1 accepted\"
+[DA.Internal.Prelude:557]: \"transfer 2 accepted\"
+[DA.Internal.Prelude:557]: \"transfer 3 accepted\"
+[DA.Internal.Prelude:557]: \"transfer 4 accepted\"
+[DA.Internal.Prelude:557]: \"transfer 5 accepted\"
+[DA.Internal.Prelude:557]: \"balances: sender 95.0, receiver 5.0\"
+[INFO] [11/25/2026 20:42:19.127] [RunnerMain-pekko.actor.default-dispatcher-6] [CoordinatedShutdown(pekko://RunnerMain)] Running CoordinatedShutdown with reason [ActorSystemTerminateReason]

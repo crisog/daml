@@ -1,0 +1,19 @@
+time="2026-11-25T18:48:51Z" level=warning msg="The \"ALPHA_PROTOCOL_VERSION_ENV\" variable is not set. Defaulting to a blank string."
+time="2026-11-25T18:48:51Z" level=warning msg="The \"ALPHA_PROTOCOL_VERSION_ENV\" variable is not set. Defaulting to a blank string."
+ Container ans-web-ui-app-provider Starting 
+ Container postgres Waiting 
+ Container scan-web-ui Starting 
+ Container sv-web-ui Starting 
+ Container ans-web-ui-app-user Starting 
+ Container wallet-web-ui-app-provider Starting 
+ Container wallet-web-ui-sv Starting 
+ Container wallet-web-ui-app-user Starting 
+ Container postgres Error dependency postgres failed to start
+ Container ans-web-ui-app-user Started 
+ Container scan-web-ui Started 
+ Container ans-web-ui-app-provider Started 
+ Container wallet-web-ui-app-provider Started 
+ Container sv-web-ui Started 
+ Container wallet-web-ui-app-user Started 
+ Container wallet-web-ui-sv Started 
+dependency failed to start: container postgres exited (137)

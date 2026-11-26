@@ -1,0 +1,33 @@
+containers on the fork: name, created, started (UTC)
+nginx 2026-11-26T00:20:39Z 2026-11-26T00:20:41Z
+splice 2026-11-26T00:20:33Z 2026-11-26T00:20:34Z
+canton 2026-11-26T00:20:30Z 2026-11-26T00:20:32Z
+postgres 2026-11-26T00:20:26Z 2026-11-26T00:20:29Z
+ans-web-ui-app-user 2026-11-26T00:19:58Z 2026-11-26T00:20:05Z
+ans-web-ui-app-provider 2026-11-26T00:19:58Z 2026-11-26T00:20:05Z
+scan-web-ui 2026-11-26T00:19:25Z 2026-11-26T00:19:38Z
+wallet-web-ui-app-provider 2026-11-26T00:19:25Z 2026-11-26T00:19:38Z
+sv-web-ui 2026-11-26T00:19:25Z 2026-11-26T00:19:38Z
+wallet-web-ui-app-user 2026-11-26T00:19:25Z 2026-11-26T00:19:38Z
+wallet-web-ui-sv 2026-11-26T00:19:25Z 2026-11-26T00:19:38Z
+
+splice health probes (last five)
+2026-11-26 00:22:13 UTC exit=0
+2026-11-26 00:22:33 UTC exit=0
+2026-11-26 00:22:53 UTC exit=0
+2026-11-26 00:23:14 UTC exit=0
+2026-11-26 00:23:34 UTC exit=0
+
+
+postgres log, first lines
+docker-ensure-initdb.sh: note: database already initialized in '/var/lib/postgresql/18/docker'!
+pg_ctl: another server might be running; trying to start server anyway
+waiting for server to start....2026-11-26 00:20:30.910 UTC [19] LOG:  starting PostgreSQL 18.7 (Debian 18.7-1.pgdg13+2) on x86_64-pc-linux-gnu, compiled by gcc 
+....2026-11-26 00:20:34.659 UTC [25] LOG:  database system was not properly shut down; automatic recovery in progress
+2026-11-26 00:20:34.742 UTC [25] LOG:  redo done at 0/EB2F538 system usage: CPU: user: 0.00 s, system: 0.02 s, elapsed: 0.06 s
+2026-11-26 00:20:35.322 UTC [23] LOG:  checkpoint starting: end-of-recovery immediate wait
+2026-11-26 00:20:36.879 UTC [19] LOG:  database system is ready to accept connections
+2026-11-26 00:20:39.415 UTC [1] LOG:  database system is ready to accept connections
+
+4
+ AMD Ryzen 7 9700X 8-Core Processor

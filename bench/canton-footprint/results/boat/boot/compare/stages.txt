@@ -1,0 +1,57 @@
+run	postgres	canton	start apps, set identities	decode packages	create synchronizer	upload packages	create network rules	onboard validators	wait for probe	sum
+cold-r1	11	16	58	45	24	17	11	30	20	232
+median	11	16	58	45	24	17	11	30	20	232
+run	postgres	canton	start apps, set identities	decode packages	create synchronizer	upload packages	create network rules	onboard validators	wait for probe	sum
+prepared-r1	6	17	10	37	0	0	2	0	17	89
+median	6	17	10	37	0	0	2	0	17	89
+run	postgres	canton	start apps, set identities	decode packages	create synchronizer	upload packages	create network rules	onboard validators	wait for probe	sum
+parallel-r1	6	1	27	39	1	0	2	4	4	85
+median	6	1	27	39	1	0	2	4	4	85
+run	postgres	canton	start apps, set identities	decode packages	create synchronizer	upload packages	create network rules	onboard validators	wait for probe	sum
+cold-r2	11	16	51	33	23	19	14	37	11	214
+median	11	16	51	33	23	19	14	37	11	214
+run	postgres	canton	start apps, set identities	decode packages	create synchronizer	upload packages	create network rules	onboard validators	wait for probe	sum
+prepared-r2	6	21	19	38	1	0	4	-1	15	104
+median	6	21	19	38	1	0	4	-1	15	104
+run	postgres	canton	start apps, set identities	decode packages	create synchronizer	upload packages	create network rules	onboard validators	wait for probe	sum
+parallel-r2	6	0	26	40	1	0	3	4	4	84
+median	6	0	26	40	1	0	3	4	4	84
+run	postgres	canton	start apps, set identities	decode packages	create synchronizer	upload packages	create network rules	onboard validators	wait for probe	sum
+cold-r3	16	21	51	34	22	14	9	26	10	204
+median	16	21	51	34	22	14	9	26	10	204
+run	postgres	canton	start apps, set identities	decode packages	create synchronizer	upload packages	create network rules	onboard validators	wait for probe	sum
+prepared-r3	6	16	10	33	1	0	3	-0	16	85
+median	6	16	10	33	1	0	3	-0	16	85
+run	postgres	canton	start apps, set identities	decode packages	create synchronizer	upload packages	create network rules	onboard validators	wait for probe	sum
+parallel-r3	6	1	22	32	0	0	3	-1	2	65
+median	6	1	22	32	0	0	3	-1	2	65
+run	postgres	canton	start apps, set identities	decode packages	create synchronizer	upload packages	create network rules	onboard validators	wait for probe	sum
+cold-io	6	16	47	34	21	12	8	30	9	184
+median	6	16	47	34	21	12	8	30	9	184
+run	postgres	canton	start apps, set identities	decode packages	create synchronizer	upload packages	create network rules	onboard validators	wait for probe	sum
+usable-r1	5	17	14	36	0	0	2	0	17	92
+median	5	17	14	36	0	0	2	0	17	92
+run	postgres	canton	start apps, set identities	decode packages	create synchronizer	upload packages	create network rules	onboard validators	wait for probe	sum
+usable-r2	6	12	13	41	1	0	2	2	17	93
+median	6	12	13	41	1	0	2	2	17	93
+run	postgres	canton	start apps, set identities	decode packages	create synchronizer	upload packages	create network rules	onboard validators	wait for probe	sum
+usable-r3	6	16	10	40	1	0	3	-1	17	92
+median	6	16	10	40	1	0	3	-1	17	92
+run	postgres	canton	start apps, set identities	decode packages	create synchronizer	upload packages	create network rules	onboard validators	wait for probe	sum
+cold-topup-r1	16	21	48	39	22	14	10	24	10	205
+median	16	21	48	39	22	14	10	24	10	205
+run	postgres	canton	start apps, set identities	decode packages	create synchronizer	upload packages	create network rules	onboard validators	wait for probe	sum
+cold-topup-r2	11	16	26	35	18	14	9	28	13	169
+median	11	16	26	35	18	14	9	28	13	169
+run	postgres	canton	start apps, set identities	decode packages	create synchronizer	upload packages	create network rules	onboard validators	wait for probe	sum
+cold-nofsync-r1	11	11	21	36	23	14	9	23	13	159
+median	11	11	21	36	23	14	9	23	13	159
+run	postgres	canton	start apps, set identities	decode packages	create synchronizer	upload packages	create network rules	onboard validators	wait for probe	sum
+cold-nofsync-r2	11	16	22	37	20	13	8	23	17	167
+median	11	16	22	37	20	13	8	23	17	167
+run	postgres	canton	start apps, set identities	decode packages	create synchronizer	upload packages	create network rules	onboard validators	wait for probe	sum
+aged-3d	6	16	13	39	1	0	2	3	15	95
+median	6	16	13	39	1	0	2	3	15	95
+run	postgres	canton	start apps, set identities	decode packages	create synchronizer	upload packages	create network rules	onboard validators	wait for probe	sum
+aged-30d	6	16	11	34	1	0	4	1	13	86
+median	6	16	11	34	1	0	4	1	13	86

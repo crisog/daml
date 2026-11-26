@@ -1,0 +1,4 @@
+4
+ AMD EPYC 9455 48-Core Processor
+Mem:            7940         863        3566           0        3817        7076
+Swap:           2047         170        1877

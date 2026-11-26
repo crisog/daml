@@ -1,0 +1,8 @@
+contracts-1g-r2	1g	contracts	0	0	0	33851	17723	295	2215	2221	0	ok
+contracts-1g-r2	1g	contracts	5000	10	5000	1230	116730	630	2602	2603	0	ok
+contracts-1g-r2	1g	contracts	10000	10	10000	1	101006	889	2599	2630	0	ok
+contracts-1g-r2	1g	contracts	20000	10	20000	1	192280	NA	NA	NA	NA	load-failed,probe-failed:exit=139,oom=false,running=false
+wallets-512m-r2	512m	wallets	0	0	0	31547	17589	295	1543	1544	0	ok
+wallets-512m-r2	512m	wallets	500	500	500	60565	25910	421	1692	1693	0	ok
+wallets-512m-r2	512m	wallets	1000	1000	1000	61636	26735	480	1771	1772	0	ok
+wallets-512m-r2	512m	wallets	2000	2000	2000	871036	NA	NA	NA	NA	NA	load-failed,probe-failed:exit=139,oom=false,running=false

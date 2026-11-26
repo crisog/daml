@@ -1,0 +1,93 @@
+-- Moves Canton Coin between two parties on two participants of a Canton
+-- sandbox. It uses the test code of Splice for the registry and the token
+-- standard calls, and no Splice app runs.
+module SandboxTransfer where
+
+import DA.Action (unless)
+import DA.Foldable (forA_)
+import DA.Optional (isNone, isSome)
+import DA.Time
+import Daml.Script
+
+import Splice.Api.Token.MetadataV1
+import Splice.Api.Token.TransferInstructionV1
+import Splice.Testing.Registries.AmuletRegistry (tapFaucet)
+import Splice.Testing.TokenStandard.RegistryApi qualified as RegistryApi
+import Splice.Testing.TokenStandard.WalletClient qualified as WalletClient
+import Splice.Testing.Utils
+
+import SandboxRegistry (createRegistry)
+
+-- | The caller allocates the parties. The DSO party and the sender are on one
+-- participant, and the receiver is on a second participant.
+data Input = Input with
+    dso : Party
+    alice : Party
+    bob : Party
+    transfers : Int
+
+faucetAmount : Decimal
+faucetAmount = 100.0
+
+transferAmount : Decimal
+transferAmount = 1.0
+
+transferAcrossParticipants : Input -> Script ()
+transferAcrossParticipants Input{..} = do
+  registry <- createRegistry dso
+  debug "registry created"
+
+  _ <- tapFaucet registry alice faucetAmount
+  WalletClient.checkBalance alice registry.instrumentId faucetAmount
+  debug "sender funded"
+
+  forA_ [1 .. transfers] \index -> do
+    now <- getTime
+    holdings <- filter (\(_, holding) -> isNone holding.lock) <$> WalletClient.listHoldings alice registry.instrumentId
+    enriched <- RegistryApi.getTransferFactory registry TransferFactory_Transfer with
+      expectedAdmin = dso
+      transfer = Transfer with
+        sender = alice
+        receiver = bob
+        amount = transferAmount
+        instrumentId = registry.instrumentId
+        requestedAt = now `addRelTime` seconds (-5)
+        executeBefore = now `addRelTime` hours 1
+        inputHoldingCids = map fst holdings
+        meta = emptyMetadata
+      extraArgs = emptyExtraArgs
+    created <- submitWithDisclosures' alice enriched.disclosures $
+      exerciseCmd enriched.factoryCid enriched.arg
+    TransferInstructionResult_Pending instructionCid <- pure created.output
+
+    waitFor "the receiver sees the transfer on its participant" do
+      offers <- WalletClient.listTransferOffers bob registry.instrumentId
+      pure (instructionCid `elem` map fst offers)
+    context <- RegistryApi.getTransferInstruction_AcceptContext registry instructionCid emptyMetadata
+    accepted <- submitWithDisclosures' bob context.disclosures $
+      exerciseCmd instructionCid TransferInstruction_Accept with
+        extraArgs = ExtraArgs with
+          context = context.choiceContext
+          meta = emptyMetadata
+    TransferInstructionResult_Completed _ <- pure accepted.output
+    debug ("transfer " <> show index <> " accepted")
+
+  let sent = intToDecimal transfers * transferAmount
+  WalletClient.checkBalance bob registry.instrumentId sent
+  waitFor "the sender's participant sees the last accept" do
+    holdings <- WalletClient.listHoldings alice registry.instrumentId
+    pure (not (any (\(_, holding) -> isSome holding.lock) holdings))
+  WalletClient.checkBalance alice registry.instrumentId (faucetAmount - sent)
+  debug ("balances: sender " <> show (faucetAmount - sent) <> ", receiver " <> show sent)
+
+-- | Checks every half second, for 30 seconds at most.
+waitFor : Text -> Script Bool -> Script ()
+waitFor = waitForAttempts 60
+
+waitForAttempts : Int -> Text -> Script Bool -> Script ()
+waitForAttempts remaining what check = do
+  done <- check
+  unless done do
+    unless (remaining > 0) $ fail ("timed out: " <> what)
+    sleep (milliseconds 500)
+    waitForAttempts (remaining - 1) what check

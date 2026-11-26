@@ -1,0 +1,5 @@
+label	topology	participants	cpus	memory	heap	ready_ms	heap_max_mib	collector	idle_cgroup_mib	idle_rss_mib	post_cgroup_mib	peak_cgroup_mib	peak_rss_mib	live_heap_mib	threads	workload_ms	workload	host_load
+sandbox-c2-m1280m-h384m-r1	sandbox	1	2	1280m	384m	19739	384	UseSerialGC	1119	1139	1202	1203	1220	178	86	5853	ok	3.35
+sandbox-c2-m1280m-h384m-r2	sandbox	1	2	1280m	384m	20923	384	UseSerialGC	1116	1136	1206	1208	1224	178	86	5880	ok	4.58
+multi-sync-c2-m1280m-h384m-r1	multi-sync	3	2	1280m	384m	30670	384	UseSerialGC	1185	1200	1279	1280	1295	229	195	11144	ok	4.08
+multi-sync-c2-m1280m-h384m-r2	multi-sync	3	2	1280m	384m	29913	384	UseSerialGC	1180	1195	1265	1267	1279	230	193	10909	ok	4.96

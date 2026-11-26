@@ -1,0 +1,5 @@
+run	postgres	canton	start apps, set identities	decode packages	create synchronizer	upload packages	create network rules	onboard validators	wait for probe	sum
+full-small-r1	15	21	28	37	19	11	9	29	13	181
+full-small-r2	11	16	50	40	25	14	8	24	10	197
+full-small-r3	11	21	53	39	24	14	9	30	5	206
+median	11	21	50	39	24	14	9	29	10	205

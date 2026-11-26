@@ -1,0 +1,1 @@
+Splice.Tests.TestAmuletTokenTransfer:test_factory_PublicFetch SUCCESS

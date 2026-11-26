@@ -1,0 +1,30 @@
+two-participant-test.sh against `bin/canton sandbox --multi-sync`
+2026-11-25, Canton open-source 3.7.4 on eclipse-temurin:21-jdk, Docker --cpus 4 --memory 8g,
+JAVA_OPTS="-Xmx256m -XX:+UseG1GC". Two fresh sandboxes, one run of the script on each.
+
+Sandbox output (run 1, ready 24148 ms after container start):
+sandbox listening at ports: 6865(gRPC) and 6864(HTTP)
+sidebox listening at ports: 8865(gRPC) and 8864(HTTP)
+pebblebox listening at ports: 7865(gRPC) and 7864(HTTP)
+Canton sandbox is ready.
+
+Connected synchronizers per participant (run 1):
+6864: ["synchronizer-1","synchronizer-2"]
+7864: ["synchronizer-1","synchronizer-2"]
+8864: ["synchronizer-2"]
+
+Script output (run 2, exit code 0, container at 1236 MiB after the test):
+Alice: alice::1220b6a20d57866b04f36a0c466c7dd92096ec3aea0a36dec17d9ada85ba47447660
+Bob:   bob::1220e81c2c5a1087009e8660c848493f075cbeeecefb0d17b78828d49c725f367f4c
+Alice created a Ping on localhost:6864
+Bob sees it on localhost:7864: 001a163acd35affc86257186...
+Bob responded on localhost:7864
+Contracts Alice still sees on localhost:6864: 0
+
+Plain command, default JVM settings (2026-11-25, same image, --cpus 4 --memory 8g, quiet host):
+$ bin/canton sandbox --multi-sync
+sandbox listening at ports: 6865(gRPC) and 6864(HTTP)
+sidebox listening at ports: 8865(gRPC) and 8864(HTTP)
+pebblebox listening at ports: 7865(gRPC) and 7864(HTTP)
+Canton sandbox is ready.
+ready after 22821 ms

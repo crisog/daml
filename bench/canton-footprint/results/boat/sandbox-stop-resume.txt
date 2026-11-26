@@ -1,0 +1,45 @@
+Canton sandbox (three participants) on boat.dev, 2 vCPU / 4 GB, 2026-11-25. Script: warm-test.sh.
+
+== start
+container_started_at: 2026-11-25T14:29:23.09995229Z
+ready_at: 2026-11-25T14:30:03.006715797Z
+ready_ms: 39906
+time: 14:30:03.765Z
+container: started_at=2026-11-25T14:29:23.09995229Z running=true
+parties_named_warm-alice: 1
+machine_uptime_s: 3317.06
+cpu: AMD Ryzen 7 9700X 8-Core Processor
+ 
+
+== stop, resume after 120 s
+stop issued: 14:30:16Z
+stop took 397 ms
+resume issued: 14:32:17Z, 120 s after the stop returned
+resume took 1338 ms
+time: 14:32:18.995Z
+container: started_at=2026-11-25T14:29:23.09995229Z running=true
+parties_named_warm-alice: 1
+machine_uptime_s: 3452.29
+cpu: AMD Ryzen 7 9700X 8-Core Processor
+ 
+state read 1760 ms after the resume was issued
+
+[exited with code 0]
+== stop at 14:32:52Z, resume after 11 minutes
+resume issued: 14:43:51Z (stopped at 14:32:52Z)
+resume took 15699 ms
+first command ran at: 14:44:07.670Z, machine uptime 68.88 s
+container running at: 14:44:29.816Z
+container_started_at: 2026-11-25T14:44:29.087258333Z
+ready_at: 2026-11-25T14:45:00.347206511Z
+ready_ms: 31259
+time: 14:45:00.365Z
+container: started_at=2026-11-25T14:44:29.087258333Z running=true
+parties_named_warm-alice: 0
+machine_uptime_s: 121.81
+cpu: AMD Ryzen 9 9950X 16-Core Processor
+images: eclipse-temurin:21-jdk 752MB redroid/redroid:14.0.0-latest 2.98GB
+ 
+all checks done 69166 ms after the resume was issued
+
+[exited with code 0]

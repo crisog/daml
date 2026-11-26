@@ -1,0 +1,3 @@
+4
+ AMD Ryzen 9 9950X 16-Core Processor
+Mem:            7941         965        1985           1        5298        6976

@@ -1,0 +1,11 @@
+# A compose override for LocalNet: the two JVMs log at INFO, not at DEBUG.
+# The shipped entrypoints set DEBUG when these variables are not set.
+services:
+  canton:
+    environment:
+      LOG_LEVEL_STDOUT: INFO
+      LOG_LEVEL_CANTON: INFO
+  splice:
+    environment:
+      LOG_LEVEL_STDOUT: INFO
+      LOG_LEVEL_CANTON: INFO

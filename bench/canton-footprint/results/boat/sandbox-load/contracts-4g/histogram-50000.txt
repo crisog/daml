@@ -1,0 +1,45 @@
+1:
+ num     #instances         #bytes  class name (module)
+-------------------------------------------------------
+   1:       6687557      821901368  [B (java.base@21.0.13.1)
+   2:       3847041      147376480  [Lorg.h2.value.Value;
+   3:       5134827      123235848  java.lang.Long (java.base@21.0.13.1)
+   4:       2860598      114423920  org.h2.value.ValueBlob
+   5:       4644304      111463296  scala.Tuple2
+   6:       2780357      111214280  org.h2.result.Sparse
+   7:       4003888       96093312  org.h2.mvstore.db.LobStorageMap$BlobReference
+   8:       2860598       91539136  org.h2.value.lob.LobDataDatabase
+   9:       3756325       90151800  java.lang.String (java.base@21.0.13.1)
+  10:       2996635       86293896  [Ljava.lang.Object; (java.base@21.0.13.1)
+  11:       2001214       80048560  org.h2.mvstore.db.LobStorageMap$BlobMeta
+  12:       2771194       66508656  com.digitalasset.daml.lf.data.ImmArray
+  13:       1650074       52802368  com.digitalasset.daml.lf.value.GenValue$Record
+  14:       3101831       49629296  scala.collection.immutable.ArraySeq$ofRef
+  15:       1143290       36585280  org.h2.mvstore.db.LobStorageMap$LobRemovalInfo
+  16:       1318880       31653120  com.google.protobuf.ByteString$LiteralByteString
+  17:        903238       28903616  org.h2.result.DefaultRow
+  18:       1143752       27450048  java.util.concurrent.ConcurrentLinkedQueue$Node (java.base@21.0.13.1)
+  19:        105448       26786376  [Ljdk.internal.vm.FillerElement; (java.base@21.0.13.1)
+  20:        834047       26689504  scala.collection.immutable.RedBlackTree$Tree
+  21:        514569       24699312  org.h2.mvstore.Page$Leaf
+  22:        219538       24586176  [Ljava.lang.Long; (java.base@21.0.13.1)
+  23:        225002       23400208  com.digitalasset.canton.platform.store.interfaces.TransactionLogUpdate$ExercisedEvent
+  24:        525419       21016760  com.digitalasset.daml.lf.value.Value$ContractId$V1
+  25:        859384       20625216  java.util.LinkedList$Node (java.base@21.0.13.1)
+  26:        859384       20625216  org.h2.engine.SessionLocal$TimeoutValue
+  27:        178859       20012936  [Lorg.h2.value.VersionedValue;
+  28:        168746       19388064  [Lorg.h2.mvstore.db.LobStorageMap$BlobReference;
+  29:        603407       19309024  org.h2.result.SimpleRowValue
+  30:        534300       17097600  org.h2.mvstore.Page$PageReference
+  31:        146680       16447064  [Lorg.h2.result.SearchRow;
+  32:        501825       16058400  com.google.protobuf.ByteString$BoundedByteString
+  33:        600010       14400240  com.digitalasset.daml.lf.value.GenValue$Text
+  34:        835043       13360688  scala.Some
+  35:        536908       12885792  scala.collection.immutable.TreeSet
+  36:        525089       12602136  com.digitalasset.daml.lf.value.GenValue$Numeric
+  37:        525008       12600192  com.digitalasset.daml.lf.value.GenValue$Party
+  38:        302330       12093200  java.math.BigDecimal (java.base@21.0.13.1)
+  39:        468367       11240808  scala.collection.immutable.$colon$colon
+  40:        450032       10800768  com.digitalasset.daml.lf.value.GenValue$Optional
+  41:        450004       10800096  com.digitalasset.daml.lf.transaction.Versioned
+  42:        444415       10665960  com.digitalasset.daml.lf.data.Ref$FullReference

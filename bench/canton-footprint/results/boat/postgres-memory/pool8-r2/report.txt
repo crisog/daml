@@ -1,0 +1,26 @@
+== after-test, 01:50:55Z
+container memory, MiB
+  current        822
+  peak           825
+  anon           416    (private memory of the processes)
+  shmem          157    (shared memory, such as shared_buffers)
+  file           305    (file cache; includes shmem)
+  kernel         97    (page tables, kernel stacks, slab)
+  pagetables     46
+settings
+  maintenance_work_mem = 65536 kB
+  max_connections = 1000
+  shared_buffers = 16384 8kB
+  work_mem = 4096 kB
+connections
+  total          186
+  by state       idle:185 active:1 
+  by database    participant-app-user:35 participant-sv:35 participant-app-provider:35 sequencer:16 app-mediator:8 app-sequencer:8 mediator:8 scan:8 validator-sv:8 sv:8 validator-app-provider:8 validator-app-user:8 postgres:1 
+databases
+  count          13
+  size, MiB      255
+processes (from /proc/<pid>/smaps_rollup inside the container)
+  count          201
+  private, MiB   416   (sum of Pss_Anon)
+  shared, MiB    156   (sum of Pss_Shmem)
+  backends       150, 2.2 MiB of private memory each on average, 8.7 MiB the largest

@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="660" viewBox="0 0 1200 660" fill="none" font-family="'SF Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" role="img" aria-labelledby="figure-title figure-description">
+<title id="figure-title">A small container changes the collector, and the collector changes the heap</title>
+<desc id="figure-description">Three cases with one 256 MiB heap and 217 MiB of live data. Case 1: in a 2 GiB container the JVM picks the G1 collector. The old generation can grow to the whole heap, the live data fits, the heap guard of Canton passes, and the command of Alice is accepted. Case 2: in a 1.5 GiB container the JVM picks the Serial collector, which gives the old generation a fixed 171 MiB. The old generation is full after every collection, the guard trips, and the command is rejected with HTTP 409 HEAP_MEMORY_OVER_LIMIT. Case 3: the same 1.5 GiB container with -XX:+UseG1GC. The fixed split is gone and the command is accepted.</desc>
+<style>
+@keyframes k0{0%{opacity:1} 49.231%{opacity:1} 51.795%{opacity:0} 82.564%{opacity:0} 85.128%{opacity:1} 100%{opacity:1}}
+.k0{animation:k0 19.5s ease-in-out infinite}
+@keyframes k1{0%{opacity:0} 49.231%{opacity:0} 51.795%{opacity:1} 82.564%{opacity:1} 85.128%{opacity:0} 100%{opacity:0}}
+.k1{animation:k1 19.5s ease-in-out infinite}
+@keyframes k2{0%{opacity:1} 30.769%{opacity:1} 33.333%{opacity:0} 97.436%{opacity:0} 100.000%{opacity:1} 100%{opacity:1}}
+.k2{animation:k2 19.5s ease-in-out infinite}
+@keyframes k3{0%{opacity:0} 30.769%{opacity:0} 33.333%{opacity:1} 97.436%{opacity:1} 100.000%{opacity:0} 100%{opacity:0}}
+.k3{animation:k3 19.5s ease-in-out infinite}
+@keyframes k4{0%{opacity:1} 30.769%{opacity:1} 33.333%{opacity:0} 97.436%{opacity:0} 100.000%{opacity:1} 100%{opacity:1}}
+.k4{animation:k4 19.5s ease-in-out infinite}
+@keyframes k5{0%{opacity:0} 30.769%{opacity:0} 33.333%{opacity:1} 64.103%{opacity:1} 66.667%{opacity:0} 100%{opacity:0}}
+.k5{animation:k5 19.5s ease-in-out infinite}
+@keyframes k6{0%{opacity:0} 64.103%{opacity:0} 66.667%{opacity:1} 97.436%{opacity:1} 100.000%{opacity:0} 100%{opacity:0}}
+.k6{animation:k6 19.5s ease-in-out infinite}
+@keyframes k7{0%{opacity:1} 39.487%{opacity:1} 42.051%{opacity:0} 72.821%{opacity:0} 75.385%{opacity:1} 100%{opacity:1}}
+.k7{animation:k7 19.5s ease-in-out infinite}
+@keyframes k8{0%{opacity:0} 39.487%{opacity:0} 42.051%{opacity:1} 72.821%{opacity:1} 75.385%{opacity:0} 100%{opacity:0}}
+.k8{animation:k8 19.5s ease-in-out infinite}
+@keyframes k9{0%{opacity:1} 45.128%{opacity:1} 47.692%{opacity:0} 78.462%{opacity:0} 81.026%{opacity:1} 100%{opacity:1}}
+.k9{animation:k9 19.5s ease-in-out infinite}
+@keyframes k10{0%{opacity:0} 45.128%{opacity:0} 47.692%{opacity:1} 78.462%{opacity:1} 81.026%{opacity:0} 100%{opacity:0}}
+.k10{animation:k10 19.5s ease-in-out infinite}
+@keyframes k11{0%{opacity:1} 49.231%{opacity:1} 51.795%{opacity:0} 82.564%{opacity:0} 85.128%{opacity:1} 100%{opacity:1}}
+.k11{animation:k11 19.5s ease-in-out infinite}
+@keyframes k12{0%{opacity:0} 49.231%{opacity:0} 51.795%{opacity:1} 82.564%{opacity:1} 85.128%{opacity:0} 100%{opacity:0}}
+.k12{animation:k12 19.5s ease-in-out infinite}
+@keyframes k13{0%{opacity:1} 30.769%{opacity:1} 33.333%{opacity:0} 97.436%{opacity:0} 100.000%{opacity:1} 100%{opacity:1}}
+.k13{animation:k13 19.5s ease-in-out infinite}
+@keyframes k14{0%{opacity:0} 30.769%{opacity:0} 33.333%{opacity:1} 64.103%{opacity:1} 66.667%{opacity:0} 100%{opacity:0}}
+.k14{animation:k14 19.5s ease-in-out infinite}
+@keyframes k15{0%{opacity:0} 64.103%{opacity:0} 66.667%{opacity:1} 97.436%{opacity:1} 100.000%{opacity:0} 100%{opacity:0}}
+.k15{animation:k15 19.5s ease-in-out infinite}
+@keyframes k16{0%{opacity:1} 52.308%{opacity:1} 54.872%{opacity:0} 85.641%{opacity:0} 88.205%{opacity:1} 100%{opacity:1}}
+.k16{animation:k16 19.5s ease-in-out infinite}
+@keyframes k17{0%{opacity:0} 52.308%{opacity:0} 54.872%{opacity:1} 85.641%{opacity:1} 88.205%{opacity:0} 100%{opacity:0}}
+.k17{animation:k17 19.5s ease-in-out infinite}
+@media (prefers-reduced-motion: reduce){*{animation:none !important}.tr{display:none}}
+</style>
+<rect width="1200" height="660" fill="#0E1A1C"/>
+<g><path d="M310 181L370 181" stroke="#556062" stroke-width="2"/><path d="M828 331L868 331" stroke="#556062" stroke-width="2"/><path d="M310 470L1004 470L1004 386" stroke="#556062" stroke-width="2"/></g>
+<g class="k0" opacity="0.00"><path d="M310 470L1004 470L1004 386" stroke="#40FB50" stroke-width="2"/><g class="tr"><rect x="-5" y="-5" width="10" height="10" fill="#40FB50"><animateMotion dur="8.400s" begin="0.000s" repeatCount="indefinite" calcMode="linear" keyPoints="0;1;1" keyTimes="0;0.8766;1" path="M294 470L1004 470L1004 370"/></rect><rect x="-5" y="-5" width="10" height="10" fill="#40FB50"><animateMotion dur="8.400s" begin="-1.200s" repeatCount="indefinite" calcMode="linear" keyPoints="0;1;1" keyTimes="0;0.8766;1" path="M294 470L1004 470L1004 370"/></rect><rect x="-5" y="-5" width="10" height="10" fill="#40FB50"><animateMotion dur="8.400s" begin="-2.400s" repeatCount="indefinite" calcMode="linear" keyPoints="0;1;1" keyTimes="0;0.8766;1" path="M294 470L1004 470L1004 370"/></rect><rect x="-5" y="-5" width="10" height="10" fill="#40FB50"><animateMotion dur="8.400s" begin="-3.600s" repeatCount="indefinite" calcMode="linear" keyPoints="0;1;1" keyTimes="0;0.8766;1" path="M294 470L1004 470L1004 370"/></rect><rect x="-5" y="-5" width="10" height="10" fill="#40FB50"><animateMotion dur="8.400s" begin="-4.800s" repeatCount="indefinite" calcMode="linear" keyPoints="0;1;1" keyTimes="0;0.8766;1" path="M294 470L1004 470L1004 370"/></rect><rect x="-5" y="-5" width="10" height="10" fill="#40FB50"><animateMotion dur="8.400s" begin="-6.000s" repeatCount="indefinite" calcMode="linear" keyPoints="0;1;1" keyTimes="0;0.8766;1" path="M294 470L1004 470L1004 370"/></rect><rect x="-5" y="-5" width="10" height="10" fill="#40FB50"><animateMotion dur="8.400s" begin="-7.200s" repeatCount="indefinite" calcMode="linear" keyPoints="0;1;1" keyTimes="0;0.8766;1" path="M294 470L1004 470L1004 370"/></rect></g></g>
+<g class="k1" opacity="1.00"><path d="M310 470L1004 470L1004 386" stroke="#556062" stroke-width="2" stroke-dasharray="8 6"/><rect x="605" y="455" width="30" height="30" fill="#0E1A1C" stroke="#DE4747" stroke-width="2"/><path d="M614 464L626 476M614 476L626 464" stroke="#DE4747" stroke-width="2"/></g>
+<g><rect x="60" y="150" width="250" height="62" fill="#0E1A1C" stroke="#556062" stroke-width="2"/><text x="76" y="172" font-size="14" font-weight="normal" letter-spacing="0.08em" text-anchor="start" fill="#B3B3B3">CONTAINER</text><rect x="370" y="150" width="320" height="62" fill="#0E1A1C" stroke="#556062" stroke-width="2"/><text x="386" y="172" font-size="14" font-weight="normal" letter-spacing="0.08em" text-anchor="start" fill="#B3B3B3">COLLECTOR</text><text x="60" y="262" font-size="16" font-weight="normal" letter-spacing="0.08em" text-anchor="start" fill="#B3B3B3">HEAP · 256 MiB</text><rect x="60" y="276" width="768" height="110" fill="#0E1A1C" stroke="#FFFFFF" stroke-width="2"/><rect x="868" y="276" width="272" height="110" fill="#0E1A1C" stroke="#FFFFFF" stroke-width="2"/><text x="884" y="306" font-size="15" font-weight="bold" letter-spacing="0.04em" text-anchor="start" fill="#FFFFFF">CANTON'S HEAP GUARD</text><rect x="60" y="440" width="250" height="60" fill="#0E1A1C" stroke="#FFFFFF" stroke-width="2"/><text x="185" y="477" font-size="16" font-weight="bold" letter-spacing="0.04em" text-anchor="middle" fill="#FFFFFF">ALICE'S COMMAND</text></g>
+<g class="k2" opacity="0.00"><text x="76" y="198" font-size="18" font-weight="bold" letter-spacing="0em" text-anchor="start" fill="#FFFFFF">2 GiB · 2 CPUs</text></g>
+<g class="k3" opacity="1.00"><text x="76" y="198" font-size="18" font-weight="bold" letter-spacing="0em" text-anchor="start" fill="#FFFFFF">1.5 GiB · 2 CPUs</text></g>
+<g class="k4" opacity="0.00"><text x="386" y="198" font-size="18" font-weight="bold" letter-spacing="0em" text-anchor="start" fill="#FFFFFF">G1 · THE JVM'S CHOICE</text></g>
+<g class="k5" opacity="1.00"><text x="386" y="198" font-size="18" font-weight="bold" letter-spacing="0em" text-anchor="start" fill="#FFFFFF">SERIAL · THE JVM'S CHOICE</text></g>
+<g class="k6" opacity="0.00"><text x="386" y="198" font-size="18" font-weight="bold" letter-spacing="0em" text-anchor="start" fill="#FFFFFF">G1 · -XX:+UseG1GC</text></g>
+<g class="k7" opacity="0.00"><text x="72" y="296" font-size="15" font-weight="normal" letter-spacing="0.04em" text-anchor="start" fill="#B3B3B3">ONE SPACE: THE OLD GENERATION CAN GROW TO 256 MiB</text></g>
+<g class="k8" opacity="1.00"><path d="M316 276L316 386" stroke="#FFFFFF" stroke-width="2"/><text x="72" y="296" font-size="15" font-weight="normal" letter-spacing="0.04em" text-anchor="start" fill="#B3B3B3">YOUNG · 85 MiB</text><text x="328" y="296" font-size="15" font-weight="normal" letter-spacing="0.04em" text-anchor="start" fill="#B3B3B3">OLD · FIXED AT 171 MiB</text></g>
+<g class="k9" opacity="0.00"><rect x="66" y="306" width="645" height="74" fill="#40FB50" fill-opacity="0.22" stroke="#40FB50" stroke-width="2"/><text x="82" y="351" font-size="17" font-weight="bold" letter-spacing="0em" text-anchor="start" fill="#FFFFFF">LIVE DATA · 217 MiB</text></g>
+<g class="k10" opacity="1.00"><rect x="322" y="306" width="500" height="74" fill="#DE4747" fill-opacity="0.22" stroke="#DE4747" stroke-width="2"/><text x="338" y="351" font-size="17" font-weight="bold" letter-spacing="0em" text-anchor="start" fill="#FFFFFF">FULL · 171 OF 171 MiB</text><rect x="172" y="306" width="138" height="74" fill="#DE4747" fill-opacity="0.22" stroke="#DE4747" stroke-width="2"/><text x="184" y="351" font-size="17" font-weight="bold" letter-spacing="0em" text-anchor="start" fill="#FFFFFF">46 MiB OVER</text></g>
+<g class="k11" opacity="0.00"><text x="884" y="334" font-size="15" font-weight="normal" letter-spacing="0em" text-anchor="start" fill="#B3B3B3">old generation holds</text><text x="884" y="356" font-size="15" font-weight="normal" letter-spacing="0em" text-anchor="start" fill="#40FB50">217 of 256 MiB: passes</text></g>
+<g class="k12" opacity="1.00"><text x="884" y="334" font-size="15" font-weight="normal" letter-spacing="0em" text-anchor="start" fill="#B3B3B3">old generation is full</text><text x="884" y="356" font-size="15" font-weight="normal" letter-spacing="0em" text-anchor="start" fill="#DE4747">after every collection</text></g>
+<g class="k13" opacity="0.00"><text x="60" y="52" font-size="17" font-weight="bold" letter-spacing="0.08em" text-anchor="start" fill="#B3B3B3">CASE 1 OF 3</text><text x="60" y="94" font-size="26" font-weight="normal" letter-spacing="0em" text-anchor="start" fill="#FFFFFF">In a 2 GiB container the JVM picks the G1 collector.</text></g>
+<g class="k14" opacity="1.00"><text x="60" y="52" font-size="17" font-weight="bold" letter-spacing="0.08em" text-anchor="start" fill="#B3B3B3">CASE 2 OF 3</text><text x="60" y="94" font-size="26" font-weight="normal" letter-spacing="0em" text-anchor="start" fill="#FFFFFF">Below 1,792 MiB the JVM selects Serial, with a fixed old generation.</text></g>
+<g class="k15" opacity="0.00"><text x="60" y="52" font-size="17" font-weight="bold" letter-spacing="0.08em" text-anchor="start" fill="#B3B3B3">CASE 3 OF 3</text><text x="60" y="94" font-size="26" font-weight="normal" letter-spacing="0em" text-anchor="start" fill="#FFFFFF">Same small container with -XX:+UseG1GC. The fixed split is gone.</text></g>
+<g class="k16" opacity="0.00"><rect x="390" y="570" width="420" height="56" fill="#0E1A1C" stroke="#40FB50" stroke-width="2"/><rect x="390" y="570" width="420" height="56" fill="#40FB50" fill-opacity="0.16"/><text x="600" y="606" font-size="20" font-weight="bold" letter-spacing="0.04em" text-anchor="middle" fill="#40FB50">COMMAND ACCEPTED</text></g>
+<g class="k17" opacity="1.00"><rect x="320" y="570" width="560" height="56" fill="#0E1A1C" stroke="#DE4747" stroke-width="2"/><rect x="320" y="570" width="560" height="56" fill="#DE4747" fill-opacity="0.16"/><text x="600" y="606" font-size="20" font-weight="bold" letter-spacing="0.04em" text-anchor="middle" fill="#DE4747">HTTP 409 · HEAP_MEMORY_OVER_LIMIT</text></g>
+</svg>

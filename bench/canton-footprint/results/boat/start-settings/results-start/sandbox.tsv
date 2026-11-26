@@ -1,0 +1,16 @@
+sandbox-default-r1	sandbox	1	4	8g	default	14412	2048	UseG1GC	1385	1403	1514	1514	1532	182	101	5156	ok	2.76
+sandbox-both-r1	sandbox	1	4	8g	default	7244	2048	UseG1GC	1110	1196	1224	1225	1309	170	99	4735	ok	1.88
+multi-sync-default-r1	multi-sync	3	4	8g	default	19352	2048	UseG1GC	1763	1777	1975	1976	1989	222	208	8985	ok	2.33
+multi-sync-both-r1	multi-sync	3	4	8g	default	13939	2048	UseG1GC	1501	1583	1623	1624	1704	211	214	9092	ok	1.89
+sandbox-default-r2	sandbox	1	4	8g	default	17675	2048	UseG1GC	1263	1282	1877	1878	1894	182	99	6827	ok	2.25
+sandbox-both-r2	sandbox	1	4	8g	default	10002	2048	UseG1GC	1107	1193	1227	1228	1312	170	104	4911	ok	2.27
+multi-sync-default-r2	multi-sync	3	4	8g	default	19035	2048	UseG1GC	1783	1798	1907	1965	1983	222	209	9288	ok,probe-failed:exit=0,oom=false,running=true	1.94
+multi-sync-both-r2	multi-sync	3	4	8g	default	12440	2048	UseG1GC	1514	1596	1612	1619	1700	210	208	8791	ok	2.18
+sandbox-default-r3	sandbox	1	4	8g	default	13808	2048	UseG1GC	1478	1497	1620	1621	1638	181	97	4795	ok,probe-failed:exit=0,oom=false,running=true	1.55
+sandbox-both-r3	sandbox	1	4	8g	default	7398	2048	UseG1GC	1256	1343	1352	1353	1438	170	100	4843	ok	2.01
+multi-sync-default-r3	multi-sync	3	4	8g	default	18920	2048	UseG1GC	1794	1808	1887	1912	1926	223	208	8621	ok	1.98
+multi-sync-both-r3	multi-sync	3	4	8g	default	12947	2048	UseG1GC	1447	1529	1552	1553	1633	211	211	8768	ok	1.76
+sandbox-default-r4	sandbox	1	4	8g	default	13818	2048	UseG1GC	1609	1628	1714	1715	1732	182	98	4955	ok	1.29
+sandbox-both-r4	sandbox	1	4	8g	default	7404	2048	UseG1GC	1153	1239	1262	1263	1347	170	106	4954	ok	1.20
+multi-sync-default-r4	multi-sync	3	4	8g	default	19234	2048	UseG1GC	1787	1801	1929	1937	1951	222	211	8874	ok	1.39
+multi-sync-both-r4	multi-sync	3	4	8g	default	12607	2048	UseG1GC	1476	1558	1603	1633	1718	210	211	8530	ok	1.18

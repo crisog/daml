@@ -1,0 +1,45 @@
+1:
+ num     #instances         #bytes  class name (module)
+-------------------------------------------------------
+   1:       3420081      407984680  [B (java.base@21.0.13.1)
+   2:       1540383       59011480  [Lorg.h2.value.Value;
+   3:       1359267       54370680  org.h2.value.ValueBlob
+   4:       2236937       53686488  java.lang.String (java.base@21.0.13.1)
+   5:       2183217       52397208  scala.Tuple2
+   6:       2054712       49313088  java.lang.Long (java.base@21.0.13.1)
+   7:       1486506       45406024  [Ljava.lang.Object; (java.base@21.0.13.1)
+   8:       1112395       44495800  org.h2.result.Sparse
+   9:       1359267       43496544  org.h2.value.lob.LobDataDatabase
+  10:       1601770       38442480  org.h2.mvstore.db.LobStorageMap$BlobReference
+  11:        800558       32022320  org.h2.mvstore.db.LobStorageMap$BlobMeta
+  12:       1286194       30868656  com.digitalasset.daml.lf.data.ImmArray
+  13:       1616831       25869296  scala.collection.immutable.ArraySeq$ofRef
+  14:        660074       21122368  com.digitalasset.daml.lf.value.GenValue$Record
+  15:         69181       16171696  [Ljdk.internal.vm.FillerElement; (java.base@21.0.13.1)
+  16:        558709       13409016  java.util.LinkedList$Node (java.base@21.0.13.1)
+  17:        558709       13409016  org.h2.engine.SessionLocal$TimeoutValue
+  18:        533239       12797736  com.google.protobuf.ByteString$LiteralByteString
+  19:        362432       11597824  org.h2.result.DefaultRow
+  20:        334809       10713888  scala.collection.immutable.RedBlackTree$Tree
+  21:        206410        9907680  org.h2.mvstore.Page$Leaf
+  22:         87904        9842728  [Ljava.lang.Long; (java.base@21.0.13.1)
+  23:         90002        9360208  com.digitalasset.canton.platform.store.interfaces.TransactionLogUpdate$ExercisedEvent
+  24:        354415        8505960  com.digitalasset.daml.lf.data.Ref$FullReference
+  25:        354319        8503656  com.digitalasset.daml.lf.data.Ref$QualifiedName
+  26:        210419        8416760  com.digitalasset.daml.lf.value.Value$ContractId$V1
+  27:         72160        8021384  [Lorg.h2.value.VersionedValue;
+  28:        163650        7855200  scala.reflect.io.FileZipArchive$LeakyEntry
+  29:        242503        7760096  org.h2.mvstore.db.LobStorageMap$LobRemovalInfo
+  30:         67360        7750776  [Lorg.h2.mvstore.db.LobStorageMap$BlobReference;
+  31:        241645        7732640  org.h2.result.SimpleRowValue
+  32:         65547        7546584  java.lang.Class (java.base@21.0.13.1)
+  33:        234072        7490304  java.util.concurrent.ConcurrentHashMap$Node (java.base@21.0.13.1)
+  34:        450184        7202944  scala.Some
+  35:        219388        7020416  scala.Tuple2$mcII$sp
+  36:        213619        6835808  org.h2.mvstore.Page$PageReference
+  37:         59019        6586608  [Lorg.h2.result.SearchRow;
+  38:        201225        6439200  com.google.protobuf.ByteString$BoundedByteString
+  39:        242963        5831112  java.util.concurrent.ConcurrentLinkedQueue$Node (java.base@21.0.13.1)
+  40:        240010        5760240  com.digitalasset.daml.lf.value.GenValue$Text
+  41:         81148        5699616  [I (java.base@21.0.13.1)
+  42:        227626        5463024  com.digitalasset.daml.lf.language.Ast$TApp

@@ -1,0 +1,16 @@
+app-user/app-user: POST /v0/wallet/tap returned 429: {
+  "error" : "Traffic balance below reserved traffic amount (0 < 200000)"
+}
+app-user/app-user: POST /v0/wallet/tap returned 429: {
+  "error" : "Traffic balance below reserved traffic amount (0 < 200000)"
+}
+app-user/app-user: POST /v0/wallet/tap returned 429: {
+  "error" : "Traffic balance below reserved traffic amount (0 < 200000)"
+}
+app-provider/app-provider: POST /v0/wallet/token-standard/transfers/00893c8a7df9e8367bd2a70df3a66f7a48c91640e7d93e4ad028edb1cc1fab548dca121220caaf304d5bf60291d306359d63046c55371c5d5b47980859440f71a13c7c38f8/accept returned 429: {
+  "error" : "Traffic balance below reserved traffic amount (0 < 200000)"
+}
+app-provider/app-provider: POST /v0/wallet/token-standard/transfers/007916828da2cd3db9681467ffee9199c56d29f12711ce0803c834db37f292e94bca121220eccff4ced4b9c2610b5086b012358c09fd5dd9f14e4c4417f3c5298084170346/accept returned 429: {
+  "error" : "Traffic balance below reserved traffic amount (0 < 200000)"
+}
+1	1	1093	1093	1093	-1.0000000000	1.0000000000

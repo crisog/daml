@@ -1,0 +1,10 @@
+# A compose override for LocalNet: a health probe every 5 s for the two JVMs.
+# The shipped probes run every 20 s after the first 20 s (canton) or 30 s
+# (splice), so compose can see a healthy container up to 20 s late.
+services:
+  canton:
+    healthcheck:
+      interval: 5s
+  splice:
+    healthcheck:
+      interval: 5s
