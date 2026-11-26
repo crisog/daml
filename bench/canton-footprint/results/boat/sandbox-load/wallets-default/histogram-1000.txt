@@ -1,0 +1,45 @@
+1:
+ num     #instances         #bytes  class name (module)
+-------------------------------------------------------
+   1:       1200391      150839048  [B (java.base@21.0.13.1)
+   2:       1068299       25639176  java.lang.String (java.base@21.0.13.1)
+   3:        652761       23853040  [Ljava.lang.Object; (java.base@21.0.13.1)
+   4:        628819       15091656  scala.Tuple2
+   5:        676331       10821296  scala.collection.immutable.ArraySeq$ofRef
+   6:        196830        9646456  [I (java.base@21.0.13.1)
+   7:        345694        8296656  com.digitalasset.daml.lf.data.ImmArray
+   8:        163650        7855200  scala.reflect.io.FileZipArchive$LeakyEntry
+   9:         65654        7560632  java.lang.Class (java.base@21.0.13.1)
+  10:        297415        7137960  com.digitalasset.daml.lf.data.Ref$FullReference
+  11:        297319        7135656  com.digitalasset.daml.lf.data.Ref$QualifiedName
+  12:        219388        7020416  scala.Tuple2$mcII$sp
+  13:         22038        7009920  [Ljdk.internal.vm.FillerElement; (java.base@21.0.13.1)
+  14:        218373        6987936  java.util.concurrent.ConcurrentHashMap$Node (java.base@21.0.13.1)
+  15:        227626        5463024  com.digitalasset.daml.lf.language.Ast$TApp
+  16:        169902        5436864  scala.collection.mutable.HashMap$Node
+  17:        124966        4998640  scala.collection.immutable.BitmapIndexedSetNode
+  18:        205952        4942848  com.digitalasset.daml.lf.language.Ast$GenDValue
+  19:        180924        4342176  com.digitalasset.daml.lf.language.Ast$EApp
+  20:         99839        3715432  [Lorg.h2.value.Value;
+  21:        143032        3625680  [Lcom.digitalasset.daml.lf.speedy.SExpr$SExprAtomic;
+  22:         73860        3545280  java.lang.invoke.MemberName (java.base@21.0.13.1)
+  23:         88373        3534920  org.h2.value.ValueBlob
+  24:        109684        3509888  com.digitalasset.daml.lf.data.Ref$Location
+  25:        131796        3163104  com.digitalasset.daml.lf.speedy.SExpr$LfDefRef
+  26:        131207        3148968  com.digitalasset.daml.lf.speedy.SExpr$SELet1General
+  27:        113450        3029624  [Lscala.Tuple2;
+  28:        186980        2991680  scala.Some
+  29:        122164        2931936  java.lang.Long (java.base@21.0.13.1)
+  30:        179729        2875664  com.digitalasset.daml.lf.speedy.SExpr$SELocS
+  31:         88373        2827936  org.h2.value.lob.LobDataDatabase
+  32:         69916        2796640  org.h2.result.Sparse
+  33:        115263        2766312  com.digitalasset.daml.lf.language.Ast$EAbs
+  34:        169767        2716272  com.digitalasset.daml.lf.language.Ast$EVar
+  35:         66810        2672400  scala.collection.immutable.BitmapIndexedMapNode
+  36:         29410        2638736  [J (java.base@21.0.13.1)
+  37:        109684        2632416  com.digitalasset.daml.lf.language.Ast$ELocation
+  38:        109210        2621040  com.digitalasset.daml.lf.language.Ast$ETyApp
+  39:         26924        2369312  java.lang.reflect.Method (java.base@21.0.13.1)
+  40:        147886        2366176  com.digitalasset.daml.lf.data.Ref$DottedName
+  41:        134936        2158976  com.digitalasset.daml.lf.speedy.compiler.SExpr0$SEVal
+  42:         88373        2120952  org.h2.mvstore.db.LobStorageMap$BlobReference

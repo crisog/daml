@@ -1,0 +1,7 @@
+run	postgres	canton	start apps, set identities	decode packages	create synchronizer	upload packages	create network rules	onboard validators	wait for probe	sum
+cold-r1	11	21	75	51	25	19	12	33	13	260
+median	11	21	75	51	25	19	12	33	13	260
+run	postgres	canton	start apps, set identities	decode packages	create synchronizer	upload packages	create network rules	onboard validators	wait for probe	sum
+prepared-r1	6	16	9	34	1	0	3	-2	17	83
+median	6	16	9	34	1	0	3	-2	17	83
+/home/user/canton-bench/boot/localnet/fastdisk-r1/compose.log: no log line for the end of 'create synchronizer'

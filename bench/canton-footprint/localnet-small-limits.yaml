@@ -1,0 +1,26 @@
+# A developer's own limits for the Splice LocalNet, applied after the
+# resource-constraints.yaml that LocalNet ships:
+#   OVERRIDE=localnet-small-limits.yaml ./localnet.sh <label> capped sv app-provider app-user
+#
+# It halves the heap limit of the two JVMs (2560 MiB in the shipped file) and
+# lowers their container limits (4 GiB and 3 GiB in the shipped file). The other
+# JVM options are the shipped ones.
+#
+# After a kill, Postgres crash recovery can take more than a minute, and two
+# waits of about 60 seconds end the restart before it completes. PGCTLTIMEOUT
+# raises the wait of pg_ctl in the LocalNet entrypoint. The start period keeps
+# the health check from reporting "unhealthy" to the services that wait for it.
+services:
+  postgres:
+    environment:
+      PGCTLTIMEOUT: "300"
+    healthcheck:
+      start_period: 300s
+  canton:
+    mem_limit: 2560mb
+    environment:
+      _JAVA_OPTIONS: "-XX:-UseCompressedOops -Xms512m -Xmx1280m -XX:-UseBASE64Intrinsics"
+  splice:
+    mem_limit: 2g
+    environment:
+      _JAVA_OPTIONS: "-XX:-UseCompressedOops -Xms512m -Xmx1280m -XX:-UseBASE64Intrinsics"

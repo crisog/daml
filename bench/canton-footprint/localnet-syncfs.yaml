@@ -1,0 +1,11 @@
+# A compose override for LocalNet: at crash recovery, Postgres calls syncfs one
+# time for each filesystem. By default it calls fsync on every file of its data
+# directory. The first three lines of the command are the shipped ones.
+services:
+  postgres:
+    command:
+      - postgres
+      - -c
+      - max_connections=1000
+      - -c
+      - recovery_init_sync_method=syncfs

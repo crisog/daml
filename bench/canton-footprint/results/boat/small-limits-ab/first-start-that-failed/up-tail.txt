@@ -1,0 +1,4 @@
+ Container wallet-web-ui-app-provider Healthy 
+ Container wallet-web-ui-app-user Healthy 
+ Container splice Error dependency splice failed to start
+dependency failed to start: container splice is unhealthy

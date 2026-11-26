@@ -1,0 +1,15 @@
+pg-pool32-r2	capped	sv app-provider app-user	ans-web-ui-app-provider	4	7	256	running	1.42
+pg-pool32-r2	capped	sv app-provider app-user	ans-web-ui-app-user	4	7	256	running	1.42
+pg-pool32-r2	capped	sv app-provider app-user	canton	2804	3362	4096	running	1.42
+pg-pool32-r2	capped	sv app-provider app-user	nginx	9	11	32	running	1.42
+pg-pool32-r2	capped	sv app-provider app-user	postgres	870	1422	2048	running	1.42
+pg-pool32-r2	capped	sv app-provider app-user	scan-web-ui	4	7	256	running	1.42
+pg-pool32-r2	capped	sv app-provider app-user	splice	1671	2889	3072	running	1.42
+pg-pool32-r2	capped	sv app-provider app-user	sv-web-ui	3	7	512	running	1.42
+pg-pool32-r2	capped	sv app-provider app-user	wallet-web-ui-app-provider	3	7	256	running	1.42
+pg-pool32-r2	capped	sv app-provider app-user	wallet-web-ui-app-user	4	7	256	running	1.42
+pg-pool32-r2	capped	sv app-provider app-user	wallet-web-ui-sv	4	7	256	running	1.42
+pg-pool32-r2	capped	sv app-provider app-user	TOTAL	5380	7733	NA	healthy_ms=173591	1.42
+pg-pool32-r2	capped	sv app-provider app-user	canton-jvm-heap	527	NA	2560	live-after-gc	1.42
+pg-pool32-r2	capped	sv app-provider app-user	splice-jvm-heap	222	NA	2560	live-after-gc	1.42
+pg-pool32-r2	capped	sv app-provider app-user	WORKLOAD	5001	7733	NA	workload=passed,workload_ms=49417,oom_kills=0	1.42

@@ -1,0 +1,1 @@
+Splice.Tests.TestAmuletTokenTransfer:test_two_step_withdraw_locked_amulet_gone FAILURE (com.digitalasset.daml.lf.engine.script.Script$FailedCmd: Command SetTime failed: INVALID_ARGUMENT: INVALID_ARGUMENT(8,3a6643e3): The submitted request has invalid arguments: new_time [2022-01-01T00:00:00Z] is before current_time [2022-01-03T00:00:00Z]. Setting time backwards is not allowed.

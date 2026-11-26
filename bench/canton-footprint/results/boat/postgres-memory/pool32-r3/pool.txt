@@ -1,0 +1,2 @@
+conf/canton/app.conf:     max-connections = 32
+conf/splice/app.conf:     max-connections = 32

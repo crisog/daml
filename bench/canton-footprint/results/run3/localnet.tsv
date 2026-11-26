@@ -1,0 +1,15 @@
+all-uncapped-r2	uncapped	sv app-provider app-user	ans-web-ui-app-provider	24	27	0	running	0.03
+all-uncapped-r2	uncapped	sv app-provider app-user	ans-web-ui-app-user	24	26	0	running	0.03
+all-uncapped-r2	uncapped	sv app-provider app-user	canton	10701	10704	0	running	0.03
+all-uncapped-r2	uncapped	sv app-provider app-user	nginx	3	6	0	running	0.03
+all-uncapped-r2	uncapped	sv app-provider app-user	postgres	1756	1760	0	running	0.03
+all-uncapped-r2	uncapped	sv app-provider app-user	scan-web-ui	23	27	0	running	0.03
+all-uncapped-r2	uncapped	sv app-provider app-user	splice	1782	6431	0	running	0.03
+all-uncapped-r2	uncapped	sv app-provider app-user	sv-web-ui	24	27	0	running	0.03
+all-uncapped-r2	uncapped	sv app-provider app-user	wallet-web-ui-app-provider	24	28	0	running	0.03
+all-uncapped-r2	uncapped	sv app-provider app-user	wallet-web-ui-app-user	24	27	0	running	0.03
+all-uncapped-r2	uncapped	sv app-provider app-user	wallet-web-ui-sv	24	26	0	running	0.03
+all-uncapped-r2	uncapped	sv app-provider app-user	TOTAL	14409	19089	NA	healthy_ms=144715	0.03
+all-uncapped-r2	uncapped	sv app-provider app-user	canton-jvm-heap	440	NA	30688	live-after-gc	0.03
+all-uncapped-r2	uncapped	sv app-provider app-user	splice-jvm-heap	192	NA	30688	live-after-gc	0.03
+all-uncapped-r2	uncapped	sv app-provider app-user	RESTART	NA	NA	NA	kill_ms=1563,restart_ms=121908,starts=2,start-failed,ledger=unchecked	0.03

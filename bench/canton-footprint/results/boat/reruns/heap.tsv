@@ -1,0 +1,6 @@
+multi-sync-default-r1	multi-sync	3	4	8g	default	55708	2048	UseG1GC	1758	1781	1872	1879	1901	223	208	17827	ok	1.16
+multi-sync-256m-g1-r1	multi-sync	3	4	8g	256m	54454	256	UseG1GC	1206	1221	1333	1334	1347	217	207	18644	ok	3.44
+multi-sync-default-r2	multi-sync	3	4	8g	default	48755	2048	UseG1GC	1782	1796	1895	1896	1909	223	203	20112	ok	2.88
+multi-sync-256m-g1-r2	multi-sync	3	4	8g	256m	52768	256	UseG1GC	1196	1212	1334	1335	1349	217	206	16831	ok	1.99
+multi-sync-default-r3	multi-sync	3	4	8g	default	36963	2048	UseG1GC	1866	1880	1983	1985	1999	223	209	16005	ok	2.93
+multi-sync-256m-g1-r3	multi-sync	3	4	8g	256m	51181	256	UseG1GC	1223	1238	1327	1328	1342	217	205	21548	ok	2.58

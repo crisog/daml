@@ -1,0 +1,14 @@
+== contracts-default: container.log, the fatal lines
+2026-11-25T22:40:39.217428241Z Aborting due to java.lang.OutOfMemoryError: Java heap space
+2026-11-25T22:40:39.221310897Z # A fatal error has been detected by the Java Runtime Environment:
+2026-11-25T22:40:39.221426615Z #  fatal error: OutOfMemory encountered: Java heap space
+== contracts-384m: container.log, the fatal lines
+2026-11-25T23:04:04.399056974Z Aborting due to java.lang.OutOfMemoryError: Java heap space
+2026-11-25T23:04:04.399713475Z # A fatal error has been detected by the Java Runtime Environment:
+2026-11-25T23:04:04.400339456Z #  fatal error: OutOfMemory encountered: Java heap space
+== contracts-4g: container.log, the fatal lines
+2026-11-25T23:38:00.416787159Z Aborting due to java.lang.OutOfMemoryError: Java heap space
+2026-11-25T23:38:00.417084074Z # A fatal error has been detected by the Java Runtime Environment:
+2026-11-25T23:38:00.417096414Z #  fatal error: OutOfMemory encountered: Java heap space
+== contracts-512m: step-5000.log, the error
+Exception in thread "main" com.digitalasset.daml.lf.engine.script.Script$FailedCmd: Command Submit failed: ABORTED: MEDIATOR_SAYS_TX_TIMED_OUT(2,0): Rejected transaction as the mediator did not receive sufficient confirmations within the expected timeframe.

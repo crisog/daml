@@ -1,0 +1,13 @@
+label	topology	participants	cpus	memory	heap	ready_ms	heap_max_mib	collector	idle_cgroup_mib	idle_rss_mib	post_cgroup_mib	peak_cgroup_mib	peak_rss_mib	live_heap_mib	threads	workload_ms	workload	host_load
+sandbox-c4-m8g-hdefault-r1	sandbox	1	4	8g	default	13844	2048	UseG1GC	1161	1252	1273	1274	1363	179	100	5246	ok	1.60
+sandbox-c4-m8g-hdefault-r2	sandbox	1	4	8g	default	13545	2048	UseG1GC	1102	1193	1538	1540	1627	178	101	5963	ok	1.76
+sandbox-c4-m8g-hdefault-r3	sandbox	1	4	8g	default	13349	2048	UseG1GC	1309	1399	1397	1399	1487	179	101	5588	ok	3.30
+sandbox-c1-m8g-hdefault-r1	sandbox	1	1	8g	default	28975	2048	UseSerialGC	1012	1103	1084	1086	1175	175	86	7852	ok	3.06
+sandbox-c1-m8g-hdefault-r2	sandbox	1	1	8g	default	29905	2048	UseSerialGC	1011	1102	1085	1087	1175	174	86	7479	ok	1.62
+sandbox-c1-m8g-hdefault-r3	sandbox	1	1	8g	default	29589	2048	UseSerialGC	1009	1100	1084	1085	1174	175	85	7566	ok	2.02
+sandbox-c4-m8g-hdefault-r1	sandbox	1	4	8g	default	13177	2048	UseG1GC	1284	1374	1395	1397	1485	179	98	5241	ok	0.46
+sandbox-c4-m8g-hdefault-r2	sandbox	1	4	8g	default	12952	2048	UseG1GC	1290	1381	1372	1374	1461	179	100	5368	ok	0.79
+sandbox-c4-m8g-hdefault-r3	sandbox	1	4	8g	default	12901	2048	UseG1GC	1118	1208	1448	1459	1541	179	100	5218	ok	1.10
+sandbox-c1-m8g-hdefault-r1	sandbox	1	1	8g	default	29058	2048	UseSerialGC	1054	1145	1133	1134	1223	174	86	8060	ok	0.81
+sandbox-c1-m8g-hdefault-r2	sandbox	1	1	8g	default	27970	2048	UseSerialGC	1027	1118	1125	1126	1215	193	85	7778	ok	0.37
+sandbox-c1-m8g-hdefault-r3	sandbox	1	1	8g	default	28644	2048	UseSerialGC	993	1084	1076	1078	1166	175	87	7787	ok	0.30

@@ -1,0 +1,16 @@
+label	topology	participants	cpus	memory	heap	ready_ms	heap_max_mib	collector	idle_cgroup_mib	idle_rss_mib	post_cgroup_mib	peak_cgroup_mib	peak_rss_mib	live_heap_mib	threads	workload_ms	workload	host_load
+sandbox-c2-m2g-h256m-r1	sandbox	1	2	2g	256m	22502	256	UseG1GC	1023	1042	1107	1108	1126	178	92	5989	ok	5.13
+sandbox-c2-m2g-h256m-r2	sandbox	1	2	2g	256m	22870	256	UseG1GC	1030	1050	1108	1109	1127	178	94	6606	ok	3.05
+sandbox-c2-m1536m-h256m-r1	sandbox	1	2	1536m	256m	26720	256	UseSerialGC	1016	1036	1026	1040	1045	170	75	558	failed	3.62
+sandbox-c2-m1536m-h256m-r2	sandbox	1	2	1536m	256m	26745	256	UseSerialGC	1016	1035	1093	1095	1112	177	87	7753	ok	3.54
+sandbox-c2-m1280m-h256m-r1	sandbox	1	2	1280m	256m	27948	256	UseSerialGC	1005	1025	1016	1032	1035	161	75	389	failed	3.20
+sandbox-c2-m1280m-h256m-r2	sandbox	1	2	1280m	256m	35898	256	UseSerialGC	1020	1039	1029	1043	1048	170	74	1702	failed	3.81
+sandbox-c2-m1g-h256m-r1	sandbox	1	2	1g	256m	29114	256	UseSerialGC	1001	1038	1011	1024	1048	170	75	377	failed	23.95
+sandbox-c2-m1g-h256m-r2	sandbox	1	2	1g	256m	26637	256	UseSerialGC	1001	1034	1022	1024	1107	177	88	8315	ok	14.03
+multi-sync-c2-m2g-h256m-r1	multi-sync	3	2	2g	256m	35908	256	UseG1GC	1071	1086	1146	1147	1160	217	202	16727	ok	10.57
+multi-sync-c2-m2g-h256m-r2	multi-sync	3	2	2g	256m	45715	256	UseG1GC	1070	1086	1141	1142	1156	217	201	16970	ok	11.91
+multi-sync-c2-m1536m-h256m-r1	multi-sync	3	2	1536m	256m	61778	256	UseSerialGC	1058	1074	1125	1127	1140	213	195	27310	ok	18.76
+multi-sync-c2-m1536m-h256m-r2	multi-sync	3	2	1536m	256m	41038	256	UseSerialGC	1062	1077	1130	1131	1144	213	198	28000	ok	13.40
+multi-sync-c2-m1280m-h256m-r1	multi-sync	3	2	1280m	256m	43974	256	UseSerialGC	1062	1077	1133	1134	1147	214	198	26631	ok	6.19
+multi-sync-c2-m1280m-h256m-r2	multi-sync	3	2	1280m	256m	46075	256	UseSerialGC	1057	1072	1139	1141	1153	214	198	25894	ok	5.30
+multi-sync-c2-m1g-h256m-r1	multi-sync	3	2	1g	256m	41885	256	UseSerialGC	1001	1070	1022	1024	1143	213	197	28723	ok	5.61

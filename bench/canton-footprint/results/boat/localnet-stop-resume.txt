@@ -1,0 +1,168 @@
+Splice LocalNet 0.10.3 on boat.dev, 4 vCPU / 8 GB (resumed from the 2 vCPU sandbox), 2026-11-25. Script: localnet-warm.sh.
+
+== start
+cpu: AMD EPYC 4584PX 16-Core Processor x 4
+[{"event": "accepted", "id": "bx_m74g49rx", "status": "resuming"}]
+[{"event": "state", "id": "bx_m74g49rx", "state": "starting"}]
+[{"event": "state", "id": "bx_m74g49rx", "state": "idle"}]
+up_at: 14:47:49.656Z
+healthy after 186 s
+time: 14:51:14.525Z
+machine_uptime_s: 333.06
+cpu: AMD EPYC 4584PX 16-Core Processor
+container: ans-web-ui-app-provider running healthy
+container: ans-web-ui-app-user running healthy
+container: canton running healthy
+container: nginx running 
+container: postgres running healthy
+container: scan-web-ui running healthy
+container: splice running healthy
+container: sv-web-ui running healthy
+container: wallet-web-ui-app-provider running healthy
+container: wallet-web-ui-app-user running healthy
+container: wallet-web-ui-sv running healthy
+canton_started_at: 2026-11-25T14:47:56.723864124Z
+postgres_started_at: 2026-11-25T14:47:50.658531606Z
+dso_party: DSO::12206c7bb0e6f9c9aea34ed443a07dffcf55874efe81067c8d5713bc865fc7804b57
+MemAvailable: 1339 MiB
+SwapFree: 434 MiB
+
+
+== stop, resume after 120 s
+stop issued: 14:51:24Z
+resume issued: 14:53:24Z
+resume took 3739 ms
+time: 14:53:28.743Z
+machine_uptime_s: 467.28
+cpu: AMD EPYC 4584PX 16-Core Processor
+container: ans-web-ui-app-provider running unhealthy
+container: ans-web-ui-app-user running unhealthy
+container: canton running unhealthy
+container: nginx running 
+container: postgres running unhealthy
+container: scan-web-ui running unhealthy
+container: splice running unhealthy
+container: sv-web-ui running unhealthy
+container: wallet-web-ui-app-provider running unhealthy
+container: wallet-web-ui-app-user running unhealthy
+container: wallet-web-ui-sv running unhealthy
+canton_started_at: 2026-11-25T14:47:56.723864124Z
+postgres_started_at: 2026-11-25T14:47:50.658531606Z
+dso_party: DSO::12206c7bb0e6f9c9aea34ed443a07dffcf55874efe81067c8d5713bc865fc7804b57
+MemAvailable: 1606 MiB
+SwapFree: 408 MiB
+
+state read 4378 ms after the resume was issued
+== health after the short resume (resume issued 14:53:24Z)
+healthy_at: 14:53:58.746Z
+time: 14:53:58.747Z
+machine_uptime_s: 497.28
+cpu: AMD EPYC 4584PX 16-Core Processor
+container: ans-web-ui-app-provider running healthy
+container: ans-web-ui-app-user running healthy
+container: canton running healthy
+container: nginx running 
+container: postgres running healthy
+container: scan-web-ui running healthy
+container: splice running healthy
+container: sv-web-ui running healthy
+container: wallet-web-ui-app-provider running healthy
+container: wallet-web-ui-app-user running healthy
+container: wallet-web-ui-sv running healthy
+canton_started_at: 2026-11-25T14:47:56.723864124Z
+postgres_started_at: 2026-11-25T14:47:50.658531606Z
+dso_party: DSO::12206c7bb0e6f9c9aea34ed443a07dffcf55874efe81067c8d5713bc865fc7804b57
+MemAvailable: 1556 MiB
+SwapFree: 417 MiB
+
+
+== stop (stopped 2026-11-25T14:54:16.294Z), resume after more than 10 minutes
+resume issued: 15:05:29Z
+resume took 6686 ms
+first command ran at: 15:05:36.465Z, machine uptime 47.53 s
+docker up at: 15:05:36.798Z
+healthy_at: 15:07:40.919Z
+time: 15:07:40.925Z
+machine_uptime_s: 171.99
+cpu: AMD EPYC 9455 48-Core Processor
+container: ans-web-ui-app-provider running healthy
+container: ans-web-ui-app-user running healthy
+container: canton running healthy
+container: nginx running 
+container: postgres running healthy
+container: scan-web-ui running healthy
+container: splice running healthy
+container: sv-web-ui running healthy
+container: wallet-web-ui-app-provider running healthy
+container: wallet-web-ui-app-user running healthy
+container: wallet-web-ui-sv running healthy
+canton_started_at: 2026-11-25T15:06:03.260145915Z
+postgres_started_at: 2026-11-25T15:06:02.783052425Z
+dso_party: DSO::12206c7bb0e6f9c9aea34ed443a07dffcf55874efe81067c8d5713bc865fc7804b57
+MemAvailable: 1070 MiB
+SwapFree: 161 MiB
+--- restart counts
+ans-web-ui-app-provider Up About a minute (healthy)
+ans-web-ui-app-user Up About a minute (healthy)
+canton Up About a minute (healthy)
+canton-warm Up About a minute
+nginx Up About a minute
+postgres Up About a minute (healthy)
+scan-web-ui Up 2 minutes (healthy)
+splice Up About a minute (healthy)
+sv-web-ui Up 2 minutes (healthy)
+wallet-web-ui-app-provider Up 2 minutes (healthy)
+wallet-web-ui-app-user Up 2 minutes (healthy)
+wallet-web-ui-sv Up 2 minutes (healthy)
+
+all checks done 131956 ms after the resume was issued
+
+NOTE: a leftover three-participant Canton sandbox container (canton-warm) also restarted on this machine at the resume above and ran next to LocalNet, so that resume had less CPU and memory than LocalNet alone. It was removed at 15:08Z. The run below repeats the long stop with LocalNet alone.
+
+== second long stop, LocalNet alone
+canton-warm containers: 0
+time: 15:08:45.359Z
+machine_uptime_s: 236.43
+dso_party: DSO::12206c7bb0e6f9c9aea34ed443a07dffcf55874efe81067c8d5713bc865fc7804b57
+MemAvailable: 2208 MiB
+SwapFree: 1103 MiB
+
+sandbox: stopped 2026-11-25T15:08:53.467Z
+resume issued: 15:19:51Z
+resume took 18286 ms
+first command ran at: 15:20:09.595Z, machine uptime 54.75 s
+docker up at: 15:20:10.465Z
+healthy_at: 15:21:54.330Z
+time: 15:21:54.331Z
+machine_uptime_s: 159.49
+cpu: AMD EPYC 4584PX 16-Core Processor
+container: ans-web-ui-app-provider running healthy
+container: ans-web-ui-app-user running healthy
+container: canton running healthy
+container: nginx running 
+container: postgres running healthy
+container: scan-web-ui running healthy
+container: splice running healthy
+container: sv-web-ui running healthy
+container: wallet-web-ui-app-provider running healthy
+container: wallet-web-ui-app-user running healthy
+container: wallet-web-ui-sv running healthy
+canton_started_at: 2026-11-25T15:20:37.10014624Z
+postgres_started_at: 2026-11-25T15:20:36.751851672Z
+dso_party: DSO::12206c7bb0e6f9c9aea34ed443a07dffcf55874efe81067c8d5713bc865fc7804b57
+MemAvailable: 931 MiB
+SwapFree: 1848 MiB
+--- all containers
+ans-web-ui-app-provider Up About a minute (healthy)
+ans-web-ui-app-user Up About a minute (healthy)
+canton Up About a minute (healthy)
+nginx Up About a minute
+postgres Up About a minute (healthy)
+scan-web-ui Up About a minute (healthy)
+splice Up About a minute (healthy)
+sv-web-ui Up About a minute (healthy)
+wallet-web-ui-app-provider Up About a minute (healthy)
+wallet-web-ui-app-user Up About a minute (healthy)
+wallet-web-ui-sv Up About a minute (healthy)
+
+all checks done 123701 ms after the resume was issued

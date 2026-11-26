@@ -1,0 +1,13 @@
+label	topology	participants	cpus	memory	heap	ready_ms	heap_max_mib	collector	idle_cgroup_mib	idle_rss_mib	post_cgroup_mib	peak_cgroup_mib	peak_rss_mib	live_heap_mib	threads	workload_ms	workload	host_load
+sandbox-c4-m8g-h1g-r1	sandbox	1	4	8g	1g	18500	1024	UseG1GC	1456	1475	1587	1589	1605	182	101	5788	ok	7.02
+sandbox-c4-m8g-h512m-r1	sandbox	1	4	8g	512m	18668	512	UseG1GC	1284	1303	1400	1401	1418	181	99	5287	ok	6.28
+sandbox-c4-m8g-h384m-r1	sandbox	1	4	8g	384m	18973	384	UseG1GC	1207	1227	1304	1306	1323	182	99	5184	ok	5.95
+sandbox-c4-m8g-h256m-r1	sandbox	1	4	8g	256m	19119	256	UseG1GC	1066	1086	1172	1174	1191	178	100	5973	ok	7.43
+sandbox-c4-m8g-h192m-r1	sandbox	1	4	8g	192m	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA	not-ready:exit=139,oom=false,running=false	10.09
+sandbox-c4-m8g-h128m-r1	sandbox	1	4	8g	128m	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA	not-ready:exit=139,oom=false,running=false	10.86
+multi-sync-c4-m8g-h1g-r1	multi-sync	3	4	8g	1g	24283	1024	UseG1GC	1690	1704	1785	1793	1801	223	216	9593	ok	10.22
+multi-sync-c4-m8g-h512m-r1	multi-sync	3	4	8g	512m	25047	512	UseG1GC	1400	1414	1516	1538	1546	223	216	9822	ok	8.64
+multi-sync-c4-m8g-h384m-r1	multi-sync	3	4	8g	384m	25138	384	UseG1GC	1285	1299	1372	1380	1390	221	216	10117	ok	7.53
+multi-sync-c4-m8g-h256m-r1	multi-sync	3	4	8g	256m	26441	256	UseG1GC	1151	1166	1237	1252	1260	218	215	10801	ok	9.22
+multi-sync-c4-m8g-h192m-r1	multi-sync	3	4	8g	192m	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA	not-ready:exit=139,oom=false,running=false	10.70
+multi-sync-c4-m8g-h128m-r1	multi-sync	3	4	8g	128m	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA	not-ready:exit=139,oom=false,running=false	17.81

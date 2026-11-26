@@ -1,0 +1,108 @@
+one-headless-r1	capped	sv	canton	2467	2906	4096	running	1.50
+one-headless-r1	capped	sv	postgres	564	748	2048	running	1.50
+one-headless-r1	capped	sv	splice	2704	2930	3072	running	1.50
+one-headless-r1	capped	sv	TOTAL	5735	6584	NA	healthy_ms=134733	1.50
+one-headless-r1	capped	sv	canton-jvm-heap	273	NA	2560	live-after-gc	1.50
+one-headless-r1	capped	sv	splice-jvm-heap	204	NA	2560	live-after-gc	1.50
+one-headless-r1	capped	sv	WORKLOAD	3763	6584	NA	workload=passed,workload_ms=8501,oom_kills=0	1.50
+two-headless-r1	capped	sv app-user	canton	2222	3247	4096	running	3.22
+two-headless-r1	capped	sv app-user	postgres	706	1037	2048	running	3.22
+two-headless-r1	capped	sv app-user	splice	1668	3032	3072	running	3.22
+two-headless-r1	capped	sv app-user	TOTAL	4596	7316	NA	healthy_ms=130157	3.22
+two-headless-r1	capped	sv app-user	canton-jvm-heap	407	NA	2560	live-after-gc	3.22
+two-headless-r1	capped	sv app-user	splice-jvm-heap	217	NA	2560	live-after-gc	3.22
+two-headless-r1	capped	sv app-user	WORKLOAD	4032	7316	NA	workload=passed,workload_ms=6216,oom_kills=0	3.22
+full-headless-r1	capped	sv app-provider app-user	canton	2534	3268	4096	running	2.01
+full-headless-r1	capped	sv app-provider app-user	postgres	844	1353	2048	running	2.01
+full-headless-r1	capped	sv app-provider app-user	splice	1674	2848	3072	running	2.01
+full-headless-r1	capped	sv app-provider app-user	TOTAL	5052	7469	NA	healthy_ms=130887	2.01
+full-headless-r1	capped	sv app-provider app-user	canton-jvm-heap	528	NA	2560	live-after-gc	2.01
+full-headless-r1	capped	sv app-provider app-user	splice-jvm-heap	220	NA	2560	live-after-gc	2.01
+full-headless-r1	capped	sv app-provider app-user	WORKLOAD	4601	7469	NA	workload=passed,workload_ms=6205,oom_kills=0	2.01
+full-r1	capped	sv app-provider app-user	ans-web-ui-app-provider	5	7	256	running	4.90
+full-r1	capped	sv app-provider app-user	ans-web-ui-app-user	5	7	256	running	4.90
+full-r1	capped	sv app-provider app-user	canton	2437	3175	4096	running	4.90
+full-r1	capped	sv app-provider app-user	nginx	4	6	32	running	4.90
+full-r1	capped	sv app-provider app-user	postgres	1237	1425	2048	running	4.90
+full-r1	capped	sv app-provider app-user	scan-web-ui	5	8	256	running	4.90
+full-r1	capped	sv app-provider app-user	splice	1347	3030	3072	running	4.90
+full-r1	capped	sv app-provider app-user	sv-web-ui	5	8	512	running	4.90
+full-r1	capped	sv app-provider app-user	wallet-web-ui-app-provider	12	15	256	running	4.90
+full-r1	capped	sv app-provider app-user	wallet-web-ui-app-user	5	8	256	running	4.90
+full-r1	capped	sv app-provider app-user	wallet-web-ui-sv	6	10	256	running	4.90
+full-r1	capped	sv app-provider app-user	TOTAL	5068	7699	NA	healthy_ms=153168	4.90
+full-r1	capped	sv app-provider app-user	canton-jvm-heap	529	NA	2560	live-after-gc	4.90
+full-r1	capped	sv app-provider app-user	splice-jvm-heap	220	NA	2560	live-after-gc	4.90
+full-r1	capped	sv app-provider app-user	WORKLOAD	4916	7699	NA	workload=passed,workload_ms=7798,oom_kills=0	4.90
+one-headless-r2	capped	sv	canton	2641	2945	4096	running	3.71
+one-headless-r2	capped	sv	postgres	758	837	2048	running	3.71
+one-headless-r2	capped	sv	splice	2518	3018	3072	running	3.71
+one-headless-r2	capped	sv	TOTAL	5917	6800	NA	healthy_ms=133867	3.71
+one-headless-r2	capped	sv	canton-jvm-heap	272	NA	2560	live-after-gc	3.71
+one-headless-r2	capped	sv	splice-jvm-heap	204	NA	2560	live-after-gc	3.71
+one-headless-r2	capped	sv	WORKLOAD	3994	6800	NA	workload=passed,workload_ms=7886,oom_kills=0	3.71
+two-headless-r2	capped	sv app-user	canton	3051	3293	4096	running	1.82
+two-headless-r2	capped	sv app-user	postgres	595	1041	2048	running	1.82
+two-headless-r2	capped	sv app-user	splice	1388	2976	3072	running	1.82
+two-headless-r2	capped	sv app-user	TOTAL	5034	7310	NA	healthy_ms=130459	1.82
+two-headless-r2	capped	sv app-user	canton-jvm-heap	405	NA	2560	live-after-gc	1.82
+two-headless-r2	capped	sv app-user	splice-jvm-heap	219	NA	2560	live-after-gc	1.82
+two-headless-r2	capped	sv app-user	WORKLOAD	3827	7310	NA	workload=passed,workload_ms=7364,oom_kills=0	1.82
+full-headless-r2	capped	sv app-provider app-user	canton	2664	3312	4096	running	0.94
+full-headless-r2	capped	sv app-provider app-user	postgres	1577	1601	2048	running	0.94
+full-headless-r2	capped	sv app-provider app-user	splice	1580	2570	3072	running	0.94
+full-headless-r2	capped	sv app-provider app-user	TOTAL	5821	7483	NA	healthy_ms=155830	0.94
+full-headless-r2	capped	sv app-provider app-user	canton-jvm-heap	533	NA	2560	live-after-gc	0.94
+full-headless-r2	capped	sv app-provider app-user	splice-jvm-heap	220	NA	2560	live-after-gc	0.94
+full-headless-r2	capped	sv app-provider app-user	WORKLOAD	5705	7483	NA	workload=passed,workload_ms=7408,oom_kills=0	0.94
+full-r2	capped	sv app-provider app-user	ans-web-ui-app-provider	5	8	256	running	1.41
+full-r2	capped	sv app-provider app-user	ans-web-ui-app-user	4	7	256	running	1.41
+full-r2	capped	sv app-provider app-user	canton	2601	3267	4096	running	1.41
+full-r2	capped	sv app-provider app-user	nginx	4	7	32	running	1.41
+full-r2	capped	sv app-provider app-user	postgres	1098	1529	2048	running	1.41
+full-r2	capped	sv app-provider app-user	scan-web-ui	4	8	256	running	1.41
+full-r2	capped	sv app-provider app-user	splice	1602	2509	3072	running	1.41
+full-r2	capped	sv app-provider app-user	sv-web-ui	13	15	512	running	1.41
+full-r2	capped	sv app-provider app-user	wallet-web-ui-app-provider	5	7	256	running	1.41
+full-r2	capped	sv app-provider app-user	wallet-web-ui-app-user	5	7	256	running	1.41
+full-r2	capped	sv app-provider app-user	wallet-web-ui-sv	4	7	256	running	1.41
+full-r2	capped	sv app-provider app-user	TOTAL	5345	7371	NA	healthy_ms=154793	1.41
+full-r2	capped	sv app-provider app-user	canton-jvm-heap	527	NA	2560	live-after-gc	1.41
+full-r2	capped	sv app-provider app-user	splice-jvm-heap	219	NA	2560	live-after-gc	1.41
+full-r2	capped	sv app-provider app-user	WORKLOAD	5165	7371	NA	workload=passed,workload_ms=6037,oom_kills=0	1.41
+one-headless-r3	capped	sv	canton	2239	3054	4096	running	1.96
+one-headless-r3	capped	sv	postgres	949	953	2048	running	1.96
+one-headless-r3	capped	sv	splice	1715	2283	3072	running	1.96
+one-headless-r3	capped	sv	TOTAL	4903	6290	NA	healthy_ms=127902	1.96
+one-headless-r3	capped	sv	canton-jvm-heap	273	NA	2560	live-after-gc	1.96
+one-headless-r3	capped	sv	splice-jvm-heap	207	NA	2560	live-after-gc	1.96
+one-headless-r3	capped	sv	WORKLOAD	4402	6304	NA	workload=passed,workload_ms=9017,oom_kills=0	1.96
+two-headless-r3	capped	sv app-user	canton	2618	3291	4096	running	2.11
+two-headless-r3	capped	sv app-user	postgres	858	1040	2048	running	2.11
+two-headless-r3	capped	sv app-user	splice	1423	2774	3072	running	2.11
+two-headless-r3	capped	sv app-user	TOTAL	4899	7105	NA	healthy_ms=130168	2.11
+two-headless-r3	capped	sv app-user	canton-jvm-heap	405	NA	2560	live-after-gc	2.11
+two-headless-r3	capped	sv app-user	splice-jvm-heap	219	NA	2560	live-after-gc	2.11
+two-headless-r3	capped	sv app-user	WORKLOAD	4096	7105	NA	workload=passed,workload_ms=6673,oom_kills=0	2.11
+full-headless-r3	capped	sv app-provider app-user	canton	2510	3214	4096	running	2.02
+full-headless-r3	capped	sv app-provider app-user	postgres	1233	1423	2048	running	2.02
+full-headless-r3	capped	sv app-provider app-user	splice	1436	3050	3072	running	2.02
+full-headless-r3	capped	sv app-provider app-user	TOTAL	5179	7687	NA	healthy_ms=151462	2.02
+full-headless-r3	capped	sv app-provider app-user	canton-jvm-heap	533	NA	2560	live-after-gc	2.02
+full-headless-r3	capped	sv app-provider app-user	splice-jvm-heap	223	NA	2560	live-after-gc	2.02
+full-headless-r3	capped	sv app-provider app-user	WORKLOAD	4913	7687	NA	workload=passed,workload_ms=6646,oom_kills=0	2.02
+full-r3	capped	sv app-provider app-user	ans-web-ui-app-provider	5	8	256	running	2.72
+full-r3	capped	sv app-provider app-user	ans-web-ui-app-user	6	9	256	running	2.72
+full-r3	capped	sv app-provider app-user	canton	2576	3305	4096	running	2.72
+full-r3	capped	sv app-provider app-user	nginx	4	6	32	running	2.72
+full-r3	capped	sv app-provider app-user	postgres	1087	1428	2048	running	2.72
+full-r3	capped	sv app-provider app-user	scan-web-ui	5	7	256	running	2.72
+full-r3	capped	sv app-provider app-user	splice	1356	3036	3072	running	2.72
+full-r3	capped	sv app-provider app-user	sv-web-ui	5	8	512	running	2.72
+full-r3	capped	sv app-provider app-user	wallet-web-ui-app-provider	5	8	256	running	2.72
+full-r3	capped	sv app-provider app-user	wallet-web-ui-app-user	6	8	256	running	2.72
+full-r3	capped	sv app-provider app-user	wallet-web-ui-sv	10	12	256	running	2.72
+full-r3	capped	sv app-provider app-user	TOTAL	5065	7835	NA	healthy_ms=152723	2.72
+full-r3	capped	sv app-provider app-user	canton-jvm-heap	529	NA	2560	live-after-gc	2.72
+full-r3	capped	sv app-provider app-user	splice-jvm-heap	226	NA	2560	live-after-gc	2.72
+full-r3	capped	sv app-provider app-user	WORKLOAD	4902	7835	NA	workload=passed,workload_ms=7026,oom_kills=0	2.72

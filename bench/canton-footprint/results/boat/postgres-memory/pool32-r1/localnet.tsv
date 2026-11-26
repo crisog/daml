@@ -1,0 +1,15 @@
+pg-probe	capped	sv app-provider app-user	ans-web-ui-app-provider	3	7	256	running	3.65
+pg-probe	capped	sv app-provider app-user	ans-web-ui-app-user	3	7	256	running	3.65
+pg-probe	capped	sv app-provider app-user	canton	2728	3226	4096	running	3.65
+pg-probe	capped	sv app-provider app-user	nginx	6	9	32	running	3.65
+pg-probe	capped	sv app-provider app-user	postgres	1356	1403	2048	running	3.65
+pg-probe	capped	sv app-provider app-user	scan-web-ui	3	7	256	running	3.65
+pg-probe	capped	sv app-provider app-user	splice	1569	2247	3072	running	3.65
+pg-probe	capped	sv app-provider app-user	sv-web-ui	4	7	512	running	3.65
+pg-probe	capped	sv app-provider app-user	wallet-web-ui-app-provider	8	11	256	running	3.65
+pg-probe	capped	sv app-provider app-user	wallet-web-ui-app-user	4	7	256	running	3.65
+pg-probe	capped	sv app-provider app-user	wallet-web-ui-sv	4	7	256	running	3.65
+pg-probe	capped	sv app-provider app-user	TOTAL	5688	6938	NA	healthy_ms=182628	3.65
+pg-probe	capped	sv app-provider app-user	canton-jvm-heap	527	NA	2560	live-after-gc	3.65
+pg-probe	capped	sv app-provider app-user	splice-jvm-heap	217	NA	2560	live-after-gc	3.65
+pg-probe	capped	sv app-provider app-user	WORKLOAD	5513	6938	NA	workload=passed,workload_ms=39054,oom_kills=0	3.65

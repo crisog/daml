@@ -1,0 +1,7 @@
+multi-sync-r1	multi-sync	5	26610	4811	17466	2261	2270	passed
+two-r1	two	5	22547	6861	20998	2002	2009	passed
+multi-sync-r2	multi-sync	5	35618	6620	22730	2122	2123	passed
+two-r2	two	5	27547	6354	21894	2090	2099	passed
+multi-sync-r3	multi-sync	5	34584	6837	21974	2181	2182	passed
+two-r3	two	5	21187	5021	17844	2054	2103	passed
+red-no-accept	multi-sync	5	25654	4064	15714	2233	2251	script-failed

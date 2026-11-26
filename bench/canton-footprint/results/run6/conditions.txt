@@ -1,0 +1,139 @@
+run6: where the start time goes, and which part settings can remove
+Date: 2026-11-25, 18:10 to 19:30 UTC. Machine: our machine (Ryzen 9 5950X, 125 GiB, one NVMe disk).
+Canton open-source 3.7.4 on Temurin 21. Splice LocalNet 0.10.3.
+
+1. Sandbox cold starts with settings that exist today (sandbox.tsv, run6.sh)
+   Container pinned to cores 8-11, 4 CPUs, 8 GiB, default heap. Four starts of
+   each variant, in turns:
+     default   the release as it is
+     cache     Canton's compiled startup script kept between starts. Canton
+               compiles its startup script with Ammonite at each start and
+               keeps the result in ~/.ammonite. bench.sh mounts a host
+               directory there (SCRIPT_CACHE_DIR). One start that is not
+               counted fills it.
+     archive   -XX:SharedArchiveFile with the archive from make-archive.sh
+     both      cache and archive
+     both-c1   cache, archive and -XX:TieredStopAtLevel=1
+   Ready, seconds:
+     default  16.7 18.1 16.6 17.3
+     cache    13.1 13.4 13.5 15.0
+     archive  13.1 12.9 14.0 13.8
+     both      9.3  9.4  9.9  9.6
+     both-c1  11.6 11.5 12.0 (the fourth value is in sandbox.tsv)
+   earlier/ holds the first three starts with the cache (16.8 s with an empty
+   cache, then 13.5 s and 13.6 s), before the container was pinned.
+
+2. A profile of one sandbox start (profile.tsv, profile/, start-profile.sh,
+   start-profile-report.py)
+   One start with an empty script cache, with Java Flight Recorder. CPU time of
+   the JVM until the ready line: 34.5 s over 17.5 s of wall time. JIT compiler
+   threads 13.8 s (40%), Canton worker threads 9.7 s, main thread 7.5 s,
+   garbage collector 2.4 s. The JVM compiled 26,604 methods.
+   Flight Recorder took 132 execution samples in that start. That is too few to
+   split the time by kind of work, so the post does not use the sample report.
+
+3. The stages of a LocalNet start (localnet-stages.py)
+   The script reads the compose.log that localnet.sh keeps. Input: the six
+   starts of results/boat/default-4cpu (boat.dev, 4 shared vCPUs, shipped
+   limits). Seconds for each stage:
+     run  postgres canton apps decode synchronizer upload rules validators probe sum
+     r1      6      16     31    63      28         30     22      50       13   258
+     r2     11      41     49    94      30         32     41      79        2   380
+     r3     17      43     78    99      30         42     39      61       11   420
+     r4     11      42     91    94      21         22     13      38       16   350
+     r5      6      16     36    61      27         23     13      38        1   220
+     r6     11      21     39    68      26         36     28      54       17   300
+     median 11      31     44    81      27         31     25      52       12   315
+   "decode" starts when the SV app has set the identity of its participant and
+   ends at its next log line ("Get participant ID started"). In that interval
+   the Splice JVM sends no request to Canton, and four apps log "Finished
+   loading package signatures from resources" at the same instant.
+   The same stages for four starts on our machine (run2, 4 cores): decode 33 to
+   34 s of 159 to 186 s.
+
+4. The decode alone (splice-decode.txt, ../../splice-decode.sc)
+
+5. LocalNet cold starts with two start settings (localnet.tsv, run6-localnet.sh)
+   Pinned to cores 0-3, shipped limits, no restart. Three starts of each
+   variant, in turns:
+     shipped      the release as it is
+     info         ../../localnet-info-logs.yaml: both JVMs log at INFO, not DEBUG
+     info-probe   ../../localnet-info-logs-fast-probe.yaml: INFO logs and a
+                  health probe every 5 s
+   The sandbox starts of part 1 ran on cores 8-11 during the first of these runs.
+   Healthy, seconds: shipped 144.7 143.5 148.2, info 170.3 168.3 143.2,
+   info-probe 138.1 140.6 189.7.
+   Seconds for each part of a start. Some stage lines are DEBUG lines, so the
+   parts below are the ones that every log level has:
+     run            postgres canton apps identity-to-validators probe
+     shipped-r1       15.8    10.7  20.6        89.4             6.8
+     shipped-r2       15.8    10.9  20.6        86.8             7.8
+     shipped-r3       15.8    15.8  23.5        85.7             6.0
+     info-r1          41.2    10.7  19.9        83.9             9.1
+     info-r2          15.7    10.7  21.6        99.9            19.0
+     info-r3          15.7    10.7  20.1        87.2             7.9
+     info-probe-r1    15.8    10.7  20.8        86.7             2.7
+     info-probe-r2    15.7    10.7  20.5        87.2             4.7
+     info-probe-r3    56.4    15.7  16.5        90.8             4.4
+   INFO logs did not shorten the work of the Splice apps (84 to 100 s against
+   86 to 89 s), so the post does not propose them. A probe every 5 s shortened
+   the wait for a probe from 6.0-19.0 s (six starts with the shipped probes) to
+   2.7-4.7 s. Two starts lost 25 s and 40 s in the Postgres stage, with no
+   relation to the variant.
+
+6. The transfer test (../../localnet-transfer-test.py)
+   Developed on a LocalNet with ../../localnet-small-limits.yaml on cores 0-3.
+   3 transfers: all accepted, 5.6 s. With the accept call removed from a copy of
+   the script, the test ended with exit code 1 ("the receiver's balance grew by
+   0E-10, expected 2.0"). 20 transfers: all accepted, 35.9 s in total, median
+   1.78 s for one transfer, sender -20.0, receiver +20.0, 0 kernel kills. After
+   the transfers: canton 2,174 of 2,560 MiB, splice 1,477 of 2,048 MiB.
+
+7. Why the Postgres recovery is slower on our machine than on boat.dev (../../fsync-cost.py)
+   One recovery on our machine, from the Postgres log (run2, all-capped-4cores-kill-r1):
+     36.7 s  "syncing data directory (fsync)": Postgres calls fsync on each of
+             its 12,208 files (15 databases) before it reads its write-ahead log
+      0.5 s  redo
+     13.5 s  the checkpoint at the end of recovery (16,247 buffers)
+     50.8 s  from "database system was interrupted" to "ready to accept connections"
+   On boat.dev the first step takes 0.3 s for the same files (transfer-ab logs:
+   0.3 s from "was interrupted" to "automatic recovery in progress").
+   fsync-cost.py writes 2,000 files of 8 KiB, then calls fsync on each one, two
+   times. Both machines: ext4, the same filesystem as the Docker volumes.
+     machine                                   new files   the same files again
+     ours (Crucial P3 Plus NVMe, bare metal)   2.99 ms     1.97 ms
+     boat.dev (virtio disk, 4 vCPU machine)    4.47 ms     0.024 ms
+   The boat.dev value for new files was taken while LocalNet restarted on that
+   machine. An fsync that has nothing to write costs 2 ms on our disk and
+   0.02 ms on the boat.dev disk. Most of the 12,208 files have nothing to write
+   at recovery: 12,208 x 2 to 3 ms is 24 to 37 s, and 12,208 x 0.024 ms is 0.3 s.
+   Inferred, not measured: ext4 sends a cache flush to the disk for each fsync,
+   our NVMe takes about 2 ms for each flush, and the virtual disk returns at
+   once when it has nothing to flush.
+
+8. A Postgres setting for the slow recovery (syncfs.tsv, syncfs-alter.tsv)
+   For the report to Splice, not for the post. The case is the slow-recovery
+   restart of run5: 8,000 extra tables (about 44,200 files), kill, shipped
+   limits, cores 0-3. With the shipped settings it failed 2 of 2 in run5.
+   a. ../../localnet-syncfs.yaml adds "-c recovery_init_sync_method=syncfs" to
+      the command of the postgres service. Result: failed 2 of 2, and the log
+      still says "syncing data directory (fsync)". Cause, from
+      docker/postgres/postgres-entrypoint.sh of the release: the entrypoint
+      calls docker_temp_server_start at each start, before it runs the command.
+      That temporary server runs the recovery, with pg_ctl -w (60 s), and it
+      does not get the options of the command.
+   b. The same case with the setting stored in the data directory before the
+      kill (ALTER SYSTEM SET recovery_init_sync_method = syncfs, which writes
+      postgresql.auto.conf). Result: the fsync step is gone (0.06 s), and the
+      restart still failed 2 of 2. The 8,000 extra tables are new files that
+      the checkpoint at the end of recovery must sync, so this case is not a
+      fair test of the setting.
+   c. syncfs-normal.tsv: normal kill restarts (no extra tables), shipped
+      limits, three with the shipped Postgres settings and three with the
+      setting of b, in turns. Seconds from "database system was interrupted"
+      to "ready to accept connections":
+        shipped   38.1   51.0   did not start at the first attempt (pg_ctl timeout)
+        syncfs    14.1   14.1   14.1
+      With the setting, the sync step takes less than 0.1 s, and the 13.5 s
+      that are left are the checkpoint at the end of recovery. All six
+      networks kept their ledger.

@@ -1,0 +1,10 @@
+app-user/app-user: POST /v0/wallet/tap returned 429: {
+  "error" : "Traffic balance below reserved traffic amount (0 < 200000)"
+}
+app-user/app-user: POST /v0/wallet/tap returned 429: {
+  "error" : "Traffic balance below reserved traffic amount (0 < 200000)"
+}
+app-user/app-user: POST /v0/wallet/tap returned 429: {
+  "error" : "Traffic balance below reserved traffic amount (0 < 200000)"
+}
+1	1	2931	2931	2931	-1.0000000000	1.0000000000

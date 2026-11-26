@@ -1,0 +1,9 @@
+cpu: AMD Ryzen 7 9700X 8-Core Processor
+cpus: 4
+MemTotal:        8131944 kB
+SwapTotal:       2097148 kB
+disk: /dev/vda1 ext4 79G 55G
+kernel: 6.8.0-117-generic
+Docker version 29.7.0, build c1eba93
+Docker Compose version v5.3.1
+kernel_oom_kills: 0

@@ -1,0 +1,63 @@
+== java
+openjdk version "21.0.13.1" 2026-11-17
+== dpm install
+install exit: 0 after 33 s
+successfully bootstrapped bundle
+tput: No value for $TERM and no -T specified
+tput: No value for $TERM and no -T specified
+Successfully installed Dpm.
+3.7.4
+dpm home size: 2.8G
+== dpm sandbox --help
+Canton v3.7.4
+Usage: canton [daemon|run|generate|sandbox|sandbox-interactive|sandbox-console] [options] <args>...
+
+  -h, --help               Print usage
+  --version                Print versions
+  -c, --config <file1>,<file2>,...
+                           Set configuration file(s).
+                                                      If several configuration files assign values to the same key,
+                                                      the last value is taken. For a 'sandbox' command, its default config
+                                                      is processed first, followed by files defined with '-c' and '--config'
+  -C, --config key-value's <key1>=<value1>,<key2>=<value2>
+                           Set configuration key value pairs directly.
+                                                      Can be useful for providing simple short config info.
+  --bootstrap <file>       Set a script to run on startup
+  --no-tty                 Do not use a tty
+  --manual-start           Don't automatically start the nodes
+  -D<property>=<value>     Set a JVM property value
+
+Logging Options:
+  -v, --verbose            Canton logger level -> DEBUG
+  --debug                  Console/stdout level -> INFO, root logger -> DEBUG
+  --log-truncate           Truncate log file on startup.
+  --log-level-root <LEVEL>
+                           Log-level of the root logger
+  --log-level-canton <LEVEL>
+                           Log-level of the Canton logger
+  --log-level-stdout <LEVEL>
+                           Log-level of stdout
+  --log-file-appender rolling(default)|flat|off
+                           Type of log file appender
+  --log-file-name <value>  Name and location of log-file, default is log/canton.log
+  --kms-log-file-name <value>
+                           Name and location of KMS log-file, default is log/canton_kms.log
+  --log-file-rolling-history <value>
+                           Number of history files to keep when using rolling log file appender.
+  --kms-log-file-rolling-history <value>
+                           Number of history KMS files to keep when using rolling log file appender.
+  --log-file-rolling-pattern <value>
+                           Log file suffix pattern of rolling file appender. Default is 'yyyy-MM-dd'.
+  --kms-log-file-rolling-pattern <value>
+== dpm sandbox --multi-sync
+waited 61 s
+sandbox listening at ports: 6865(gRPC) and 6864(HTTP)
+sidebox listening at ports: 8865(gRPC) and 8864(HTTP)
+pebblebox listening at ports: 7865(gRPC) and 7864(HTTP)
+Canton sandbox is ready.
+== synchronizers each participant is connected to
+port 6864: ["synchronizer-1","synchronizer-2"]
+port 7864: ["synchronizer-1","synchronizer-2"]
+port 8864: ["synchronizer-2"]
+== canton version in the log
+

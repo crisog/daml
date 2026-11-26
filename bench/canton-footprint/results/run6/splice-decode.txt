@@ -1,0 +1,35 @@
+The load of package signatures that each Splice app does at its start, alone.
+Date: 2026-11-25. Machine: our machine (Ryzen 9 5950X), 4 cores (12-15), 3 GiB.
+Image: ghcr.io/digital-asset/decentralized-canton-sync/docker/splice-app:0.10.3
+Command, one new JVM for each line:
+  docker run --rm --cpuset-cpus 12-15 --memory 3g --entrypoint /app/splice-node/bin/splice-node \
+    --env VARIANT=<variant> --volume <dir with splice-decode.sc as decode.sc and an empty.conf "canton {}">:/work:ro \
+    <image> run /work/decode.sc -c /work/empty.conf --no-tty
+
+VARIANT=release   the code path of the release (ResourceTemplateDecoder.loadPackageSignaturesFromResources)
+VARIANT=distinct  reads each DAR as the release does, decodes the signature of each package id one time
+VARIANT=entries   parses an archive only when no earlier DAR had a file with the same name
+VARIANT=unzip     reads every archive from every DAR and parses none
+
+variant   seconds  output
+release   14.6     dars=71 signatures=104
+distinct  13.7     dars=71 packages=2662 signatures=104
+release   15.8
+distinct  14.4
+release   16.5
+distinct  13.6
+entries   5.2      dars=71 packages=2662 parsed=110 signatures=104
+unzip     0.8      dars=71 packages=2662 mib=159
+release   14.8
+entries   5.2
+unzip     0.9
+release   14.7
+entries   5.1
+release   14.7     digest=d128822c0bff0ab7
+entries   5.1      digest=d128822c0bff0ab7
+
+The digest is a SHA-256 over the package ids in order, each with the text of its
+signature. The two variants give the same digest, so they give the same result.
+Median: release 14.75 s (6 runs), entries 5.15 s (4 runs).
+"distinct" shows that the time is not in the signatures: it is in the parse of
+the 2,662 archives, of which 110 file names and 104 package ids are distinct.

@@ -1,0 +1,33 @@
+-- The Canton Coin registry of Splice's test code, for a ledger with a wall
+-- clock. Splice's own "initialize" sets the ledger time, and the script runner
+-- refuses that for such a ledger.
+module SandboxRegistry where
+
+import DA.Time
+import Daml.Script
+
+import Splice.Amulet.TokenApiUtils (amuletInstrumentId)
+import Splice.AmuletRules (AmuletRules(..), AmuletRules_Bootstrap_Rounds(..))
+import Splice.ExternalPartyAmuletRules (ExternalPartyAmuletRules(..))
+import Splice.Schedule
+import Splice.Testing.Registries.AmuletRegistry (AmuletRegistry(..))
+import Splice.Testing.Registries.AmuletRegistry.Parameters (defaultAmuletConfig)
+
+-- | The handle that Splice's test code takes for a registry of this DSO party.
+registryOf : Party -> AmuletRegistry
+registryOf dso = AmuletRegistry with dso; instrumentId = amuletInstrumentId dso
+
+-- | Creates the rules, the contract that starts a transfer, and the rounds.
+createRegistry : Party -> Script AmuletRegistry
+createRegistry dso = do
+  amuletRulesCid <- submit dso $ createCmd AmuletRules with
+    dso
+    configSchedule = Schedule with initialValue = defaultAmuletConfig; futureValues = []
+    isDevNet = True
+    contractStateSchemaVersion = None
+  _ <- submit dso $ createCmd ExternalPartyAmuletRules with dso
+  _ <- submit dso $ exerciseCmd amuletRulesCid AmuletRules_Bootstrap_Rounds with
+    amuletPrice = 0.5
+    round0Duration = minutes 10
+    initialRound = None
+  pure (registryOf dso)

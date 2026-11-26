@@ -1,0 +1,36 @@
+time="2026-11-25T18:41:19Z" level=warning msg="The \"ALPHA_PROTOCOL_VERSION_ENV\" variable is not set. Defaulting to a blank string."
+time="2026-11-25T18:41:19Z" level=warning msg="The \"ALPHA_PROTOCOL_VERSION_ENV\" variable is not set. Defaulting to a blank string."
+ Container ans-web-ui-app-provider Starting 
+ Container sv-web-ui Starting 
+ Container wallet-web-ui-app-provider Starting 
+ Container postgres Starting 
+ Container ans-web-ui-app-user Starting 
+ Container wallet-web-ui-app-user Starting 
+ Container scan-web-ui Starting 
+ Container wallet-web-ui-app-provider Started 
+ Container ans-web-ui-app-user Started 
+ Container sv-web-ui Started 
+ Container wallet-web-ui-app-user Started 
+ Container scan-web-ui Started 
+ Container postgres Started 
+ Container postgres Waiting 
+ Container ans-web-ui-app-provider Started 
+ Container postgres Healthy 
+ Container canton Starting 
+ Container canton Started 
+ Container canton Waiting 
+ Container canton Healthy 
+ Container splice Starting 
+ Container splice Started 
+ Container wallet-web-ui-app-provider Waiting 
+ Container wallet-web-ui-app-user Waiting 
+ Container splice Waiting 
+ Container wallet-web-ui-sv Waiting 
+ Container wallet-web-ui-sv Skipped: optional dependency "wallet-web-ui-sv" failed to start 
+time="2026-11-25T18:41:59Z" level=warning msg="optional dependency \"wallet-web-ui-sv\" failed to start: container wallet-web-ui-sv exited (137)"
+ Container wallet-web-ui-app-provider Healthy 
+ Container wallet-web-ui-app-user Healthy 
+ Container splice Healthy 
+ Container nginx Starting 
+ Container nginx Started 
+curl: (56) Recv failure: Connection reset by peer

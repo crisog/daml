@@ -1,0 +1,14 @@
+Test Summary[m
+daml/Splice/Tests/TestAmuletTokenTransfer.daml:setupTest: ok, 13 active contracts, 10 transactions.
+daml/Splice/Tests/TestAmuletTokenTransfer.daml:test_factory_PublicFetch: ok, 13 active contracts, 11 transactions.
+daml/Splice/Tests/TestAmuletTokenTransfer.daml:setupTwoStepTransfer: ok, 16 active contracts, 13 transactions.
+daml/Splice/Tests/TestAmuletTokenTransfer.daml:test_expired: ok, 13 active contracts, 12 transactions.
+daml/Splice/Tests/TestAmuletTokenTransfer.daml:test_happy_path_self: ok, 19 active contracts, 20 transactions.
+daml/Splice/Tests/TestAmuletTokenTransfer.daml:test_no_holdings: ok, 13 active contracts, 11 transactions.
+daml/Splice/Tests/TestAmuletTokenTransfer.daml:test_wrong_admin: ok, 13 active contracts, 12 transactions.
+daml/Splice/Tests/TestAmuletTokenTransfer.daml:test_two_step_withdraw: ok, 15 active contracts, 14 transactions.
+daml/Splice/Tests/TestAmuletTokenTransfer.daml:test_two_step_withdraw_locked_amulet_gone: ok, 15 active contracts, 19 transactions.
+daml/Splice/Tests/TestAmuletTokenTransfer.daml:test_two_step_reject: ok, 15 active contracts, 14 transactions.
+daml/Splice/Tests/TestAmuletTokenTransfer.daml:test_two_step_reject_locked_amulet_gone: ok, 15 active contracts, 16 transactions.
+daml/Splice/Tests/TestAmuletTokenTransfer.daml:test_two_step_success: ok, 15 active contracts, 14 transactions.
+daml/Splice/Tests/TestAmuletTokenTransfer.daml:test_happy_path_direct: ok, 14 active contracts, 11 transactions.

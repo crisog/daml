@@ -1,0 +1,25 @@
+run5: LocalNet restart when the Postgres crash recovery takes more than 60 seconds
+Date: 2026-11-25, 16:56 to 17:35 UTC. Machine: our machine (Ryzen 9 5950X, 125 GiB, one NVMe disk).
+Splice LocalNet 0.10.3, pinned to cores 0-3, kill restarts.
+
+Why: in run4, the four restarts that ran with both database settings recovered
+in less than 60 s, so the shipped settings would have passed them too. This run
+makes the recovery slow and compares both configurations.
+
+Commands, in turns, two times each:
+  EXTRA_TABLES=8000 CPUSET=0-3 RESTART=kill \
+    ./localnet.sh shipped-slow-recovery-r<N> capped sv app-provider app-user
+  EXTRA_TABLES=8000 CPUSET=0-3 RESTART=kill OVERRIDE=localnet-small-limits.yaml \
+    ./localnet.sh override-slow-recovery-r<N> capped sv app-provider app-user
+
+EXTRA_TABLES creates 8,000 empty tables before the kill. Crash recovery syncs
+every file of the data directory, and the tables raise the file count from
+12,202 to about 44,200. The tables model a slow disk. They are not a model of
+a LocalNet with more data.
+
+Postgres log after the kill:
+  shipped   the sync was at 50 s when pg_ctl printed "server did not start in
+            time" (60 s). The container exited with code 1. The second start
+            attempt ended the same way.
+  override  the sync took more than 80 s, recovery completed, and LocalNet was
+            healthy at the first start attempt with the same DSO party.

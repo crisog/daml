@@ -1,0 +1,598 @@
+Runs on boat.dev sandboxes, 2026-11-25, 14:12 to 15:34 UTC.
+Canton open-source 3.7.4 on eclipse-temurin:21-jdk. Splice LocalNet 0.10.3 from
+canton-network/splice commit 76100713f7604eb26dc3538136faca4a072b9a9e, with
+resource-constraints.yaml. The checksums in default-4cpu/localnet-files.sha256
+match the files of the earlier runs on our own machine.
+
+Sandboxes (boat new --type <size> --ttl 7200 --no-env):
+  default-4cpu  4 vCPU, 7.76 GiB memory, 2 GiB swap, AMD EPYC 4465P, ext4 79 G
+  small-2cpu    2 vCPU, 3.82 GiB memory, 2 GiB swap, AMD Ryzen 7 9700X, ext4 79 G
+Both: Ubuntu, Linux 6.8.0-117, Docker 29.7.0, Compose 5.3.1. vCPUs are shared.
+
+Commands, run on a machine with none of the inputs:
+  default-4cpu  ./fresh-host.sh 4 8g sandbox localnet
+  small-2cpu    ./fresh-host.sh 2 4g sandbox
+fresh-host.sh then read its directory from WORK_DIR. boat sets WORK_DIR to
+/home/user, so downloads and results went to /home/user. The script now reads
+BENCH_DIR. Nothing else changed after the runs.
+
+Files:
+  <size>/host.txt, setup.tsv, sandbox.tsv, localnet.tsv, memory.tsv   written by fresh-host.sh
+  default-4cpu/kernel-counters.txt   /proc/stat, /proc/pressure and /proc/vmstat at the end of the run
+  sandbox-stop-resume.txt   warm-test.sh on small-2cpu: boat stop, then boat resume after 2 and after 11 minutes
+  localnet-stop-resume.txt  localnet-warm.sh on the same sandbox resumed as 4 vCPU (boat resume --type default)
+The full results with every container log are on our own machine, in
+~/canton-bench/results/boat/.
+
+CPU models seen across the two sandboxes and their resumes: EPYC 4465P,
+Ryzen 7 9700X, Ryzen 9 9950X, EPYC 4584PX, EPYC 9455.
+
+Known flaws:
+  - "probe-failed" in the workload column of sandbox.tsv is a race in bench.sh:
+    awk closes the pipe before jcmd ends, and pipefail reports it. Every field
+    of those rows is present, and every workload passed.
+  - During the first LocalNet long stop a leftover Canton sandbox container
+    (canton-warm) restarted with LocalNet. The second long stop repeats the
+    measurement with LocalNet alone.
+  - The LocalNet start on the second machine (186 s) may have run next to that
+    leftover container. Its log was reset at the resume, so this is not known.
+
+Machine time billed (boat usage): default-4cpu 4,916 s = $0.049. The other
+sandbox 1,279 s = $0.013. Both at list price, inside the free trial.
+
+Later runs on 2026-11-25 (16:17 to 17:13 UTC)
+
+dpm-sandbox-multi-sync.txt
+  A 2 vCPU / 4 GB sandbox. It installed dpm with the documented install
+  command (33 s, 2.8 GB in the dpm home), then ran `dpm sandbox --multi-sync`
+  one time. The ready line appeared after 61 s. The three participants answered
+  on ports 6864, 7864 and 8864, connected to the synchronizers as the release
+  script sets them.
+
+small-limits-ab/
+  A 4 vCPU / 8 GB sandbox (Ryzen 9 9950X, 2 GiB swap). ab-limits.sh started
+  LocalNet in turns with ../../localnet-small-limits.yaml ("small") and with
+  the shipped limits ("shipped"), three times each, each with a kill restart.
+  localnet.tsv has the rows of localnet.sh. memory-summary.tsv has the lowest
+  MemAvailable and the most swap in use during each run, from a sample every
+  5 s (<label>.memory.tsv).
+  Swap left in use by one run can still be in use in the next run, so the
+  "small" swap values after the first run include pages that a "shipped" run
+  moved to swap.
+  first-start-that-failed/: before this comparison, fresh-host.sh ran on the
+  same sandbox with the override. `docker compose up` ended after 53 s with
+  "container splice is unhealthy". The kernel killed nothing (oom_kill 0), and
+  the container log shows one start with no error. The cause is not known.
+  The next four first starts with the same file passed (one from a probe
+  script, three in the comparison).
+
+Machine time billed for all sandboxes of this account by the end of these
+runs (boat limits): 8,789 s at the 4 vCPU rate = $0.088 at list price, inside
+the free trial.
+
+Runs on 2026-11-25, 18:33 UTC and later: settings that exist today, and a real workload
+
+Two new sandboxes (boat new --type default --ttl 7200 --no-env), each with
+4 vCPUs and 8 GB on a Ryzen 7 9700X. These machines are faster than the first
+one (EPYC 4465P): the default sandbox starts in 14 s and 19 s here, against
+31 s and 38 s there.
+
+start-settings/ (start-settings.sh)
+  Sandbox cold starts with the release as it is ("default") and with Canton's
+  compiled startup script kept between starts plus a class-data archive
+  ("both"). Four starts of each, the two topologies and the two variants in
+  turns. Ready, seconds:
+    one participant      default 14.4 17.7 13.8 13.8 (median 14.1)   both 7.2 10.0 7.4 7.4 (median 7.4)
+    three participants   default 19.4 19.0 18.9 19.2 (median 19.1)   both 13.9 12.4 12.9 12.6 (median 12.8)
+  Two default rows have "probe-failed" in the last column: the read of the JVM
+  heap after the workload failed. The ready time and the workload are valid.
+
+transfer-ab/ (ab-limits.sh with TRANSFERS=20, on the second machine)
+  LocalNet with ../../localnet-small-limits.yaml ("small") and with the shipped
+  limits ("shipped"), in turns, two runs each. Each run starts LocalNet, runs
+  ../../localnet-transfer-test.py with 20 transfers, and restarts after a kill.
+  One transfer: the wallet user of the app-user validator sends 1 Canton Coin
+  to the wallet user of the app-provider validator with the token standard
+  (POST /v0/wallet/token-standard/transfers), and the receiver accepts it. The
+  test passes only when the receiver's balance grew by 20 and the sender's fell
+  by 20 or more.
+    run         healthy  transfers  total   median  slowest  peak after   most swap
+    small-r1    234.2 s  20 of 20   39.7 s  1.90 s  2.58 s   5,877 MiB    69 MiB
+    shipped-r1  225.3 s  20 of 20   39.3 s  1.97 s  2.40 s   7,192 MiB    979 MiB
+    small-r2    175.1 s  20 of 20   39.5 s  1.97 s  2.24 s   5,898 MiB    123 MiB
+    shipped-r2  195.3 s  20 of 20   50.5 s  2.50 s  3.02 s   7,504 MiB    1,979 MiB
+  No container had a kernel kill (oom_kill 0), and the kernel log has no
+  "out of memory" line.
+  Restarts of these four runs: all four returned healthy. Three needed a second
+  `compose start`, and one ledger check did not run ("unchecked": nginx reset
+  the connection). The first start reported "container postgres exited (137)"
+  or "container canton exited (137)". 137 is the exit code of our own kill, and
+  the Postgres log shows one continuous recovery in each run. Cause: localnet.sh
+  called `compose start` before the killed containers had exited, so the start
+  did nothing to a container that was about to exit. localnet.sh now waits for
+  the containers to exit (docker wait). These three rows do not show a fault of
+  LocalNet. The earlier failures on our machine had another signature:
+  "container postgres exited (1)" after 60 s, which is the pg_ctl timeout.
+  Postgres was ready 18.6, 33.2, 35.0 and 23.8 s after the kill in these runs.
+  On the first machine it was ready after 1.7 to 16.1 s (six restarts).
+
+probe-ab/ (probe-ab.sh, on the first of the two new machines, after start-settings)
+  LocalNet cold starts with the shipped health probes and with
+  ../../localnet-fast-probe.yaml (a probe every 5 s for canton and splice), in
+  turns, three starts each, shipped limits, no restart. Stages from
+  ../../localnet-stages.py, seconds:
+    run         postgres canton apps decode synchronizer upload rules validators probe  healthy
+    shipped-r1     17      16    26    35       19         10     6       19       7    163.5
+    shipped-r2      6      16    20    26       19         11     6       19       6    133.9
+    shipped-r3     11      16    23    27       19         10     8       17       9    146.8
+    probe-r1        6      16    21    29       20         11     6       21       3    139.0
+    probe-r2        6      16    21    26       19         11     7       17       2    129.5
+    probe-r3        6      16    33    26       20         10     8       23       1    147.6
+  The wait for a probe: 6 to 9 s (median 7) with the shipped probes, 1 to 3 s
+  (median 2) with a probe every 5 s. On the first machine of this file (EPYC
+  4465P, six starts) the wait was 1 to 17 s (median 12).
+
+transfer-ab/after-the-fix/ (the same command on the same machine, with the fixed localnet.sh)
+    run         healthy  transfers  total   median  slowest  peak after   most swap
+    small-r1    205.5 s  20 of 20   37.9 s  1.89 s  2.34 s   6,043 MiB    141 MiB
+    shipped-r1  188.2 s  20 of 20   52.9 s  2.01 s  6.68 s   7,579 MiB    1,137 MiB
+    small-r2    172.1 s  20 of 20   48.2 s  2.42 s  3.08 s   5,751 MiB    144 MiB
+    shipped-r2  236.6 s  20 of 20   54.4 s  2.69 s  3.11 s   7,699 MiB    792 MiB
+  All four restarts returned healthy at the first `compose start` with the
+  ledger kept. Before the fix, three of four needed a second start.
+  Both runs together: 160 of 160 transfers passed, 80 with each set of limits.
+
+reruns/ (own-machine-reruns.sh, 2026-11-25 19:22 to 19:55 UTC)
+  A new boat.dev machine, 4 shared vCPUs and 8 GB, Ryzen 9 9950X. It repeats
+  three tests that first ran on a machine of our own, so that the post uses
+  boat.dev numbers for them. This machine was slow and not steady: the
+  three-participant sandbox with default settings was ready in 55.7, 48.8 and
+  37.0 s (19 s on the start-settings machine).
+  heap.tsv     the three-participant sandbox, 4 CPUs, 8 GiB container, three
+               starts each, in turns. Memory at idle (container):
+                 default heap                  1,758  1,782  1,866 MiB
+                 256 MiB heap, -XX:+UseG1GC    1,206  1,196  1,223 MiB
+               All six runs passed the two-party workload.
+  restart.tsv  restart.sh own-config (a Canton network with H2 file storage):
+               8 runs, each with a kill and a second start. State "kept" in
+               8 of 8. First start 38.9 to 53.8 s, second start 34.0 to 41.7 s,
+               40 to 46 MiB of storage.
+  decode.txt   splice-decode.sc in the splice-app:0.10.3 image, 4 CPUs, a new
+               JVM for each run, in turns:
+                 release  53.3  39.1  31.5  34.9 s   (median 37.0)
+                 entries  13.1  11.9   9.9  10.9 s   (median 11.4)
+               The digest is d128822c0bff0ab7 in all eight runs.
+
+collector/ (collector-rerun.sh, on the reruns machine, 2026-11-25 20:05 to 20:25 UTC)
+  The collector example of the post, repeated on boat.dev: the three-participant
+  sandbox, 2 CPUs, a 256 MiB heap, two runs of each case, in turns.
+    container  flag            collector    HEAP_MEMORY_OVER_LIMIT lines   workload
+    2 GiB      none            G1           0, 0                           ok, ok
+    1.5 GiB    none            Serial       3, 24                          failed, ok
+    1.5 GiB    -XX:+UseG1GC    G1           0, 0                           ok, ok
+  The live heap after a full collection was 217 MiB with G1 in all four runs.
+  "ok" with rejections means that the test passed after retries.
+
+Runs on 2026-11-25, 20:08 UTC and later: what a Canton Coin transfer needs
+
+slim-ab/ (slim-ab.sh, a new machine: 4 shared vCPUs, 8 GB, EPYC 9455)
+  LocalNet cold starts with fewer parts, three of each, in turns, shipped
+  limits, no restart. After each start, localnet-transfer-test.py moved Canton
+  Coin 5 times.
+    one-headless   the sv profile; only the postgres, canton and splice
+                   containers. The transfer is between two wallet users of the
+                   SV's validator (the second one registers itself).
+    two-headless   the sv and app-user profiles, the same three containers.
+                   The transfer is between the two validators.
+    full-headless  every profile, the same three containers
+    full           every profile and every container (11), as shipped
+  Healthy, seconds, and the memory of the containers:
+                    healthy                 peak MiB (median)   after the test MiB (median)
+    one-headless    134.7  133.9  127.9     6,584               3,994
+    two-headless    130.2  130.5  130.2     7,310               4,032
+    full-headless   130.9  155.8  151.5     7,483               4,913
+    full            153.2  154.8  152.7     7,699               4,916
+  All 12 runs: 5 of 5 transfers accepted, both balances correct, 0 kernel kills.
+  "Healthy" moves in steps of the health probe (every 20 s), so the stages
+  from the logs are the better comparison (stages-*.tsv, localnet-stages.py).
+  Seconds from the start of Postgres to the moment the last validator is
+  ready: one-headless 121 123 115, two-headless 122 122 119, full-headless
+  130 138 132, full 135 136 134. The stage "onboard validators" takes 2 s with
+  one validator, 13 s with two and 21 to 23 s with three. The other stages do
+  not change. With nginx, Docker's wait for a probe adds 17 to 18 s.
+  Live heap after a full collection: Canton JVM 273 MiB (one participant),
+  405 MiB (two), 529 MiB (three). Splice JVM 204 to 226 MiB.
+
+coin-sandbox/ (../../sandbox-coin.sh, ../../coin-sandbox/, coin-runs.sh)
+  Canton Coin with no Splice app. ../../coin-sandbox/prepare.sh copies six
+  files of Splice's Daml Script test code (token-standard/
+  splice-token-standard-v1-test, release-line-0.10.3) and eight released DAR
+  files. SandboxTransfer.daml adds one script. It creates the registry as the
+  DSO party in three transactions (AmuletRules, ExternalPartyAmuletRules,
+  AmuletRules_Bootstrap_Rounds): these are the steps of Splice's "initialize"
+  without its setTime call, which a ledger with a wall clock rejects. It then
+  taps 100 Canton Coin for the sender and moves 1 Canton Coin 5 times with the
+  token standard: TransferFactory_Transfer by the sender, then
+  TransferInstruction_Accept by the receiver on a second participant. It
+  checks both balances.
+  The ledger is the Canton open-source 3.7.4 sandbox in a Java 21 container.
+  The script runner is dpm with SDK 3.5.2, the SDK of Splice 0.10.3.
+  sandbox-coin.sh uploads the DAR and allocates the parties through the JSON
+  API with the id of synchronizer-1, because each participant of the
+  --multi-sync sandbox is on two synchronizers.
+  same-machine/: on the slim-ab machine, after the slim-ab runs.
+    dpm test (Splice's own transfer tests, no network), seconds: 33.3 30.5 17.6.
+      13 of 13 scripts ok in each run. dpm ran in the Java 21 image, because
+      the machine has Java 11.
+    sandbox ready + setup + script, seconds (memory of the container after):
+      multi-sync   28.2+5.4+18.3   24.3+4.4+16.0   23.7+4.3+16.4   (2,161 to 2,270 MiB)
+      two          21.0+4.6+17.1   18.4+4.4+16.4   19.8+4.4+17.3   (2,009 to 2,329 MiB)
+    no-accept: a copy of the script with the accept step removed ended with
+      "script-failed" (the receiver's balance check).
+  second-machine/: the same runs on a second machine (Ryzen 9 9950X), where
+    the script was developed. multi-sync 48.9, 65.0, 63.4 s in total; two
+    50.4, 55.8, 44.1 s; the run with no accept failed. dpm test there: 29.4,
+    24.6, 24.9 s.
+  From nothing to 5 transfers done, medians on the slim-ab machine: sandbox
+  with --multi-sync 44.7 s, LocalNet two-headless 136.8 s, LocalNet full
+  160.8 s. The LocalNet values are healthy_ms plus workload_ms: localnet.sh
+  waits 60 s and forces a collection between the two, and that wait is not
+  in the value. The one-headless value is 141.8 s, and the post does not use
+  it, because its transfer stays on one participant. The sandbox memory is
+  that of the sandbox container. The Daml Script runner is a second JVM in a
+  second container, and its memory was not measured.
+
+Source reading for these runs (not in the repo): two agents read Splice
+release-line-0.10.3. Their notes list the automation triggers of each app,
+the configuration switches, and the contracts that a token-standard transfer
+of Amulet needs. Counts that the post uses come from a boat.dev log, with ../../localnet-counts.py:
+one start (default-4cpu-full, all-capped-r5) logged 5 Splice apps, 158
+triggers (a trigger name counts one time for each app or wallet user that
+logged it) and 64 package uploads (21, 21 and 22 to the three participants).
+LocalNet's SV configuration pauses 7 triggers (conf/splice/sv/app.conf).
+
+static-clock/ (static-clock-probe.sh, a new machine: 4 shared vCPUs, Ryzen 7 9700X)
+  Does Splice's own two-step transfer test (Splice.Tests.TestAmuletTokenTransfer:
+  test_two_step_success, no change) pass against a sandbox with one
+  participant? Canton 3.7.4, dpm script with SDK 3.5.2, the DAR of
+  ../../coin-sandbox.
+    real-clock       sandbox and script runner with their defaults. The script
+                     stopped in the registry's "initialize": "Command SetTime
+                     failed: setTime is not supported in wallclock mode".
+    static-clock     both with --static-time, two runs. "initialize" and the
+                     first step of the transfer passed (the registry, the
+                     faucet and a locked holding exist). The test then failed
+                     at its first check: it expects the lock context
+                     "transfer to 'bob'", and the ledger has "transfer to
+                     'bob::1220...'", because a party on a real ledger has a
+                     suffix. The check is in the test, not in the registry code.
+  Not run: a round advance, and a static clock with two participants (the flag
+  enables the time service only on the participant "sandbox").
+
+slim-combined/ (slim-combined.sh, a new machine: 4 shared vCPUs, 8 GB, Ryzen 7 9700X)
+  The three LocalNet settings of the post together, against LocalNet as
+  shipped, three of each, in turns, each with 5 transfers from app-user to sv.
+    full   every profile and every container, shipped limits
+    slim   the sv and app-user profiles, only the postgres, canton and splice
+           containers, and the limits of ../../localnet-small-limits.yaml
+                healthy, seconds          peak MiB after the test
+    full        211.8  166.8  162.7       7,511  7,701  7,651
+    slim        170.4  158.2  171.5       5,543  5,537  5,476
+  All six tests passed (5 of 5 transfers), 0 kernel kills. The peak is 2.1 GiB
+  lower. The start is not shorter: median 170.4 s against 166.8 s. In two of
+  the three slim runs the stage "start apps, set identities" took 46 and 49 s
+  against 20 s (stages-*.tsv). slim-ab above measured the smaller LocalNet
+  with the shipped limits 23 s faster on a different machine. slim-2x2.sh
+  runs the four cases on this machine to separate the two settings.
+
+slim-2x2/ (slim-2x2.sh, the slim-combined machine, one hour later)
+  The two settings, each on and off, three of each, in turns, each with 5
+  transfers from app-user to sv.
+                    healthy, seconds          peak MiB after the test
+    full-shipped    211.9  202.1  228.4       7,533  7,772  7,769
+    slim-shipped    156.9  156.4  202.6       7,247  7,120  7,455
+    full-small      198.9  203.4  212.3       6,075  6,117  5,831
+    slim-small      180.2  175.6  159.9       5,165  5,080  5,129
+  All 12 tests passed, 0 kernel kills. The stage "start apps, set identities"
+  took approximately 27 s or approximately 50 s in a run (stages-*.tsv): 50 s
+  in 5 of the 6 full runs and in 2 of the 6 slim runs, with both sets of
+  limits. That stage, not the limits, explains the slim-combined result.
+  slim-combined and slim-2x2 together, six starts of each on this machine:
+    as shipped (full-shipped)   163 to 228 s, median 207 s, peak median 7,676 MiB
+    three settings (slim-small) 158 to 180 s, median 171 s, peak median 5,320 MiB
+
+registry/ (registry-runs.sh, the slim-combined machine, after slim-2x2)
+  Canton Coin through the token standard's HTTP registry API on the
+  three-participant sandbox, with no Splice app and no Daml Script in the
+  transfer. ../../sandbox-load.sh starts the sandbox with the default heap,
+  creates the registry and 10 wallets with 10 holdings each (Daml Script), and
+  then runs ../../sandbox-registry-test.sh:
+    coin-sandbox/registry-service.py  serves POST /registry/transfer-instruction/
+      v1/transfer-factory and .../<id>/choice-contexts/accept. It reads
+      ExternalPartyAmuletRules, the newest ExternalPartyConfigState and the
+      LockedAmulet of the instruction from the JSON Ledger API of the DSO
+      party's participant, each with its created event blob.
+    coin-sandbox/registry-client.py   the wallet side: holdings and transfer
+      instructions through interface filters, the two registry calls, and
+      /v2/commands/submit-and-wait on the participant of each party. The
+      sender is on the first participant and the receiver on the second.
+  Three runs, milliseconds (registry.tsv; after-load.log has the client row):
+                 ready    setup    wallets  100 holdings  5 transfers  total
+    registry-r1  23,278   13,885   1,247    10,056        5,116        53.6 s
+    registry-r2  20,683   12,944   1,252    10,402        5,451        50.7 s
+    registry-r3  22,445   12,282   1,238    10,196        5,461        51.6 s
+  Each run: 5 of 5 transfers accepted, sender -5.0, receiver +5.0, median
+  transfer 954 to 963 ms, and 10 requests in registry-service.log. The first
+  attempt failed before the test: port 8090 is in use on a boat.dev machine.
+  Not served: transfers with a preapproval, allocations, metadata, the faucet.
+  Not run: a client that signs with an external key (Splice's token-standard
+  CLI, the Wallet SDK).
+
+sandbox-load/ (load-runs.sh, a boat.dev machine with an EPYC 9355P, 4 shared vCPUs,
+7.9 GiB, 2026-11-25 22:20 to 23:38 UTC)
+  The three-participant sandbox (--multi-sync, in-memory storage) with Splice's
+  0.10.3 packages and a Canton Coin registry, loaded in steps by
+  ../../sandbox-load.sh (container: 4 CPUs, 8 GiB; a heap size adds
+  -Xmx<size> -XX:+UseG1GC; "default" is the JVM default, a quarter of 8 GiB).
+  Holdings come from the faucet choice, 100 in a transaction. After each step
+  the script runs a full collection and reads the live heap (jcmd GC.heap_info),
+  the container's memory, and a class histogram (histogram-<target>.txt).
+  load.tsv: label, heap, axis, target, wallets, holdings, allocate_ms, load_ms,
+  live_heap_mib, cgroup_mib, peak_mib, heap_rejections, state.
+  Holdings in 10 wallets, live heap in MiB:
+    holdings   default   4g      1g     512m   384m
+    0          294       296     295    292    290
+    1,000      419       420     418    413    failed
+    2,000      471       475     471    466
+    5,000      629       632     630    failed
+    10,000     895       898     (cut)
+    20,000     1,404     1,423
+    50,000     failed    2,871
+    100,000              failed
+  Line through the default-heap points from 1,000 to 20,000 holdings:
+  367 MiB + 52 KiB for each holding. Container memory: 2,070 MiB at 0 and
+  3,356 MiB at 20,000 (default); 5,073 MiB at 50,000 (4g).
+  Load rate: 44 holdings/s (default, 10,000 to 20,000) and 60/s (4g, 20,000 to
+  50,000).
+  How the failed steps ended (failures.txt):
+    384m, default, 4g   the JVM aborted: "Aborting due to
+                        java.lang.OutOfMemoryError: Java heap space" (exit 139,
+                        no kernel kill)
+    512m                the sandbox stayed up. The script got "ABORTED:
+                        MEDIATOR_SAYS_TX_TIMED_OUT" after 160 s; live heap 503 MiB
+    256m (trial)        the JVM aborted with the same error during the upload of
+                        the packages, before any holding
+  HEAP_MEMORY_OVER_LIMIT in the Canton log: 0 lines in each run.
+  Wallets with one holding each, default heap (wallets-default):
+    wallets    10    100   500   1,000  2,000  5,000
+    live heap  365   377   426   485    589    891  MiB
+  0.10 MiB for each wallet between 1,000 and 5,000. The script allocated 8.3
+  parties per second (one request at a time).
+  What grows (contracts-default/histogram-20000.txt against histogram-0.txt):
+  byte arrays 103 to 389 MiB, and classes of the H2 database that were not in
+  the top 45 at 0 holdings (org.h2.value.Value[], ValueBlob, result.Sparse,
+  LobDataDatabase, LobStorageMap$BlobReference and BlobMeta: 259 MiB together).
+  The growth is the sandbox's in-memory database. This run does not separate
+  active contracts from history.
+  Harness fault: contracts-1g stopped after 5,000 and wallets-512m after 500
+  with "probe-failed" and valid numbers. awk left the pipe of docker exec
+  early. Fixed in sandbox-load.sh; both cases repeat in rerun.tsv.
+
+localnet-wallets/ (localnet-wallets-runs.sh 10 25 50 100 200, the slim-combined
+machine, 2026-11-25 22:56 to 23:45 UTC)
+  LocalNet as shipped (three validators, all containers), with more wallet
+  users in steps: once with the shipped limits and once with
+  ../../localnet-small-limits.yaml. ../../localnet-wallets.py registers the
+  users "load-wallet-<n>" in turns on the app-user and the app-provider
+  validator, gives each 10 Canton Coin from the faucet, and checks the balance.
+  After each step it runs a full collection in both JVMs. Then
+  ../../localnet-transfer-test.py moves Canton Coin 5 times.
+  workloads/<label>.log: wallets, onboard_ms (the step), median_ms and
+  slowest_ms (one user), canton_heap_mib, splice_heap_mib, containers_mib,
+  postgres_mib, idle_cores (30 s), state; the last line is the transfer test.
+                       wallets   canton heap  splice heap  containers  idle cores
+    shipped limits     0         529          215          4,957       0.24
+                       200       564          297          5,242       0.28
+    lower limits       0         524          216          5,237       0.19
+                       200       562          295          5,362       0.34
+  For each wallet user: 0.18 MiB of Canton heap and 0.40 MiB of Splice heap.
+  One user took 3.5 to 4.6 s (median of a step); the slowest took 30 s. Peak
+  memory 7,822 MiB (shipped) and 6,006 MiB (lower limits). Both runs: all
+  steps "ok", 5 of 5 transfers, 0 kernel kills. This run is also the first run
+  of localnet-transfer-test.py after it moved its wallet code to
+  localnet_wallet.py.
+
+sandbox-load/rerun.tsv (the sandbox-load machine, 23:41 to 00:1x UTC, after the fix
+of the probe)
+  The two cases that the probe fault cut short. The line of the default heap
+  said that 1g fails between 10,000 and 20,000 holdings and that 512m fails
+  between 1,000 and 2,000 wallets. Both did:
+    contracts-1g-r2   5,000: 630 MiB   10,000: 889 MiB   20,000: the JVM aborted
+    wallets-512m-r2   500: 421 MiB     1,000: 480 MiB    2,000: the JVM aborted
+  (exit 139, no kernel kill; the allocation of the last 1,000 parties took
+  871 s before the abort, against 61 s for the step before).
+
+static-clock/all-tests/ (static-clock-probe.sh with no argument, the sandbox-load
+machine, after the reruns)
+  The 11 scripts of Splice's Splice.Tests.TestAmuletTokenTransfer (0.10.3), with
+  no change, each against a new one-participant sandbox with --static-time on
+  the sandbox and on the script runner. probe.tsv: label, state, exit code of
+  dpm script, milliseconds. logs/<label>.txt has the result line.
+  Control: test_expired with a wall clock fails with "Command SetTime failed:
+  setTime is not supported in wallclock mode".
+  With the static clock 8 of 11 pass, 16 to 21 s each: test_expired (it moves
+  the clock one day past the deadline of the offer), test_happy_path_self,
+  test_happy_path_direct, test_two_step_withdraw, test_two_step_reject,
+  test_two_step_reject_locked_amulet_gone, test_no_holdings,
+  test_factory_PublicFetch.
+  The 3 that fail, each for a property of the test engine that a ledger does
+  not have:
+    test_two_step_success, test_wrong_admin
+        compare a text that contains a party. The test engine prints 'bob';
+        a ledger prints 'bob::1220...'.
+    test_two_step_withdraw_locked_amulet_gone
+        sets the clock back: "new_time [2022-01-01T00:00:00Z] is before
+        current_time [2022-01-03T00:00:00Z]. Setting time backwards is not
+        allowed."
+
+fork/ (fork-test.sh, the slim-combined machine and one fork of it, 2026-11-26
+00:16 to 00:23 UTC; one fork, not repeated)
+  A LocalNet as shipped ran on the source machine for 30 minutes (localnet.sh
+  with KEEP=1, after 5 transfers). "boat fork <id> --no-env --wait" then made a
+  second machine from the latest background snapshot of the source. No command
+  ran on the fork before the test.
+    00:17:37  the fork command starts
+    00:17:52  the fork is ready (15 s). Docker has no container and 1 image.
+    00:19:25  boat.dev creates the first containers again (web UIs). It pulls
+              the 9 images from their registries first.
+    00:20:29  postgres starts, then canton (00:20:32) and splice (00:20:34)
+    00:22:03  the wallet API of the app-user validator answers
+              (fork.tsv: first_answer_ms 205,644 from 00:18:37)
+    00:22:13  first healthy probe of the splice container
+  From the command to the first answer: 4 min 26 s. Of that, 2 min 37 s passed
+  before Postgres started (the image pulls), and LocalNet needed 94 s from the
+  start of Postgres to the first answer.
+  The ledger came with the fork (fork-machine.txt): the Postgres volume has
+  423 MB on both machines, Postgres on the fork logs "database already
+  initialized" and "database system was not properly shut down; automatic
+  recovery in progress" (redo in 0.06 s), and the app-user party has the same
+  id on both machines. The transfer test passed on the fork (2 of 2, twice).
+  The fork keeps the disk, not the memory: all processes started again.
+  The balance columns of fork.tsv do not prove the state: the wallet balance
+  also changes with rewards between two readings (NA rows: a fault of the
+  first version of the script).
+  Same machine, same hour, a new LocalNet (fork-source): healthy after 175 s
+  with all inputs on disk.
+
+coin-sandbox regression (the slim-combined machine, 2026-11-26 00:24 to 00:27 UTC)
+  sandbox-coin.sh after SandboxTransfer.daml moved its registry code to
+  SandboxRegistry.daml. One run of each, --multi-sync, 5 transfers:
+    regression-multi-sync   ready 22.8 s, setup 3.9 s, script 16.2 s   passed
+    regression-no-accept    the copy with no accept step               script-failed
+
+boat.dev machine time of all runs, read 2026-11-26 00:30 UTC after the last
+machine was deleted ("boat limits --all"): creditUsedSeconds 42,649 at
+creditSecondsPerDollar 100,000, which is 43 cents at list prices. The account
+is in its free trial: 42,649 of 90,000 trial seconds are used.
+
+Runs on 2026-11-26, 01:15 UTC and later: the memory of Postgres, and the start time
+
+postgres-memory/ (postgres-memory-run.sh, postgres-pool-runs.sh, ../../postgres-memory.sh;
+a new boat.dev machine: 4 shared vCPUs, 8 GB, Ryzen 7 9700X)
+  LocalNet as shipped, 20 transfers of Canton Coin, then one report of the
+  Postgres container: the split of its memory from memory.stat, the server's
+  connections, and the private memory of its processes. Three runs with the
+  release's pool of 32 connections for each node, three with a pool of 8
+  (max-connections in conf/canton/app.conf and conf/splice/app.conf), in turns
+  from the second pair on. The first pair ran pool 32, then pool 8, each with
+  5 idle minutes and a second report.
+    run        connections  peak   current  anon  kernel  file  shmem  healthy  transfers
+    pool32-r1     534       1,403   1,396    883   210    300   160    182.6 s  20 of 20
+    pool32-r2     534       1,422     912    461   203    232   152    173.6 s  20 of 20
+    pool32-r3     534       1,390   1,042    480   207    322   152    169.2 s  20 of 20
+    pool8-r1      186         774     681    309    92    270   153    138.3 s  20 of 20
+    pool8-r2      186         825     822    416    97    305   157    151.5 s  20 of 20
+    pool8-r3      186       1,141   1,138    426   109    601   176    193.4 s  20 of 20
+  MiB. "file" includes "shmem". "anon" is the private memory of the processes
+  that is in RAM at the time of the report: the lower values of pool32-r2 and
+  pool32-r3 came after the kernel moved idle memory to swap (inferred from the
+  peak, not measured for each process).
+  533 of 534 connections were idle (185 of 186). By database with a pool of 32:
+  each participant 71, sequencer 64, eight other databases 32 each. With a pool
+  of 8: each participant 35, sequencer 16, eight other databases 8 each.
+  13 databases, 255 to 258 MiB on disk. shared_buffers is the default (128 MB),
+  max_connections 1000.
+  The start time does not follow the pool size: the third pair has the
+  opposite order of the first two.
+  samples.tsv is not saved: the sampler of a run did not stop at the end of
+  the run, so its later rows belong to the container of the next run. The
+  script now stops the sampler.
+  PgBouncer was not run. Canton takes session-level advisory locks
+  (PostgresDBLockStorageBackend.scala, DbLockPostgres.scala), which a pooler in
+  transaction mode does not keep with one client.
+
+boot/ (boot-runs.sh; the postgres-memory machine, 2026-11-26 02:01 to 04:00 UTC)
+  What shortens a LocalNet start. All runs on one machine, shipped limits, every
+  profile. Two clocks for each run, from the start of the run (compare/ready.tsv):
+  "ready" is the first pass of the health check of the splice container, which
+  the script runs every second. "First transfer" is the end of the first
+  localnet-transfer-test.py with one transfer that passes; the script repeats
+  that test from "ready". Each run then passed 5 more transfers.
+  compare (cases in turns, three rounds), seconds:
+                                        ready                  first transfer
+    cold      a new LocalNet            218.5  212.7  201.3    250.5  253.7  232.7
+    prepared  from saved volumes         86.6  110.3   85.6    127.2  149.6  126.8
+    parallel  prepared, and the Splice   95.8   94.8   78.2    134.5  135.9  116.6
+              apps start with Canton
+  "Prepared" starts from new-network.tar (434 MB): the volumes of a new LocalNet
+  after a clean stop, saved 20 s after it was ready. Its validators had bought
+  no traffic at that moment.
+  Later phases, seconds:
+    usable        from usable-network.tar (438 MB, 140 MB with zstd -3), saved
+                  after both validators bought traffic (5 minutes after ready)
+                                         92.7   92.8   96.4    103.1  104.1  106.6
+    cold-topup    cold, with automation.topup-trigger-polling-interval = 1s
+                  for the validators    202.7  165.9           206.9  170.0
+    cold-nofsync  cold, Postgres with fsync=off (localnet-no-fsync.yaml)
+                                        156.7  159.3           190.7  191.1
+    cold-io       cold, Postgres with track_io_timing and track_wal_io_timing
+                                        183.0                  212.2
+    aged          from usable-network.tar, with the clock of the machine 3 days
+                  and then 33 days ahead (sudo date --set, NTP off)
+                                         92.8   97.2           104.3  107.6
+  Stages of each run: compare/stages.txt (localnet-stages.py). From saved
+  volumes, in the cases other than "parallel": postgres 5 to 6 s, canton 12 to 21, start apps 10 to 19, decode
+  packages 33 to 41, the four stages that create the network 2 to 5 s together.
+  The time before the first Postgres log line (create the containers, empty the
+  volumes, extract the tar) was 9.9 to 16.1 s (copy-times.txt); the tar
+  extraction alone took 0.7 s.
+  Traffic. In the 12 runs with the release's settings and no traffic in the
+  ledger (cold, cold-io, cold-nofsync, prepared, parallel), the first transfer
+  passed 29 to 41 s after "ready", after 2 to 5 refused taps: "Traffic balance
+  below reserved traffic amount (0 < 200000)". Cause, from the log of cold-r1
+  (topup-trigger-cold-r1.txt): TopupMemberTrafficTrigger polls every 30 s. Its
+  first poll fails with "No wallet found for validator party" 4 s after its
+  start, and the second poll buys the traffic. With a poll every 1 s the trigger
+  bought the traffic less than 1 s before the validator reported that its
+  initialization finished (topup-trigger-cold-topup-r1.txt), and the first
+  transfer passed 4.3 and 4.2 s after "ready" with no refused tap. The setting
+  is topupTriggerPollingInterval in AutomationConfig.scala, on main and on
+  release-line-0.10.3. From usable-network.tar: no refused tap in 5 of 5 starts,
+  and the first transfer passed 10 to 12 s after "ready".
+  A timeout in cold starts (forced-shutdowns.tsv, forced-shutdowns-cold-r1.txt).
+  The stage "start apps, set identities" took 47 to 58 s in 5 cold starts and
+  21 to 26 s in 3. Each of the 5 has 5 or 6 lines "Timeout 10 seconds expired,
+  but readers are still active. Shutting down forcibly." from
+  DbLockedConnection with connId=db-migration (scan, SV, the validators), in
+  two groups 10 s apart. The 3 short ones and all 11 starts from saved volumes
+  have none. The message is in Canton's HasSynchronizeWithReaders.scala. Splice
+  PR #7700 (merged 2026-10-09) ignores this line in the logs of all its tests.
+  Which stage the 10 s waits block is inferred from the timing, not traced.
+  Postgres disk waits in one cold start (compare/localnet/cold-io/workload.log,
+  ../../postgres-io.sh): 28,467 commits, 3,550 WAL fsync calls that took 49.0 s
+  in sum (13.8 ms each). The waits of different connections overlap. With
+  fsync=off the four stages that create the network took 69 and 64 s, against
+  69 to 93 s in the six cold starts with fsync on: a few seconds at most.
+  Refused by Canton (boot-attempt-2/bad-commit-mode.txt): with
+  synchronous_commit=off the sequencer does not start, "BadCommitMode(Postgres
+  'synchronous_commit' setting is 'off' but expecting one of: on,remote_write)"
+  (DbSequencerStore.scala). Canton restarted 6 times and the network did not
+  become ready.
+  Aged starts: no ERROR line in the Canton or Splice log, one round advance in
+  each start. Not tested: a ledger that is old and then runs for hours.
+  boot-attempt-1/ and boot-attempt-2/ hold the rows of two batches that ended
+  early. Attempt 1: cold 150.6 s ready, prepared 62.5 s; the 5 transfers of the
+  cold run failed 15 s after "healthy" with the traffic refusal, which is how
+  the gap was found. Attempt 2: cold 254.5 s, prepared 81.4 s (first transfer
+  at 92.3 s, no refused tap).
+  The save run of usable-network waited its full 300 s limit, because its wait
+  for the two log lines did not return. boot-runs.sh now uses the wait pattern
+  of make-archive.sh; that change is authored, NOT run.
+  Upstream trackers, searched 2026-11-26 (canton-network/splice, and for the
+  timeout also digital-asset/canton and digital-asset/daml): no issue for the
+  traffic gap after a start, none for the cost of the 10 s timeout, none for a
+  saved LocalNet. The control search "localnet" returned results.
+
+boat.dev machine time, read 2026-11-26 04:02 UTC after the machine was deleted:
+creditUsedSeconds 52,345 (9,696 s for the machine of 01:19 to 04:01 UTC), which
+is 52 cents at list prices. 52,345 of 90,000 trial seconds are used.

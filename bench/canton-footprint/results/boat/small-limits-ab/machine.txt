@@ -1,0 +1,10 @@
+oom_kill counter at the end: oom_kill 0
+cpu: AMD Ryzen 9 9950X 16-Core Processor x 4
+MemTotal: 8131944 kB SwapTotal: 2097148 kB
+pswpout pages: 1141896
+some avg10=0.00 avg60=0.28 avg300=0.62 total=11151012
+full avg10=0.00 avg60=0.17 avg300=0.35 total=6766190
+6c0666533b7b896b1e9e6b4c5d2b5707c4983e00673105e6eea59821e9b6f82f localnet-small-limits.yaml
+84bf154d94700fd5ba690393e50abd22ede3a85b2094d1df059680f0045c140f localnet.sh
+6a4f73bffae0a1eddefd3542f6774393df188d61958591135df62231c1f50a2c ab-limits.sh
+containers left: 0

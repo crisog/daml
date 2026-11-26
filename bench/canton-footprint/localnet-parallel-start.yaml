@@ -1,0 +1,7 @@
+# A compose override for LocalNet: the Splice apps start with Canton. The
+# release starts them after Canton reports healthy.
+services:
+  splice:
+    depends_on:
+      canton:
+        condition: service_started

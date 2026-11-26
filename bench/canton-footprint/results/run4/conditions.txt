@@ -1,0 +1,45 @@
+run4: workarounds that need no new release of Canton or Splice
+Date: 2026-11-25, 16:16 to 16:52 UTC. Machine: our machine (Ryzen 9 5950X, 125 GiB, one NVMe disk).
+Canton open-source 3.7.4 on Temurin 21. Splice LocalNet 0.10.3.
+
+1. LocalNet with a developer override file (localnet.tsv)
+   Command, six times:
+     OVERRIDE=localnet-small-limits.yaml CPUSET=0-3 RESTART=kill \
+       ./localnet.sh small-limits-4cores-kill-r<N> capped sv app-provider app-user
+   The override halves the heap limit of the two JVMs (1280 MiB each), lowers
+   their container limits (2560 MiB and 2 GiB), and raises PGCTLTIMEOUT to 300.
+   Baseline: the six all-capped-4cores rows of run2 and run3 (shipped limits,
+   same pinning).
+   r1 and r2 ran with PGCTLTIMEOUT only. The health check start period of 300 s
+   for Postgres entered the override at 16:22:52Z, after the containers of r2
+   existed, so r3 to r6 are the runs with both settings.
+   Postgres log, time of the data directory sync after the kill: r1 more than
+   60 s (recovery started at 64 s), r2 to r6 between 20 s and 30 s.
+   r1: pg_ctl waited past 60 s, the health check reported "unhealthy", and both
+   start attempts failed. r2 to r6 recovered in less than 60 s, so they do not
+   show that the settings repair a slow recovery. run5 tests that case.
+
+2. A Canton network that keeps its state on disk (restart-default-write-delay.tsv,
+   restart-write-delay-0.tsv)
+   Command: ./restart.sh <label> 4 8g own-config
+   It starts `canton daemon` with restartable.conf and restartable-bootstrap.canton
+   (one synchronizer, two participants, H2 file storage for every node), allocates
+   a party, creates a contract, kills the container, starts it again, and reads
+   the contract. Columns: label, cpus, memory, first start ms, second start ms,
+   storage MiB, state.
+   The copy of restart.sh on the machine pinned the container to cores 8-11,
+   because LocalNet used cores 0-3 at the same time. Both tests used one disk.
+   Default H2 write delay (500 ms): 4 of 6 kept the contract. In the other 2 the
+   second start failed: the sequencer logged INVALID_ACKNOWLEDGEMENT_TIMESTAMP
+   for the mediator and the participant, and the participant stopped with
+   SYNC_SERVICE_SYNCHRONIZER_DISCONNECTED.
+   WRITE_DELAY=0 in each H2 URL: 8 of 8 kept the contract. First start median
+   19.6 s, second start median 16.1 s.
+   Cause of the 2 failures: inferred. H2 returns from a commit before it writes
+   the commit to disk, each node has its own file, so a kill can leave the
+   sequencer behind the nodes that read from it.
+   After a third start of the own-r1 network, two-participant-test.sh passed:
+   Alice created a contract on one participant, Bob read it and responded on
+   the other.
+
+Nothing from these runs is left on the machine: 0 containers, 0 volumes, 0 networks.

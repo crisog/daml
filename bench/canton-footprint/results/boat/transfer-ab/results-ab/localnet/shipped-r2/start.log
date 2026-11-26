@@ -1,0 +1,23 @@
+time="2026-11-25T19:03:14Z" level=warning msg="The \"ALPHA_PROTOCOL_VERSION_ENV\" variable is not set. Defaulting to a blank string."
+time="2026-11-25T19:03:14Z" level=warning msg="The \"ALPHA_PROTOCOL_VERSION_ENV\" variable is not set. Defaulting to a blank string."
+ Container wallet-web-ui-app-user Starting 
+ Container wallet-web-ui-sv Starting 
+ Container ans-web-ui-app-user Starting 
+ Container wallet-web-ui-app-provider Starting 
+ Container postgres Starting 
+ Container ans-web-ui-app-provider Starting 
+ Container scan-web-ui Starting 
+ Container sv-web-ui Starting 
+ Container postgres Started 
+ Container postgres Waiting 
+ Container ans-web-ui-app-provider Started 
+ Container wallet-web-ui-sv Started 
+ Container ans-web-ui-app-user Started 
+ Container scan-web-ui Started 
+ Container wallet-web-ui-app-user Started 
+ Container sv-web-ui Started 
+ Container wallet-web-ui-app-provider Started 
+ Container postgres Healthy 
+ Container canton Waiting 
+ Container canton Error dependency canton failed to start
+dependency failed to start: container canton exited (137)

@@ -1,0 +1,14 @@
+# A compose override for LocalNet: Postgres does not wait for the disk
+# (fsync=off). A commit still waits for its write (synchronous_commit stays on,
+# which Canton's sequencer requires), but the write stays in the memory of the
+# operating system. A crash of the machine can then corrupt the database, so
+# this is for a network that a test can create again. The first three
+# arguments are the command of the release.
+services:
+  postgres:
+    command:
+      - postgres
+      - -c
+      - max_connections=1000
+      - -c
+      - fsync=off

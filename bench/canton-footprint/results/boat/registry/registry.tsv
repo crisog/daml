@@ -1,0 +1,9 @@
+registry-r1	default	contracts	0	0	0	23278	13885	294	2106	2174	0	ok
+registry-r1	default	contracts	100	10	100	1247	10056	369	2115	2174	0	ok
+registry-r1	default	after-load	100	10	100	0	5116	375	2153	2174	0	ok
+registry-r2	default	contracts	0	0	0	20683	12944	295	2180	2181	0	ok
+registry-r2	default	contracts	100	10	100	1252	10402	369	2317	2318	0	ok
+registry-r2	default	after-load	100	10	100	0	5451	375	2354	2361	0	ok
+registry-r3	default	contracts	0	0	0	22445	12282	293	2031	2037	0	ok
+registry-r3	default	contracts	100	10	100	1238	10196	370	2133	2288	0	ok
+registry-r3	default	after-load	100	10	100	0	5461	375	2166	2288	0	ok

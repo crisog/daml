@@ -1,0 +1,9 @@
+label	topology	participants	cpus	memory	heap	ready_ms	heap_max_mib	collector	idle_cgroup_mib	idle_rss_mib	post_cgroup_mib	peak_cgroup_mib	peak_rss_mib	live_heap_mib	threads	workload_ms	workload	host_load
+sandbox-c4-m8g-h256m-r1	sandbox	1	4	8g	256m	18126	256	UseG1GC	1073	1093	1173	1174	1191	178	101	5602	ok	3.27
+sandbox-c4-m8g-h256m-r2	sandbox	1	4	8g	256m	18601	256	UseG1GC	1064	1083	1155	1157	1174	178	100	5812	ok	2.77
+sandbox-c4-m8g-h224m-r1	sandbox	1	4	8g	224m	30104	224	UseG1GC	1053	1073	1137	1139	1155	178	97	5435	ok	2.35
+sandbox-c4-m8g-h224m-r2	sandbox	1	4	8g	224m	27244	224	UseG1GC	1036	1056	1130	1131	1149	178	100	5460	ok	2.39
+multi-sync-c4-m8g-h256m-r1	multi-sync	3	4	8g	256m	25240	256	UseG1GC	1147	1162	1239	1253	1262	218	213	10386	ok	2.22
+multi-sync-c4-m8g-h256m-r2	multi-sync	3	4	8g	256m	24147	256	UseG1GC	1121	1136	1218	1230	1238	219	211	10666	ok	2.30
+multi-sync-c4-m8g-h224m-r1	multi-sync	3	4	8g	224m	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA	not-ready:exit=139,oom=false,running=false	1.63
+multi-sync-c4-m8g-h224m-r2	multi-sync	3	4	8g	224m	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA	not-ready:exit=139,oom=false,running=false	2.06

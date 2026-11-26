@@ -1,0 +1,4 @@
+4
+ AMD Ryzen 7 9700X 8-Core Processor
+Mem:            7941        1311        5485           0        1436        6629
+Swap:           2047         173        1874

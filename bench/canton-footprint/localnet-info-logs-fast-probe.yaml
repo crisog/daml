@@ -1,0 +1,16 @@
+# A compose override for LocalNet: INFO logs, and a health probe every 5 s.
+# The shipped probes run every 20 s after the first 20 s (canton) or 30 s
+# (splice), so compose can see a healthy container up to 20 s late.
+services:
+  canton:
+    environment:
+      LOG_LEVEL_STDOUT: INFO
+      LOG_LEVEL_CANTON: INFO
+    healthcheck:
+      interval: 5s
+  splice:
+    environment:
+      LOG_LEVEL_STDOUT: INFO
+      LOG_LEVEL_CANTON: INFO
+    healthcheck:
+      interval: 5s

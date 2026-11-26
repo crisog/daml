@@ -1,0 +1,3 @@
+Splice.Tests.TestAmuletTokenTransfer:test_two_step_success FAILURE (com.digitalasset.daml.lf.engine.script.Script$FailedCmd: Command SetTime failed: setTime is not supported in wallclock mode
+Daml stacktrace:
+setTime at 2df0cf5f478bc061b336295111fbdfafe4edcdc4c92dd235a4b11667deb564df:Splice.Testing.Registries.AmuletRegistry:120)

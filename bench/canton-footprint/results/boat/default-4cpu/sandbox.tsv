@@ -1,0 +1,13 @@
+label	topology	participants	cpus	memory	heap	ready_ms	heap_max_mib	collector	idle_cgroup_mib	idle_rss_mib	post_cgroup_mib	peak_cgroup_mib	peak_rss_mib	live_heap_mib	threads	workload_ms	workload	host_load
+sandbox-c4-m8g-hdefault-r1	sandbox	1	4	8g	default	28837	2048	UseG1GC	1614	1638	1689	1690	1714	182	100	8501	ok	0.68
+multi-sync-c4-m8g-hdefault-r1	multi-sync	3	4	8g	default	35212	2048	UseG1GC	1617	1631	1729	1730	1743	222	213	13926	ok	1.10
+sandbox-c4-m8g-hdefault-r2	sandbox	1	4	8g	default	28893	2048	UseG1GC	1441	1460	1537	1538	1555	182	102	8846	ok	1.55
+multi-sync-c4-m8g-hdefault-r2	multi-sync	3	4	8g	default	38015	2048	UseG1GC	1797	1812	1914	1934	1948	222	209	14240	ok	1.75
+sandbox-c4-m8g-hdefault-r3	sandbox	1	4	8g	default	36322	2048	UseG1GC	1433	1452	1529	1537	1556	182	99	13159	ok	2.06
+multi-sync-c4-m8g-hdefault-r3	multi-sync	3	4	8g	default	59898	2048	UseG1GC	1798	1812	1944	1945	1957	223	213	25037	ok	2.12
+sandbox-c4-m8g-hdefault-r4	sandbox	1	4	8g	default	45539	2048	UseG1GC	1326	1345	1419	1429	1448	182	99	9910	ok	2.75
+multi-sync-c4-m8g-hdefault-r4	multi-sync	3	4	8g	default	48466	2048	UseG1GC	1770	1785	1891	1892	1904	222	209	16606	ok	2.39
+sandbox-c4-m8g-hdefault-r5	sandbox	1	4	8g	default	32539	2048	UseG1GC	1518	1537	1631	1635	1654	182	103	8631	ok	2.31
+multi-sync-c4-m8g-hdefault-r5	multi-sync	3	4	8g	default	34662	2048	UseG1GC	1782	1796	1888	1889	1902	223	212	14330	ok,probe-failed:exit=0,oom=false,running=true	2.13
+sandbox-c4-m8g-hdefault-r6	sandbox	1	4	8g	default	27611	2048	UseG1GC	1389	1408	1523	1524	1542	182	99	9585	ok	3.04
+multi-sync-c4-m8g-hdefault-r6	multi-sync	3	4	8g	default	37416	2048	UseG1GC	1788	1803	1926	1927	1941	222	211	15695	ok	2.07

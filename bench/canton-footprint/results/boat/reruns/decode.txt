@@ -1,0 +1,8 @@
+RESULT release dars=71 signatures=104 digest=d128822c0bff0ab7 SECONDS 53.3 
+RESULT entries dars=71 packages=2662 parsed=110 signatures=104 digest=d128822c0bff0ab7 SECONDS 13.1 
+RESULT release dars=71 signatures=104 digest=d128822c0bff0ab7 SECONDS 39.1 
+RESULT entries dars=71 packages=2662 parsed=110 signatures=104 digest=d128822c0bff0ab7 SECONDS 11.9 
+RESULT release dars=71 signatures=104 digest=d128822c0bff0ab7 SECONDS 31.5 
+RESULT entries dars=71 packages=2662 parsed=110 signatures=104 digest=d128822c0bff0ab7 SECONDS 9.9 
+RESULT release dars=71 signatures=104 digest=d128822c0bff0ab7 SECONDS 34.9 
+RESULT entries dars=71 packages=2662 parsed=110 signatures=104 digest=d128822c0bff0ab7 SECONDS 10.9 

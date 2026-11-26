@@ -1,0 +1,10 @@
+uptime_s: 4897.68
+cpu ticks since boot: busy=922754 iowait=23153 steal=391882 idle=717888 | steal as a share of busy+steal: 29.8%
+pressure cpu: some total=1357205324 full total=0
+pressure memory: some total=35472580 full total=16969499
+pressure io: some total=123784328 full total=62250997
+pswpin 1882 MiB
+pswpout 6121 MiB
+Mem:            7941        1107        5771           0        1353        6833
+Swap:           2047         155        1892
+
